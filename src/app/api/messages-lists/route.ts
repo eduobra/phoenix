@@ -14,7 +14,6 @@ export async function GET(req: Request) {
           "Content-Type": "application/json",
           Authorization: authHeader,
         },
-        credentials: "include",
       }
     );
     const data = await res.json();
