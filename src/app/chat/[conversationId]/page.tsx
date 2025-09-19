@@ -72,16 +72,13 @@ export default function ChatPage() {
     const fetchMessages = async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/sessions/${sessions_id}/messages`,
-          {
-            method: "GET", // or POST depending on your backend
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionStorage.getItem("jwt_token")}`,
-            },
-          }
-        );
+        const res = await fetch(`/api/messages-lists?session_id=${sessions_id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("jwt_token")}`,
+          },
+        });
 
         if (!res.ok) {
           console.warn(`Failed to fetch messages. Status: ${res.status}`);

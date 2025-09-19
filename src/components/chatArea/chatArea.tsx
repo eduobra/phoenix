@@ -37,6 +37,7 @@ export default function ChatArea({
 
   const saveMessageToDB = async (conversationId: string, sender: string, content: string) => {
     try {
+      console.log(1);
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,24 +77,30 @@ export default function ChatArea({
     try {
       // 1️⃣ Get the current user's auth token
 
-      // 2️⃣ Build payload
-      const payloadObj = { input: inputValue, session_id: "25752600-d4a8-4364-9696-2cf1efe6ffc6", stream: false };
+      const payloadObj = {
+        input: inputValue,
+        session_id: "25752600-d4a8-4364-9696-2cf1efe6ffc6",
+        stream: false,
+      };
       const payload = JSON.stringify(payloadObj);
 
+      // 2️⃣ Build HMAC (x-api-key)
       const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY || "supersecretkey";
-      const messageToSign = JSON.stringify({ body: payloadObj, header: sessionStorage.getItem("jwt_token") });
+      const messageToSign = JSON.stringify({
+        body: payloadObj,
+        header: sessionStorage.getItem("jwt_token"),
+      });
+
       const xApiKey = await computeHmac(messageToSign, secretKey);
-      console.log("messageToSign", messageToSign);
-      console.log("xApiKey", xApiKey);
-      // 4️⃣ Send API request
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/api/chat`, {
+
+      // 3️⃣ Send request to Next.js API route
+      const res = await fetch("/api/send-message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${sessionStorage.getItem("jwt_token")}`,
           "x-api-key": xApiKey,
         },
-
         body: payload,
       });
 

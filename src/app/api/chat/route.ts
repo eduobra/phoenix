@@ -26,10 +26,7 @@ export async function POST(req: Request) {
     const bodyText = await req.text();
 
     // Compute HMAC
-    const computedHmac = crypto
-      .createHmac("sha256", HMAC_SECRET)
-      .update(bodyText)
-      .digest("hex");
+    const computedHmac = crypto.createHmac("sha256", HMAC_SECRET).update(bodyText).digest("hex");
 
     // Compare with Authorization header
     if (computedHmac !== authHeader) {
