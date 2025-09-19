@@ -1,0 +1,13 @@
+{
+  "template_id": "member_net_margin_uplift",
+  "description": "Compares net margin uplift between cashback members (pre/post enrollment) and non-members.",
+  "params": {
+    "tenant_id": "uuid",
+    "from_date": "date",
+    "to_date": "date"
+  },
+  "partitions": [
+    "tenant_id",
+    "date_range"
+  ]
+}
