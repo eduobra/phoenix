@@ -40,7 +40,7 @@ export default function ChatArea({
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+
         body: JSON.stringify({ sender, content }),
       });
     } catch (error) {
@@ -93,7 +93,7 @@ export default function ChatArea({
           Authorization: `Bearer ${sessionStorage.getItem("jwt_token")}`,
           "x-api-key": xApiKey,
         },
-        credentials: "include",
+
         body: payload,
       });
 
