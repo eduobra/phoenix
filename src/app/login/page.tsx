@@ -129,8 +129,13 @@ export default function LoginPage() {
 
   if (loading || redirecting) {
     return (
-      <div className="flex items-center justify-center w-screen h-screen bg-white">
-        <p className="text-lg text-gray-500">Authenticating…</p>
+       <div className="flex h-screen w-screen items-center justify-center bg-white">
+        <div className="flex space-x-2">
+          <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-0"></span>
+          <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-200"></span>
+          <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-400"></span>
+          <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-600"></span>
+        </div>
       </div>
     );
   }
@@ -141,7 +146,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen px-4 bg-gray-50">
       <div className="w-full max-w-sm p-8 bg-white shadow-lg rounded-2xl">
         <div className="flex justify-center mb-4">
-          <Image src="/fin_sales_logo.jpg" alt="Logo" width={200} height={90} />
+          <Image src="/login_logo.png" alt="Logo" width={220} height={120} />
         </div>
 
         <h2 className="text-xl font-bold text-center text-gray-900">Welcome back</h2>

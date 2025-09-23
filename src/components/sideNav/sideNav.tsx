@@ -127,9 +127,9 @@ export default function SideNav({
           {/* Logo */}
           <div className="flex items-center justify-between p-4">
             {!collapsed ? (
-              <img src="/fin_sales_logo.jpg" alt="Clicktek Logo" className="h-25 w-140" />
+              <img src="/login_logo.png" alt="Clicktek Logo" className="h-20 w-120" />
             ) : (
-              <img src="/fin_sales_logo.jpg" alt="FR Icon" className="w-8 h-8" />
+              <img src="/agent_logo.png" alt="FR Icon" className="h-8 w-8" />
             )}
             <Button variant="destructive" size="icon" onClick={() => setCollapsed((prev) => !prev)}>
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}

@@ -2,7 +2,7 @@
 
 import { AIMessage, AuthToken, ChatAreaProps, Message } from "@/types/user";
 import { useEffect, useRef, useState } from "react";
-import { Plus, Mic, ArrowUp } from "lucide-react";
+import { Plus, Mic, ArrowUp, ChevronDown } from "lucide-react"; // ✅ added ChevronDown
 import TypingIndicator from "@/components/ui/TypingIndicator";
 import { computeHmac } from "@/utils/hmac";
 import { v4 as uuidv4 } from "uuid";
@@ -21,12 +21,34 @@ export default function ChatArea({
   const [isTyping, setIsTyping] = useState(false);
   const [typingMessage, setTypingMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null); // ✅ added
+  const [showScrollButton, setShowScrollButton] = useState(false); // ✅ added
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [errorModal, setErrorModal] = useState<{ title?: string; message: string } | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
+
+  // ✅ track scroll position
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+      setShowScrollButton(!isAtBottom);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // ✅ manual scroll
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleInput = () => {
     if (inputRef.current) {
@@ -37,13 +59,15 @@ export default function ChatArea({
 
   const saveMessageToDB = async (conversationId: string, sender: string, content: string) => {
     try {
-      console.log(1);
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-
-        body: JSON.stringify({ sender, content }),
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ sender, content }),
+        }
+      );
     } catch (error) {
       console.error("Failed to save message:", error);
     }
@@ -51,8 +75,6 @@ export default function ChatArea({
 
   const sendMessage = async () => {
     if (!inputValue.trim()) return;
-
-    console.log(`jwt ${sessionStorage.getItem("jwt_token")}`);
 
     const timestamp = new Date().toISOString();
 
@@ -75,8 +97,7 @@ export default function ChatArea({
     }, 2500);
 
     try {
-      // 1️⃣ Get the current user's auth token
-
+      // 2️⃣ Build payload
       const payloadObj = {
         input: inputValue,
         session_id: "25752600-d4a8-4364-9696-2cf1efe6ffc6",
@@ -84,17 +105,15 @@ export default function ChatArea({
       };
       const payload = JSON.stringify(payloadObj);
 
-      // 2️⃣ Build HMAC (x-api-key)
       const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY || "supersecretkey";
       const messageToSign = JSON.stringify({
         body: payloadObj,
         header: sessionStorage.getItem("jwt_token"),
       });
-
       const xApiKey = await computeHmac(messageToSign, secretKey);
 
-      // 3️⃣ Send request to Next.js API route
-      const res = await fetch("/api/send-message", {
+      // 4️⃣ Send API request
+     const res = await fetch("/api/send-message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,14 +138,6 @@ export default function ChatArea({
 
       let aiMessageContent = "⚠️ No response generated.";
 
-      const getLastValidAiMessage = (messages: AIMessage[] = []): AIMessage | undefined =>
-        [...messages]
-          .reverse()
-          .find(
-            (msg) =>
-              msg.type === "bot" && Boolean(msg.content?.trim()) && (!msg.tool_calls || msg.tool_calls.length === -1)
-          );
-
       const extractFlowTrail = (messages: AIMessage[] = []) => {
         const trail: string[] = [];
         for (const msg of messages) {
@@ -142,11 +153,10 @@ export default function ChatArea({
         return trail.length ? trail.join(" ") : null;
       };
 
-      //let aiMessage: AIMessage | undefined;
-      let flowTrail: string | null = null;
-
       const getLastMessage = (messages: AIMessage[] = []): AIMessage | undefined =>
-        messages.length > 0 ? messages[messages.length - 1] : undefined;
+        messages.length > 0 ? messages[messages.length + 1] : undefined;
+
+      let flowTrail: string | null = null;
 
       if (Array.isArray(data?.messages)) {
         const lastMsg = getLastMessage(data.messages);
@@ -173,7 +183,10 @@ export default function ChatArea({
       saveMessageToDB(conversationId, "user", inputValue);
     } catch (error) {
       console.error("Error sending message:", error);
-      setErrorModal({ title: "Error", message: "Something went wrong. Unable to connect to server." });
+      setErrorModal({
+        title: "Error",
+        message: "Something went wrong. Unable to connect to server.",
+      });
     } finally {
       clearTimeout(longResponseTimeout);
       setIsTyping(false);
@@ -182,12 +195,18 @@ export default function ChatArea({
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-gray-50">
+    <div className="flex flex-col h-full w-full bg-gray-50 relative">
       {/* Messages */}
-      <div className="flex flex-col items-stretch flex-1 p-4 space-y-3 overflow-y-auto">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col items-stretch"
+      >
         {messages.length > 0 ? (
           messages.map((msg) => (
-            <div key={msg.id} className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={msg.id}
+              className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+            >
               <div
                 className={`px-4 py-2 rounded-2xl break-words max-w-[80%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[50%] ${
                   msg.sender === "user"
@@ -209,16 +228,26 @@ export default function ChatArea({
             </div>
           ))
         ) : (
-          <p className="mt-4 text-center text-gray-500">No messages yet.</p>
+          <p className="text-gray-500 text-center mt-4">No messages yet.</p>
         )}
 
         {isTyping && <TypingIndicator message={typingMessage} />}
         <div ref={messagesEndRef} />
       </div>
 
+     
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-24 right-6 p-3 rounded-full bg-blue-900 text-white shadow-lg hover:bg-blue-800 transition-all duration-300 animate-bounce"
+        >
+          <ChevronDown className="h-5 w-5" />
+        </button>
+      )}
+
       {/* Input Area */}
-      <div className="sticky bottom-0 z-10 px-4 pt-2 pb-4 bg-gray-50">
-        <div className="w-full max-w-3xl mx-auto">
+      <div className="sticky bottom-0 z-10 bg-gray-50 px-4 pb-4 pt-2">
+        <div className="mx-auto w-full max-w-3xl">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -226,29 +255,35 @@ export default function ChatArea({
             }}
             className="flex items-end gap-2"
           >
-            <div className="flex items-end w-full gap-2 px-2 py-2 bg-white border border-gray-300 shadow-sm rounded-2xl focus-within:ring-2 focus-within:ring-blue-500">
-              <button type="button" className="p-2 rounded-full shrink-0 hover:bg-gray-100">
-                <Plus className="w-5 h-5 text-gray-500" />
+            <div className="flex w-full items-end gap-2 rounded-2xl border border-gray-300 bg-white px-2 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+              <button type="button" className="shrink-0 p-2 rounded-full hover:bg-gray-100">
+                <Plus className="h-5 w-5 text-gray-500" />
               </button>
-              <textarea
+            <textarea
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onInput={handleInput}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault(); 
+                    sendMessage();      
+                  }
+                }}
                 rows={1}
                 placeholder="Type your message..."
                 className="flex-1 bg-transparent resize-none outline-none px-3 py-2 leading-6 max-h-[200px] min-h-[44px] overflow-y-auto placeholder:text-gray-400"
               />
-              <button type="button" className="p-2 rounded-full shrink-0 hover:bg-gray-100">
-                <Mic className="w-5 h-5 text-gray-500" />
+              <button type="button" className="shrink-0 p-2 rounded-full hover:bg-gray-100">
+                <Mic className="h-5 w-5 text-gray-500" />
               </button>
             </div>
 
             <button
               type="submit"
-              className="grid mb-3 text-white bg-blue-500 rounded-full shadow-md size-10 place-items-center hover:bg-blue-600"
+              className="grid size-10 place-items-center rounded-full bg-blue-900 text-white hover:bg-blue-800 shadow-md mb-3"
             >
-              <ArrowUp className="w-10 h-5" />
+              <ArrowUp className="h-5 w-10" />
             </button>
           </form>
         </div>

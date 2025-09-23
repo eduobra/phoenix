@@ -195,7 +195,7 @@ export default function ChatPage() {
       sessionStorage.removeItem("msal_user"); // msal
       sessionStorage.removeItem("msal_access_token");
       localStorage.removeItem("token");
-      router.replace("http://localhost:3000/login");
+      router.replace("/login");
     } catch (err) {
       console.error("Logout failed:", err);
     }
