@@ -57,21 +57,21 @@ export default function ChatArea({
     }
   };
 
-  const saveMessageToDB = async (conversationId: string, sender: string, content: string) => {
-    try {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ sender, content }),
-        }
-      );
-    } catch (error) {
-      console.error("Failed to save message:", error);
-    }
-  };
+  // const saveMessageToDB = async (conversationId: string, sender: string, content: string) => {
+  //   try {
+  //     await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         credentials: "include",
+  //         body: JSON.stringify({ sender, content }),
+  //       }
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to save message:", error);
+  //   }
+  // };
 
   const sendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -154,7 +154,7 @@ export default function ChatArea({
       };
 
       const getLastMessage = (messages: AIMessage[] = []): AIMessage | undefined =>
-        messages.length > 0 ? messages[messages.length + 1] : undefined;
+        messages.length > 0 ? messages[messages.length - 1] : undefined;
 
       let flowTrail: string | null = null;
 
@@ -180,8 +180,8 @@ export default function ChatArea({
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-      saveMessageToDB(conversationId, "user", inputValue);
-    } catch (error) {
+        //saveMessageToDB(conversationId, "user", inputValue);
+      } catch (error) {
       console.error("Error sending message:", error);
       setErrorModal({
         title: "Error",
