@@ -155,20 +155,34 @@ export default function ChatArea({
 
       const getLastMessage = (messages: AIMessage[] = []): AIMessage | undefined =>
         messages.length > 0 ? messages[messages.length - 1] : undefined;
-
+        
       let flowTrail: string | null = null;
 
-      if (Array.isArray(data?.messages)) {
-        const lastMsg = getLastMessage(data.messages);
-        aiMessageContent = lastMsg?.content?.trim() || aiMessageContent;
-        flowTrail = extractFlowTrail(data.messages);
-      } else if (Array.isArray(data?.response?.messages)) {
-        const lastMsg = getLastMessage(data.response.messages);
-        aiMessageContent = lastMsg?.content?.trim() || aiMessageContent;
-        flowTrail = extractFlowTrail(data.response.messages);
-      } else if (data?.reply || data?.output) {
-        aiMessageContent = data.reply || data.output;
-      }
+        const normalizeContent = (msg?: AIMessage): string => {
+        
+        if (!msg?.content) return "";
+        try {
+          const parsed = JSON.parse(msg.content);
+          if (parsed?.content) {
+            return parsed.content; // extracted from {"role": "...", "content": "..."}
+          }
+        } catch {
+          // content is plain text
+          return msg.content;
+        }
+        return msg.content;
+      };
+        if (Array.isArray(data?.messages)) {
+          const lastMsg = getLastMessage(data.messages);
+          aiMessageContent = normalizeContent(lastMsg).trim() || aiMessageContent;
+          flowTrail = extractFlowTrail(data.messages);
+        } else if (Array.isArray(data?.response?.messages)) {
+          const lastMsg = getLastMessage(data.response.messages);
+          aiMessageContent = normalizeContent(lastMsg).trim() || aiMessageContent;
+          flowTrail = extractFlowTrail(data.response.messages);
+        } else if (data?.reply || data?.output) {
+          aiMessageContent = data.reply || data.output;
+        }
 
       const assistantMessage: Message = {
         id: Date.now().toString() + "-bot",
