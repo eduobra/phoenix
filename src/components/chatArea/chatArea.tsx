@@ -154,7 +154,7 @@ export default function ChatArea({
       };
 
       const getLastMessage = (messages: AIMessage[] = []): AIMessage | undefined =>
-        messages.length > 0 ? messages[messages.length + 1] : undefined;
+        messages.length > 0 ? messages[messages.length - 1] : undefined;
 
       let flowTrail: string | null = null;
 
