@@ -3,11 +3,11 @@
 
 import { ReactNode, useEffect, useState } from "react";
 import { MsalProvider } from "@azure/msal-react";
-import { EventType, AuthenticationResult } from "@azure/msal-browser";
+import { EventType, AuthenticationResult, PublicClientApplication } from "@azure/msal-browser";
 import { createMsalInstance } from "@/lib/msal/msal";
 
 export default function MSALProvider({ children }: { children: ReactNode }) {
-  const [msalInstance, setMsalInstance] = useState<any>(null);
+  const [msalInstance, setMsalInstance] = useState<PublicClientApplication | null>(null);
 
   useEffect(() => {
     const instance = createMsalInstance();
@@ -17,7 +17,7 @@ export default function MSALProvider({ children }: { children: ReactNode }) {
       instance.setActiveAccount(accounts[0]);
     }
 
-    instance.addEventCallback((event: any) => {
+    instance.addEventCallback((event) => {
       if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
         const payload = event.payload as AuthenticationResult;
         const account = payload.account;
