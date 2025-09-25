@@ -15,7 +15,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (getCookie && userData) {
       if (pathName === "/" || pathName === "/login") {
-        router.replace("/home");
+        router.replace("/chat");
       }
     } else {
       setUserData(null);

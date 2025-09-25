@@ -57,7 +57,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
             },
           });
 
-          router.replace("/home");
+          router.replace("/chat");
         } catch (error: unknown) {
           if (error instanceof AuthError) {
             console.error("MSAL AuthError:", error.errorCode, error.message);
