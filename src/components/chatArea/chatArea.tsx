@@ -9,7 +9,6 @@ import { v4 as uuidv4 } from "uuid";
 import Typewriter from "@/components/ui/Typewriter";
 import FlowTrace from "../ui/FlowTrace";
 import Modal from "@/components/ui/Modal"; // <-- import the modal component
-import { getAuthToken } from "@/lib/utils";
 
 export default function ChatArea({
   messages: initialMessages,
@@ -36,8 +35,7 @@ export default function ChatArea({
     if (!container) return;
 
     const handleScroll = () => {
-      const isAtBottom =
-        container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+      const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
       setShowScrollButton(!isAtBottom);
     };
 
@@ -59,15 +57,12 @@ export default function ChatArea({
 
   const saveMessageToDB = async (conversationId: string, sender: string, content: string) => {
     try {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ sender, content }),
-        }
-      );
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/conversations/${conversationId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ sender, content }),
+      });
     } catch (error) {
       console.error("Failed to save message:", error);
     }
@@ -113,7 +108,7 @@ export default function ChatArea({
       const xApiKey = await computeHmac(messageToSign, secretKey);
 
       // 4️⃣ Send API request
-     const res = await fetch("/api/send-message", {
+      const res = await fetch("/api/send-message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -195,18 +190,12 @@ export default function ChatArea({
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-gray-50 relative">
+    <div className="relative flex flex-col w-full h-full bg-gray-50">
       {/* Messages */}
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col items-stretch"
-      >
+      <div ref={chatContainerRef} className="flex flex-col items-stretch flex-1 p-4 space-y-3 overflow-y-auto">
         {messages.length > 0 ? (
           messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-            >
+            <div key={msg.id} className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
               <div
                 className={`px-4 py-2 rounded-2xl break-words max-w-[80%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[50%] ${
                   msg.sender === "user"
@@ -228,26 +217,33 @@ export default function ChatArea({
             </div>
           ))
         ) : (
-          <p className="text-gray-500 text-center mt-4">No messages yet.</p>
+          <div className="grid flex-1 py-8 place-items-center">
+            <div className="max-w-xl px-6 text-center">
+              <div className="grid mx-auto mb-4 place-items-center">
+                <div className="grid w-12 h-12 text-white bg-blue-600 shadow-sm rounded-2xl place-items-center">AI</div>
+              </div>
+              <h2 className="mb-1 text-xl font-semibold text-gray-900">Start a new conversation</h2>
+              <p className="text-sm text-gray-500">Ask a question to get started. Your messages will appear here.</p>
+            </div>
+          </div>
         )}
 
         {isTyping && <TypingIndicator message={typingMessage} />}
         <div ref={messagesEndRef} />
       </div>
 
-     
       {showScrollButton && (
         <button
           onClick={scrollToBottom}
-          className="absolute bottom-24 right-6 p-3 rounded-full bg-blue-900 text-white shadow-lg hover:bg-blue-800 transition-all duration-300 animate-bounce"
+          className="absolute p-3 text-white transition-all duration-300 bg-blue-900 rounded-full shadow-lg bottom-24 right-6 hover:bg-blue-800 animate-bounce"
         >
-          <ChevronDown className="h-5 w-5" />
+          <ChevronDown className="w-5 h-5" />
         </button>
       )}
 
       {/* Input Area */}
-      <div className="sticky bottom-0 z-10 bg-gray-50 px-4 pb-4 pt-2">
-        <div className="mx-auto w-full max-w-3xl">
+      <div className="sticky bottom-0 z-10 px-4 pt-2 pb-4 bg-gray-50">
+        <div className="w-full max-w-3xl mx-auto">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -255,35 +251,35 @@ export default function ChatArea({
             }}
             className="flex items-end gap-2"
           >
-            <div className="flex w-full items-end gap-2 rounded-2xl border border-gray-300 bg-white px-2 py-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
-              <button type="button" className="shrink-0 p-2 rounded-full hover:bg-gray-100">
-                <Plus className="h-5 w-5 text-gray-500" />
+            <div className="flex items-end w-full gap-2 px-2 py-2 bg-white border border-gray-300 shadow-sm rounded-2xl focus-within:ring-2 focus-within:ring-blue-500">
+              <button type="button" className="p-2 rounded-full shrink-0 hover:bg-gray-100">
+                <Plus className="w-5 h-5 text-gray-500" />
               </button>
-            <textarea
+              <textarea
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onInput={handleInput}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault(); 
-                    sendMessage();      
+                    e.preventDefault();
+                    sendMessage();
                   }
                 }}
                 rows={1}
                 placeholder="Type your message..."
                 className="flex-1 bg-transparent resize-none outline-none px-3 py-2 leading-6 max-h-[200px] min-h-[44px] overflow-y-auto placeholder:text-gray-400"
               />
-              <button type="button" className="shrink-0 p-2 rounded-full hover:bg-gray-100">
-                <Mic className="h-5 w-5 text-gray-500" />
+              <button type="button" className="p-2 rounded-full shrink-0 hover:bg-gray-100">
+                <Mic className="w-5 h-5 text-gray-500" />
               </button>
             </div>
 
             <button
               type="submit"
-              className="grid size-10 place-items-center rounded-full bg-blue-900 text-white hover:bg-blue-800 shadow-md mb-3"
+              className="grid mb-3 text-white bg-blue-900 rounded-full shadow-md size-10 place-items-center hover:bg-blue-800"
             >
-              <ArrowUp className="h-5 w-10" />
+              <ArrowUp className="w-10 h-5" />
             </button>
           </form>
         </div>

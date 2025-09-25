@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import { signIn } from "next-auth/react";
 
 import { useMsal } from "@azure/msal-react";
+import { useAuth } from "@/contexts/AuthContext";
 declare global {
   interface Window {
     google?: {
@@ -25,7 +26,8 @@ declare global {
 }
 
 export default function LoginPage() {
-  const { login, setUser, user, loading } = useAuth();
+  const handleMicrosoftSignIn = useAuth((state) => state.handleMicrosoftSignIn);
+  // const { login, setUser, user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { instance, accounts } = useMsal();
@@ -35,79 +37,80 @@ export default function LoginPage() {
   const [redirecting, setRedirecting] = useState(false);
   const [conversationIdHis, setConversationIdHis] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (loading || redirecting) return;
+  // useEffect(() => {
+  //   if (loading || redirecting) return;
 
-    // Check both MSAL sessionStorage + our own token
-    const msalToken = sessionStorage.getItem("msal_access_token");
-    const localToken = localStorage.getItem("token");
-    if (user && (msalToken || localToken) && pathname === "/login") {
-      setRedirecting(true);
-      getLatestConversation(user.email)
-        .then(async (conversationId) => {
-          //get the latest session_id here
-          const latest_session_id_first = await getLatestSessionsByUserID(conversationId);
+  //   // Check both MSAL sessionStorage + our own token
+  //   const msalToken = sessionStorage.getItem("msal_access_token");
+  //   const localToken = localStorage.getItem("token");
+  //   if (user && (msalToken || localToken) && pathname === "/login") {
+  //     setRedirecting(true);
+  //     getLatestConversation(user.email)
+  //       .then(async (conversationId) => {
+  //         //get the latest session_id here
+  //         const latest_session_id_first = await getLatestSessionsByUserID(conversationId);
 
-          router.replace(`/chat/${latest_session_id_first || uuidv4()}`);
-        })
-        .catch(() => {
-          console.log("id from login catch");
-          router.replace(`/chat/${uuidv4()}`);
-        });
-    }
-  }, [user, loading, pathname, router, redirecting]);
+  //         router.replace(`/chat/${latest_session_id_first || uuidv4()}`);
+  //       })
+  //       .catch(() => {
+  //         console.log("id from login catch");
+  //         router.replace(`/chat/${uuidv4()}`);
+  //       });
+  //   }
+  // }, [user, loading, pathname, router, redirecting]);
 
-  const handleMicrosoftSignIn = async () => {
-    try {
-      const response = await instance.loginPopup({
-        scopes: ["openid", "profile", "email", "User.Read"],
-      });
-      console.log("response", response);
-      const idToken = response.idToken;
-      const graphToken = response.accessToken;
+  // const handleMicrosoftSignIn = async () => {
+  //   try {
+  //     const response = await instance.loginPopup({
+  //       scopes: ["openid", "profile", "email", "User.Read"],
+  //     });
+  //     console.log("response", response);
+  //     const idToken = response.idToken;
+  //     const graphToken = response.accessToken;
 
-      const logicApps = await fetch(
-        "https://prod-11.southeastasia.logic.azure.com:443/workflows/518352056f1347f2804327c009788137/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=l2BMnO4PdosXmHkH-qDVOH4DUB2jf9-OEZiZGFo_BmU",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id_token: idToken, graph_token: graphToken }),
-        }
-      );
+  //     const logicApps = await fetch(
+  //       "https://prod-11.southeastasia.logic.azure.com:443/workflows/518352056f1347f2804327c009788137/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=l2BMnO4PdosXmHkH-qDVOH4DUB2jf9-OEZiZGFo_BmU",
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ id_token: idToken, graph_token: graphToken }),
+  //       }
+  //     );
 
-      if (!logicApps.ok) throw new Error("Backend login failed");
-      const data = await logicApps.json();
-      console.log("logicApps", logicApps);
-      sessionStorage.setItem("msal_access_token", idToken);
-      sessionStorage.setItem("jwt_token", data.access_token);
-      const userEmail = data?.email || response.account?.username || "admin@outlook.com";
+  //     if (!logicApps.ok) throw new Error("Backend login failed");
+  //     const data = await logicApps.json();
+  //     console.log("logicApps", logicApps);
+  //     sessionStorage.setItem("msal_access_token", idToken);
+  //     sessionStorage.setItem("jwt_token", data.access_token);
+  //     const userEmail = data?.email || response.account?.username || "admin@outlook.com";
+  //     console.log({ data });
+  //     return;
+  //     sessionStorage.setItem(
+  //       "msal_user",
+  //       JSON.stringify({
+  //         email: userEmail,
+  //         name: data.firstname ? `${data.firstname} ${data.lastname}` : userEmail,
+  //       })
+  //     );
 
-      sessionStorage.setItem(
-        "msal_user",
-        JSON.stringify({
-          email: userEmail,
-          name: data.firstname ? `${data.firstname} ${data.lastname}` : userEmail,
-        })
-      );
-
-      // update AuthContext
-      setUser({
-        id: data.id,
-        email: userEmail,
-        name: data.firstname ? `${data.firstname} ${data.lastname}` : userEmail,
-      });
-    } catch (err) {
-      console.error("Microsoft login error:", err);
-      setError("Microsoft login failed");
-    }
-  };
+  //     // update AuthContext
+  //     setUser({
+  //       id: data.id,
+  //       email: userEmail,
+  //       name: data.firstname ? `${data.firstname} ${data.lastname}` : userEmail,
+  //     });
+  //   } catch (err) {
+  //     console.error("Microsoft login error:", err);
+  //     setError("Microsoft login failed");
+  //   }
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      await login(email, password);
+      // await login(email, password);
       const conversationId = await getLatestConversation(email);
       console.log("id from login", conversationId);
       router.replace(`/chat/${conversationId || uuidv4()}`);
@@ -127,20 +130,20 @@ export default function LoginPage() {
     });
   };
 
-  if (loading || redirecting) {
-    return (
-      <div className="flex items-center justify-center w-screen h-screen bg-white">
-        <div className="flex space-x-2">
-          <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-0"></span>
-          <span className="w-3 h-3 delay-200 bg-gray-500 rounded-full animate-bounce"></span>
-          <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-400"></span>
-          <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-600"></span>
-        </div>
-      </div>
-    );
-  }
+  // if (loading || redirecting) {
+  //   return (
+  //     <div className="flex items-center justify-center w-screen h-screen bg-white">
+  //       <div className="flex space-x-2">
+  //         <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-0"></span>
+  //         <span className="w-3 h-3 delay-200 bg-gray-500 rounded-full animate-bounce"></span>
+  //         <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-400"></span>
+  //         <span className="w-3 h-3 bg-gray-500 rounded-full animate-bounce delay-600"></span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  if (user) return null;
+  // if (user) return null;
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-gray-50">

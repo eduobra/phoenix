@@ -42,6 +42,7 @@ export default function SideNav({
   const [selectedTool, setSelectedTool] = useState<"BusinessCentral" | "SAP" | "SQL">("BusinessCentral");
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const { data: session } = useSession();
+  console.log({ session });
   const router = useRouter();
   type CurrentUser = {
     name: string;
@@ -129,7 +130,7 @@ export default function SideNav({
             {!collapsed ? (
               <img src="/login_logo.png" alt="Clicktek Logo" className="h-20 w-120" />
             ) : (
-              <img src="/agent_logo.png" alt="FR Icon" className="h-8 w-8" />
+              <img src="/agent_logo.png" alt="FR Icon" className="w-8 h-8" />
             )}
             <Button variant="destructive" size="icon" onClick={() => setCollapsed((prev) => !prev)}>
               {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -138,8 +139,12 @@ export default function SideNav({
 
           {/* Actions */}
           <div className="flex flex-col gap-2 p-4">
-            <Button variant="ghost" className="justify-start gap-2" size={collapsed ? "icon" : "default"}>
-              <MessageSquare className="w-4 h-4" />
+            <Button
+              variant="ghost"
+              className="justify-start gap-2 "
+              size={collapsed ? "icon" : "default"}
+              onClick={() => router.push("/chat")}
+            >
               {!collapsed && "New Chat"}
             </Button>
             <Button variant="ghost" className="justify-start gap-2" size={collapsed ? "icon" : "default"}>

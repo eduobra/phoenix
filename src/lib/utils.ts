@@ -1,23 +1,34 @@
-import { AuthToken } from "@/types/user";
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
+import { config } from "@/components/config";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
-export const getAuthToken = (): { token: string; type: "manual" | "msal" | "google" } => {
-  // 1. Check manual login token in localStorage
-  const manualToken = localStorage.getItem("access_token");
-  if (manualToken) return { token: manualToken, type: "manual" };
 
-  // 2. Check MSAL token
-  const msalToken = localStorage.getItem("msal_access_token");
-  if (msalToken) return { token: msalToken, type: "msal" };
+export function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
-  // 3. Check Google login token
-  const googleToken = localStorage.getItem("google_token");
-  if (googleToken) return { token: googleToken, type: "google" };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type GroupBy<T, K extends keyof T> = Record<string, T[]>;
 
-  throw new Error("No auth token found");
-};
+export function groupBy<T, K extends keyof T>(
+  array: T[],
+  key: K
+): GroupBy<T, K> {
+  return array.reduce((acc, item) => {
+    const keyValue = String(item[key]);
+    if (!acc[keyValue]) {
+      acc[keyValue] = [];
+    }
+    acc[keyValue].push(item);
+    return acc;
+  }, {} as GroupBy<T, K>);
+}
+
+export function absoluteUrl(path: string) {
+  return process.env.NODE_ENV === "development"
+    ? `http://localhost:3000${path}`
+    : `https://${config.appUrl}${path}`;
+}
