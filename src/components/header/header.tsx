@@ -46,14 +46,14 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 px-2 cursor-pointer">
-              ClickBot <ChevronDown className="h-4 w-4" />
+              ASCENT AI<ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuItem className="flex items-center justify-between">
               <div className="flex items-center">
                 <Zap className="mr-2 h-4 w-4" />
-                Clickbot Plus
+                ASCENT AI Plus
               </div>
               <Button variant="default"  className="h-6 text-xs px-2">
                 Upgrade
@@ -63,7 +63,7 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
             <DropdownMenuItem className="flex items-center justify-between">
               <div className="flex items-center">
                 <Bot className="mr-2 h-4 w-4" />
-                Clickbot
+                ASCENT AI Standard
               </div>
               <Check className="h-4 w-4 text-green-600" />
             </DropdownMenuItem>
