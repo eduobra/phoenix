@@ -28,7 +28,11 @@ import { useChatHistoryLists } from "@/query";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 
-const Sidenav = () => {
+type SidenavProps = {
+  isOpen: boolean;        // ✅ parent-controlled open state
+  onClose: () => void;    // ✅ parent can close sidebar
+};
+const Sidenav = ({ isOpen, onClose }: SidenavProps)  => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const userData = useAuth((state) => state.userData);
@@ -48,6 +52,7 @@ const Sidenav = () => {
     if (pathName !== "/chat") {
       router.push("/chat");
     }
+    onClose();
   };
 
   const handleRouteHistory = (session_id: string) => {
@@ -55,16 +60,24 @@ const Sidenav = () => {
       resetMessages();
       router.push(`/chat/${session_id}`);
     }
+     onClose(); 
   };
 
   return (
     <>
-      {mobileOpen && <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setMobileOpen(false)} />}
-      <aside
-        className={`fixed md:static top-0 left-0 h-screen border-r bg-white flex flex-col transition-all duration-300 z-40
-    ${collapsed ? "w-16" : "w-64"}
-    ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
-      >
+      {/* Overlay for mobile */}
+  {isOpen && (
+    <div
+      className="fixed inset-0 z-30 bg-black/50 md:hidden"
+      onClick={onClose}
+    />
+  )}
+
+  <aside
+    className={`fixed md:static top-0 left-0 h-screen border-r bg-white flex flex-col transition-all duration-300 z-40
+      ${collapsed ? "w-16" : "w-64"}
+      ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+  >
         {/* TOP (logo + buttons) */}
         <div className="shrink-0">
           <div className="flex items-center justify-between p-4">

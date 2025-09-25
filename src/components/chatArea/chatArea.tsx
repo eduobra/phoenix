@@ -70,20 +70,22 @@ export default function ChatArea({
 
   const sendMessage = async () => {
     if (!inputValue.trim()) return;
-
+    const messageText = inputValue.trim(); 
     const timestamp = new Date().toISOString();
 
     // Add user message immediately
     const userMessage: Message = {
       id: Date.now().toString(),
       sender: "user",
-      content: inputValue,
+      content: messageText,
       timestamp,
     };
     setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
-    if (inputRef.current) inputRef.current.style.height = "44px";
-
+      setInputValue("");
+      if (inputRef.current) {
+        inputRef.current.value = "";
+        inputRef.current.style.height = "44px";
+      }
     setIsTyping(true);
     setTypingMessage("");
 

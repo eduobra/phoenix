@@ -16,51 +16,62 @@ import {
   ChevronDown,
   Bot, 
   Zap,
-  Check 
+  Check,
+  Menu // <-- hamburger icon
 } from "lucide-react";
 import { User } from "@/types/user";
 
 type HeaderProps = {
-  user: User | null;
-  logout: () => void;
+  user?: User | null;
+  logout?: () => void;
+  toggleSidebar: () => void;
 };
 
-export default function Header({ user, logout }: HeaderProps) {
+export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
   return (
     <header className="flex items-center justify-between border-b bg-white px-4 py-2">
- 
+      
+      {/* Sidebar toggle button */}
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="cursor-pointer sm:hidden" // hide on large screens
+        onClick={toggleSidebar}
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+
+      {/* Dropdown Menu */}
       <div className="flex items-center space-x-1 w-full justify-center sm:w-auto sm:justify-start">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 px-2 cursor-pointer">
-             ClickBot <ChevronDown className="h-4 w-4" />
+              ClickBot <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-       
-          <DropdownMenuItem className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Zap className="mr-2 h-4 w-4" />
-              Clickbot Plus
-            </div>
-            <Button variant="default"  className="h-6 text-xs px-2">
-              Upgrade
-            </Button>
-          </DropdownMenuItem>
+            <DropdownMenuItem className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Zap className="mr-2 h-4 w-4" />
+                Clickbot Plus
+              </div>
+              <Button variant="default"  className="h-6 text-xs px-2">
+                Upgrade
+              </Button>
+            </DropdownMenuItem>
 
-          {/* Clickbot with check icon */}
-          <DropdownMenuItem className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Bot className="mr-2 h-4 w-4" />
-              Clickbot
-            </div>
-            <Check className="h-4 w-4 text-green-600" />
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+            <DropdownMenuItem className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Bot className="mr-2 h-4 w-4" />
+                Clickbot
+              </div>
+              <Check className="h-4 w-4 text-green-600" />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-  
+      {/* Right side actions */}
       <div className="flex items-center space-x-2">
         <Button variant="ghost" size="sm" className="cursor-pointer">
           <Share2 className="mr-2 h-4 w-4" /> Share
