@@ -1,31 +1,41 @@
 import { NextResponse } from "next/server";
+import axios, { AxiosError } from "axios";
 import { axiosInstaceBackend } from "@/lib/axiosInstanct";
-import axios from "axios";
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("authorization");
-    const xApiKey = req.headers.get("x-api-key");
+    // ✅ Always validate required headers (avoid undefined errors)
+    const authHeader = req.headers.get("authorization") || "";
+    const xApiKey = req.headers.get("x-api-key") || "";
+
+    // ✅ Safely parse body
     const payload = await req.json();
 
+    // ✅ Ensure absolute URL for serverless environment (Vercel needs this if using backend API)
     const res = await axiosInstaceBackend.post(`/api/chat`, payload, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: authHeader,
-        "x-api-key": xApiKey,
+        ...(authHeader && { Authorization: authHeader }),
+        ...(xApiKey && { "x-api-key": xApiKey }),
       },
     });
 
-    return NextResponse.json(res.data);
+    return NextResponse.json(res.data, { status: res.status });
   } catch (error: unknown) {
     let message = "Internal server error";
+    let status = 500;
 
     if (axios.isAxiosError(error)) {
-      message = error.response?.data?.message || error.message || "Request failed with Axios error";
+      const axiosError = error as AxiosError<any>;
+      status = axiosError.response?.status || 500;
+      message =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        "Request failed with Axios error";
     } else if (error instanceof Error) {
       message = error.message;
     }
 
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: message }, { status });
   }
 }
