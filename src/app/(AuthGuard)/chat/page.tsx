@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Plus, Mic, ArrowUp } from "lucide-react";
+import { Plus, Mic, ArrowUp ,ChevronDown} from "lucide-react";
 import { useConversationLists, useSendMessageMutation } from "@/query";
 
 import { v4 as uuid } from "uuid";
