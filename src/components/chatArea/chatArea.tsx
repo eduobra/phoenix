@@ -248,15 +248,14 @@ export default function ChatArea({
         <div ref={messagesEndRef} />
       </div>
 
-      {showScrollButton && (
-        <button
-          onClick={scrollToBottom}
-          className="absolute p-3 text-white transition-all duration-300 bg-blue-900 rounded-full shadow-lg bottom-24 right-6 hover:bg-blue-800 animate-bounce"
-        >
-          <ChevronDown className="w-5 h-5" />
-        </button>
-      )}
-
+       {showScrollButton && (
+    <button
+      onClick={scrollToBottom}
+      className="absolute p-3 text-white transition-all duration-300 bg-blue-900 rounded-full shadow-lg bottom-32 left-1/2 -translate-x-1/2 hover:bg-blue-800 animate-bounce z-50"
+    >
+      <ChevronDown className="w-5 h-5" />
+    </button>
+  )}
       {/* Input Area */}
       <div className="sticky bottom-0 z-10 px-4 pt-2 pb-4 bg-gray-50">
         <div className="w-full max-w-3xl mx-auto">
@@ -284,7 +283,7 @@ export default function ChatArea({
                 }}
                 rows={1}
                 placeholder="Type your message..."
-                className="flex-1 bg-transparent resize-none outline-none px-3 py-2 leading-6 max-h-[200px] min-h-[44px] overflow-y-auto placeholder:text-gray-400"
+                className="flex-1 bg-transparent resize-none outline-none px-3 py-2 leading-6 max-h-[200px] min-h-[44px] overflow-none placeholder:text-gray-400"
               />
               <button type="button" className="p-2 rounded-full shrink-0 hover:bg-gray-100">
                 <Mic className="w-5 h-5 text-gray-500" />
