@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Plus, Mic, ArrowUp } from "lucide-react";
+import { Plus, Mic, ArrowUp, ChevronDown } from "lucide-react";
 import { useConversationLists, useSendMessageMutation } from "@/query";
 import { useParams } from "next/navigation";
 import { v4 as uuid } from "uuid";
+import "@/styles/TypingIndicator.css";
 type Msg = { id: string; message: string; answer: string };
+
 const Page = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { data, isLoading } = useConversationLists();
@@ -15,16 +17,45 @@ const Page = () => {
   const [inputValue, setInputValue] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
+  // Auto scroll when data/messages change
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [data, messages, loading]);
+  useEffect(() => {
+    if (data) {
+      console.log("All data:", data);
+    }
   }, [data]);
+  // Show/hide scroll button when not at bottom
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollContainerRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } =
+        scrollContainerRef.current;
+      setShowScrollButton(scrollHeight - scrollTop - clientHeight > 200);
+    };
+
+    const container = scrollContainerRef.current;
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToBottom = () => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const sendMessage = async () => {
     try {
       if (!inputValue.trim()) return;
       const id = uuid();
       setMessages((prev) => [...prev, { id, message: inputValue, answer: "" }]);
+      setInputValue("");
+      if (inputRef.current) {
+        inputRef.current.style.height = "44px"; // reset height
+      }
       const res = await mutateAsync({
         input: inputValue,
         session_id: conversationId,
@@ -32,18 +63,19 @@ const Page = () => {
       });
       setLoading(true);
 
-      setMessages((prev) => {
-        return prev.map((value) => {
+      setMessages((prev) =>
+        prev.map((value) => {
           if (value.id == id) {
             return {
               ...value,
               message: inputValue,
-              answer: res.response.messages[res.response.messages.length - 1].content,
+              answer:
+                res.response.messages[res.response.messages.length - 1].content,
             };
           }
           return value;
-        });
-      });
+        })
+      );
       if (inputRef.current) inputRef.current.style.height = "0px";
     } finally {
       setLoading(false);
@@ -53,12 +85,19 @@ const Page = () => {
   const handleInputGrow = () => {
     if (!inputRef.current) return;
     inputRef.current.style.height = "44px";
-    inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+    inputRef.current.style.height = `${Math.min(
+      inputRef.current.scrollHeight,
+      200
+    )}px`;
   };
 
   return (
     <div className="relative flex flex-col w-full h-full bg-gray-50">
-      <div className="flex-1 p-4 overflow-y-auto">
+      {/* Scrollable messages container */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 p-4 overflow-y-auto scroll-smooth"
+      >
         {isLoading ? (
           <div className="flex flex-col gap-3">
             {[...Array(4)].map((_, i) => (
@@ -85,32 +124,39 @@ const Page = () => {
               <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
                 AI
               </div>
-              <h2 className="mb-1 text-xl font-semibold text-gray-900">Start a new conversation</h2>
-              <p className="text-sm text-gray-500">Type a message below to begin.</p>
+              <h2 className="mb-1 text-xl font-semibold text-gray-900">
+                Start a new conversation
+              </h2>
+              <p className="text-sm text-gray-500">
+                Type a message below to begin.
+              </p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {Array(data) &&
-              data?.map((m) => (
-                <div key={m.id} className="flex flex-col gap-2">
-                  {m.message && (
-                    <div className="flex justify-end">
-                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
-                        <p className="text-sm whitespace-pre-wrap">{m.message}</p>
-                      </div>
+      
+          {Array.isArray(data) &&
+            data.map((m) => (
+              <div key={m.id} className="flex flex-col gap-2">
+                {/* User Message */}
+                {m.message && (
+                  <div className="flex justify-end">
+                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
+                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {m.answer && (
-                    <div className="flex justify-start">
-                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
-                        <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
-                      </div>
+                {/* Bot Answer */}
+                {m.answer && (
+                  <div className="flex justify-start">
+                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
+                      <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                )}
+              </div>
+            ))}
             {messages?.map((m) => (
               <div key={m.id} className="flex flex-col gap-2">
                 {m.message && (
@@ -130,22 +176,33 @@ const Page = () => {
                 )}
               </div>
             ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+          {loading && (
+                <div className="flex justify-start">
+                  <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></span>
+                      <span className="w-2 h-2 bg-gray-600 rounded-full animate-pulse [animation-delay:0.2s]"></span>
+                      <span className="w-2 h-2 bg-gray-600 rounded-full animate-pulse [animation-delay:0.4s]"></span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
             <div ref={endRef} />
           </div>
         )}
       </div>
 
+      {/* Scroll to bottom button */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute right-4 bottom-24 p-2 rounded-full bg-blue-600 text-white shadow-md hover:bg-blue-700"
+        >
+          <ChevronDown className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* Input Area */}
       <div className="sticky bottom-0 z-10 px-4 pt-2 pb-4 bg-gray-50">
         <div className="w-full max-w-3xl mx-auto">
           <form

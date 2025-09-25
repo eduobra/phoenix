@@ -1,36 +1,23 @@
-import React, { ReactNode } from "react";
-import Header from "./Header";
+"use client"; 
+
+import React, { ReactNode ,useState } from "react";
+import Header from "@/components/header/header";
 import Sidenav from "./Sidenav";
 
 const Userlayout = ({ children }: { children: ReactNode }) => {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   return (
     <div className="flex w-screen h-screen overflow-hidden">
       {/* Sidebar */}
-      <Sidenav />
+     
+        <Sidenav isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+    
 
       {/* Main content */}
       <div className="flex flex-col flex-1 h-full">
-        <Header />
-        {/* <div className="flex-1 overflow-y-auto">
-          <ChatArea
-            messages={messages}
-            conversationId={sessionFromUrl || ""}
-            logout={handleLogout}
-            sessionToken={token || ""}
-            user={
-              localUser ||
-              (session?.user
-                ? {
-                    id: Number(session.user.id), // Convert string → number
-                    name: session.user.name || "",
-                    email: session.user.email || "",
-                  }
-                : null)
-            }
-          />
-          
-        </div> */}
-        {children}
+        <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+        <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
