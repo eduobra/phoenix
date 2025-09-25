@@ -158,7 +158,7 @@ export const useSendMessageMutation = () => {
       });
       const xApiKey = await computeHmac(messageToSign, secretKey);
 
-      const response = await axiosInstace.post(`/chat`, payload, {
+      const response = await axiosInstace.post(`/send-message`, payload, {
         headers: {
           "Content-Type": "application/json",
           Authorization: authorization,
