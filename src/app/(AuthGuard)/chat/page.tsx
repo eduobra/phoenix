@@ -35,20 +35,23 @@ const Page = () => {
     setLoading(true);
 
     try {
-      const res = await mutateAsync({
-        input: inputValue,
-        session_id: conversationId ? conversationId : id,
-        stream: false,
-      });
+        const res = await mutateAsync({
+          input: inputValue,
+          session_id: conversationId ? conversationId : id,
+          stream: false,
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["chat-history"],
-      });
+        updateMessageAnswer(id, res.response.messages[res.response.messages.length - 1].content);
+        if (!conversationId) {
+          queryClient.invalidateQueries({
+            queryKey: ["chat-history"],
+          });
+          window.history.replaceState(null, "", `/chat/${id}`);
+          setConversationId(id);
+        }
 
-      updateMessageAnswer(id, res.response.messages[res.response.messages.length - 1].content);
-      window.history.replaceState(null, "", `/chat/${id}`);
-      setConversationId(id);
-      if (inputRef.current) inputRef.current.style.height = "0px";
+        if (inputRef.current) inputRef.current.style.height = "0px";
+
     } finally {
       setLoading(false);
     }
