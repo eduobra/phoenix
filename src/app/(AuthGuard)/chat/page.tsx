@@ -39,13 +39,15 @@ const Page = () => {
         stream: false,
       });
 
-      queryClient.invalidateQueries({
-        queryKey: ["chat-history"],
-      });
-
       updateMessageAnswer(id, res.response.messages[res.response.messages.length - 1].content);
-      window.history.replaceState(null, "", `/chat/${id}`);
-      setConversationId(id);
+      if (!conversationId) {
+        queryClient.invalidateQueries({
+          queryKey: ["chat-history"],
+        });
+        window.history.replaceState(null, "", `/chat/${id}`);
+        setConversationId(id);
+      }
+
       if (inputRef.current) inputRef.current.style.height = "0px";
     } finally {
       setLoading(false);
