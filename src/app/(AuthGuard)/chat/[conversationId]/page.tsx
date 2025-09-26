@@ -6,6 +6,7 @@ import { useConversationLists, useSendMessageMutation } from "@/query";
 import { useParams } from "next/navigation";
 import { v4 as uuid } from "uuid";
 import "@/styles/TypingIndicator.css";
+import Markdown from "@/components/mark-down";
 type Msg = { id: string; message: string; answer: string };
 
 const Page = () => {
@@ -28,8 +29,7 @@ const Page = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollContainerRef.current) return;
-      const { scrollTop, scrollHeight, clientHeight } =
-        scrollContainerRef.current;
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
       setShowScrollButton(scrollHeight - scrollTop - clientHeight > 200);
     };
 
@@ -64,8 +64,7 @@ const Page = () => {
             return {
               ...value,
               message: inputValue,
-              answer:
-                res.response.messages[res.response.messages.length - 1].content,
+              answer: res.response.messages[res.response.messages.length - 1].content,
             };
           }
           return value;
@@ -80,19 +79,13 @@ const Page = () => {
   const handleInputGrow = () => {
     if (!inputRef.current) return;
     inputRef.current.style.height = "44px";
-    inputRef.current.style.height = `${Math.min(
-      inputRef.current.scrollHeight,
-      200
-    )}px`;
+    inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
   };
 
   return (
     <div className="relative flex flex-col w-full h-full bg-gray-50">
       {/* Scrollable messages container */}
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 p-4 overflow-y-auto scroll-smooth"
-      >
+      <div ref={scrollContainerRef} className="flex-1 p-4 overflow-y-auto scroll-smooth">
         {isLoading ? (
           <div className="flex flex-col gap-3">
             {[...Array(4)].map((_, i) => (
@@ -119,39 +112,34 @@ const Page = () => {
               <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
                 AI
               </div>
-              <h2 className="mb-1 text-xl font-semibold text-gray-900">
-                Start a new conversation
-              </h2>
-              <p className="text-sm text-gray-500">
-                Type a message below to begin.
-              </p>
+              <h2 className="mb-1 text-xl font-semibold text-gray-900">Start a new conversation</h2>
+              <p className="text-sm text-gray-500">Type a message below to begin.</p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-      
-          {Array.isArray(data) &&
-            data.map((m) => (
-              <div key={m.id} className="flex flex-col gap-2">
-                {/* User Message */}
-                {m.message && (
-                  <div className="flex justify-end">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
-                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
+            {Array.isArray(data) &&
+              data.map((m) => (
+                <div key={m.id} className="flex flex-col gap-2">
+                  {/* User Message */}
+                  {m.message && (
+                    <div className="flex justify-end">
+                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
+                        <p className="text-sm whitespace-pre-wrap">{m.message}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Bot Answer */}
-                {m.answer && (
-                  <div className="flex justify-start">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
-                      <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
+                  {/* Bot Answer */}
+                  {m.answer && (
+                    <div className="flex justify-start">
+                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
+                        <Markdown content={m.answer} />
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              ))}
             {messages?.map((m) => (
               <div key={m.id} className="flex flex-col gap-2">
                 {m.message && (
@@ -165,23 +153,23 @@ const Page = () => {
                 {m.answer && (
                   <div className="flex justify-start">
                     <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
-                      <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
+                      <Markdown content={m.answer} />
                     </div>
                   </div>
                 )}
               </div>
             ))}
-          {loading && (
-             <div className="flex justify-start">
-              <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+            {loading && (
+              <div className="flex justify-start">
+                <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
             <div ref={endRef} />
           </div>
         )}
@@ -191,7 +179,7 @@ const Page = () => {
       {showScrollButton && (
         <button
           onClick={scrollToBottom}
-          className="absolute right-4 bottom-24 p-2 rounded-full bg-blue-600 text-white shadow-md hover:bg-blue-700"
+          className="absolute p-2 text-white bg-blue-600 rounded-full shadow-md right-4 bottom-24 hover:bg-blue-700"
         >
           <ChevronDown className="w-5 h-5" />
         </button>
