@@ -17,7 +17,9 @@ import {
   Bot, 
   Zap,
   Check,
-  Menu // <-- hamburger icon
+  Menu ,
+  AlignHorizontalJustifyStart,
+  Equal
 } from "lucide-react";
 import { User } from "@/types/user";
 
@@ -38,7 +40,7 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
         className="cursor-pointer sm:hidden" // hide on large screens
         onClick={toggleSidebar}
       >
-        <Menu className="h-5 w-5" />
+        <Equal className="h-5 w-5" />
       </Button>
 
       {/* Dropdown Menu */}

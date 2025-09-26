@@ -19,7 +19,9 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     return create<ContextState>()((set) => ({
       conversationId: null,
       messages: [],
+    
       setConversationId: (conversationId) => set({ conversationId }),
+      
       addMessage: (msg) =>
         set((state) => ({
           messages: [...state.messages, msg],

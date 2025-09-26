@@ -24,12 +24,7 @@ const Page = () => {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [data, messages, loading]);
-  useEffect(() => {
-    if (data) {
-      console.log("All data:", data);
-    }
-  }, [data]);
-  // Show/hide scroll button when not at bottom
+
   useEffect(() => {
     const handleScroll = () => {
       if (!scrollContainerRef.current) return;
@@ -162,7 +157,7 @@ const Page = () => {
                 {m.message && (
                   <div className="flex justify-end">
                     <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
-                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
+                      <p className="text-sm whitespace-pre-wrap">11{m.message}</p>
                     </div>
                   </div>
                 )}
@@ -170,23 +165,23 @@ const Page = () => {
                 {m.answer && (
                   <div className="flex justify-start">
                     <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
-                      <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
+                      <p className="text-sm whitespace-pre-wrap">11{m.answer}</p>
                     </div>
                   </div>
                 )}
               </div>
             ))}
           {loading && (
-                <div className="flex justify-start">
-                  <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-gray-600 rounded-full animate-pulse"></span>
-                      <span className="w-2 h-2 bg-gray-600 rounded-full animate-pulse [animation-delay:0.2s]"></span>
-                      <span className="w-2 h-2 bg-gray-600 rounded-full animate-pulse [animation-delay:0.4s]"></span>
-                    </div>
-                  </div>
+             <div className="flex justify-start">
+              <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                 </div>
-              )}
+              </div>
+            </div>
+          )}
             <div ref={endRef} />
           </div>
         )}
@@ -229,7 +224,7 @@ const Page = () => {
                 }}
                 rows={1}
                 placeholder="Type your message..."
-                className="flex-1 px-2 py-2 leading-6 bg-transparent outline-none resize-none placeholder:text-gray-400"
+                className="flex-1 bg-transparent resize-none outline-none px-3 py-2 leading-6 max-h-[200px] min-h-[44px] overflow-none placeholder:text-gray-400"
               />
               <button type="button" className="p-2 rounded-full hover:bg-gray-100">
                 <Mic className="w-5 h-5 text-gray-500" />
