@@ -16,7 +16,7 @@ import {   Plus,
 import { useConversationLists, useSendMessageMutation } from "@/query";
 import { useParams } from "next/navigation";
 import { v4 as uuid } from "uuid";
-import "@/styles/TypingIndicator.css";
+
 import Markdown from "@/components/mark-down";
 
 type Msg = { id: string; message: string; answer: string };
@@ -211,7 +211,7 @@ const Page = () => {
                       <button
                         className="p-1 rounded hover:bg-gray-300"
                         title="Copy"
-                        onClick={() => navigator.clipboard.writeText(m.answer)}
+                        onClick={() => navigator.clipboard.writeText(m.answer ?? "")}
                       >
                         <Copy className="w-4 h-4 text-gray-600" />
                       </button>

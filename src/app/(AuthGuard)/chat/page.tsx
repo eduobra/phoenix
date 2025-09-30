@@ -75,6 +75,7 @@ const Page = () => {
       if (inputRef.current) inputRef.current.style.height = "0px";
 
       setLoading(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.name === "AbortError") {
         console.log("Request aborted"); 
