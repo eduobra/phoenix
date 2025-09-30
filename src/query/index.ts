@@ -149,26 +149,36 @@ export const useChatHistoryLists = () => {
 
 export const useSendMessageMutation = () => {
   const authorization = Authorization();
-  return useMutation<SendMessageResponse, SendMessageResponse, { session_id: string; input: string; stream: boolean }>({
+
+  return useMutation<
+    SendMessageResponse,
+    SendMessageResponse,
+    { session_id: string; input: string; stream: boolean; signal?: AbortSignal } // 👈 add signal
+  >({
     mutationFn: async (payload) => {
+      const { signal, ...body } = payload;
+
       const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY || "supersecretkey";
       const messageToSign = JSON.stringify({
-        body: payload,
+        body,
         header: authorization.split(" ")[1],
       });
       const xApiKey = await computeHmac(messageToSign, secretKey);
 
-      const response = await axiosInstace.post(`/send-message`, payload, {
+      const response = await axiosInstace.post(`/send-message`, body, {
         headers: {
           "Content-Type": "application/json",
           Authorization: authorization,
           "x-api-key": xApiKey,
         },
+        signal, // 👈 attach here so AbortController works
       });
+
       return response.data;
     },
   });
 };
+
 
 export const useConversationLists = () => {
   const authorization = Authorization();

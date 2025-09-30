@@ -22,11 +22,14 @@ const benefits = ["Free 14-day trial", "No setup fees", "Cancel anytime", "24/7 
 const HeroSection = () => {
   return (
     <section className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-hero">
+     
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img src={"/banner.jpg"} alt="AI Technology Background" className="object-cover w-full h-full opacity-20" />
         <div className="absolute inset-0 bg-gradient-hero opacity-80" />
       </div>
+
+      
 
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 animate-bounce">
@@ -41,6 +44,7 @@ const HeroSection = () => {
 
       {/* Main Content */}
       <div className="relative z-10 max-w-5xl px-6 mx-auto text-center">
+       
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 border rounded-full bg-card/10 backdrop-blur-sm border-border/20">
           <Zap className="w-4 h-4 text-primary-glow" />
           <span className="text-sm text-hero-foreground/80">Next-Generation AI Technology</span>
@@ -143,7 +147,14 @@ const FeaturesSection = () => {
     <section className="px-6 py-24 bg-background">
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
-          <h2 className="mb-6 text-4xl font-bold md:text-5xl text-foreground">Powerful AI Capabilities</h2>
+        <div className="absolute top-6 left-6 z-50 bg-white p-2 rounded shadow-lg">
+                <img
+                  src="/agent_logo.png"
+                  alt="Logo"
+                  className="h-12 w-auto md:h-16"
+                />
+          </div>
+          <h2 className="mb-6 text-4xl font-bold md:text-5xl text-foreground">Powerful AI Capabilitiesssssssss</h2>
           <p className="max-w-3xl mx-auto text-xl text-muted-foreground">
             Our comprehensive suite of AI tools and agents provides everything you need to transform your business
             operations and unlock new possibilities.

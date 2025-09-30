@@ -11,6 +11,7 @@ type ContextState = {
   addMessage: (msg: Msg) => void;
   updateMessageAnswer: (id: string, answer: string) => void;
   resetMessages: () => void;
+  removeMessage: (id: string) => void;
 };
 const ChatContext = createContext<StoreApi<ContextState> | null>(null);
 
@@ -32,6 +33,10 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
           messages: state.messages.map((m) => (m.id === id ? { ...m, answer } : m)),
         })),
 
+      removeMessage: (id) =>
+        set((state) => ({
+          messages: state.messages.filter((m) => m.id !== id),
+        })), 
       resetMessages: () => set({ messages: [], conversationId: null }),
     }));
   });

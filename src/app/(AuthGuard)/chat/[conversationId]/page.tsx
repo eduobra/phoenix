@@ -7,19 +7,24 @@ import { useParams } from "next/navigation";
 import { v4 as uuid } from "uuid";
 import "@/styles/TypingIndicator.css";
 import Markdown from "@/components/mark-down";
+
 type Msg = { id: string; message: string; answer: string };
 
 const Page = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { data, isLoading } = useConversationLists();
   const { mutateAsync } = useSendMessageMutation();
-  const [loading, setLoading] = useState(false);
+
+  const [loading, setLoading] = useState(false); // shows stop/send button
   const [messages, setMessages] = useState<Msg[]>([]);
   const [inputValue, setInputValue] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+
+  // AbortController ref used across send/cancel
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Auto scroll when data/messages change
   useEffect(() => {
@@ -42,44 +47,88 @@ const Page = () => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const sendMessage = async () => {
-    try {
-      if (!inputValue.trim()) return;
-      const id = uuid();
-      setMessages((prev) => [...prev, { id, message: inputValue, answer: "" }]);
-      setInputValue("");
-      if (inputRef.current) {
-        inputRef.current.style.height = "44px"; // reset height
-      }
-      const res = await mutateAsync({
-        input: inputValue,
-        session_id: conversationId,
-        stream: false,
-      });
-      setLoading(true);
-
-      setMessages((prev) =>
-        prev.map((value) => {
-          if (value.id == id) {
-            return {
-              ...value,
-              message: inputValue,
-              answer: res.response.messages[res.response.messages.length - 1].content,
-            };
-          }
-          return value;
-        })
-      );
-      if (inputRef.current) inputRef.current.style.height = "0px";
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleInputGrow = () => {
     if (!inputRef.current) return;
     inputRef.current.style.height = "44px";
     inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+  };
+
+  // Send message with abort support
+  const sendMessage = async () => {
+    if (!inputValue.trim()) return;
+
+    const id = uuid();
+
+    // Add user's message immediately
+    setMessages((prev) => [...prev, { id, message: inputValue, answer: "" }]);
+    setInputValue("");
+
+    // reset textarea height while typing
+    if (inputRef.current) inputRef.current.style.height = "44px";
+
+    // create abort controller and store it
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    // show stop button
+    setLoading(true);
+
+    try {
+      const res = await mutateAsync({
+        input: inputValue,
+        session_id: conversationId,
+        stream: false,
+        signal: controller.signal, // pass signal so mutation can abort
+      });
+
+      // attach answer to the message
+      setMessages((prev) =>
+        prev.map((value) =>
+          value.id === id
+            ? {
+                ...value,
+                answer:
+                  res?.response?.messages?.[res.response.messages.length - 1]?.content ?? "",
+              }
+            : value
+        )
+      );
+
+    } catch (err: any) {
+      // If aborted, we typically handle removal in cancelMessage.
+      // But also log other errors for debugging.
+      if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
+        console.log("Request aborted by user.");
+      } else {
+        console.error("Send message error:", err);
+      }
+    } finally {
+      // cleanup: hide stop button and clear stored controller
+      abortControllerRef.current = null;
+      setLoading(false);
+      if (inputRef.current) inputRef.current.style.height = "0px";
+    }
+  };
+
+  // Cancel / stop message generation
+  const cancelMessage = () => {
+    if (abortControllerRef.current) {
+      // abort the in-flight request
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+
+      // remove the last pending user message (optional behavior)
+      setMessages((prev) => {
+        // Only remove if the last message has no answer (was pending)
+        const last = prev[prev.length - 1];
+        if (!last) return prev;
+        if (last.answer) return prev; // last already answered
+        return prev.slice(0, -1);
+      });
+
+      // stop loading UI
+      setLoading(false);
+    }
   };
 
   return (
@@ -118,10 +167,10 @@ const Page = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
+            {/* existing conversation history */}
             {Array.isArray(data) &&
               data.map((m) => (
                 <div key={m.id} className="flex flex-col gap-2">
-                  {/* User Message */}
                   {m.message && (
                     <div className="flex justify-end">
                       <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
@@ -130,7 +179,6 @@ const Page = () => {
                     </div>
                   )}
 
-                  {/* Bot Answer */}
                   {m.answer && (
                     <div className="flex justify-start">
                       <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
@@ -140,7 +188,9 @@ const Page = () => {
                   )}
                 </div>
               ))}
-            {messages?.map((m) => (
+
+            {/* messages created during this session */}
+            {messages.map((m) => (
               <div key={m.id} className="flex flex-col gap-2">
                 {m.message && (
                   <div className="flex justify-end">
@@ -159,6 +209,8 @@ const Page = () => {
                 )}
               </div>
             ))}
+
+            {/* inline loader bubble when sending */}
             {loading && (
               <div className="flex justify-start">
                 <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
@@ -170,6 +222,7 @@ const Page = () => {
                 </div>
               </div>
             )}
+
             <div ref={endRef} />
           </div>
         )}
@@ -218,12 +271,25 @@ const Page = () => {
                 <Mic className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <button
-              type="submit"
-              className="grid mb-3 text-white bg-blue-900 rounded-full shadow-md size-10 place-items-center hover:bg-blue-800"
-            >
-              <ArrowUp className="w-5 h-5" />
-            </button>
+
+            {/* Send / Stop button */}
+            {loading ? (
+              <button
+                type="button"
+                onClick={cancelMessage}
+                className="flex mb-3 items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
+                title="Stop generating"
+              >
+                <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="grid mb-3 text-white bg-blue-900 rounded-full shadow-md size-10 place-items-center hover:bg-blue-800 cursor-pointer"
+              >
+                <ArrowUp className="w-5 h-5" />
+              </button>
+            )}
           </form>
         </div>
       </div>
