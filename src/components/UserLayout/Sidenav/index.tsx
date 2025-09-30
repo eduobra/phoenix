@@ -35,6 +35,7 @@ type SidenavProps = {
 const Sidenav = ({ isOpen, onClose }: SidenavProps)  => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const userData = useAuth((state) => state.userData);
   const handleLogout = useAuth((state) => state.handleLogout);
   const displayEmail = userData?.email || "admin@example.com";
@@ -45,6 +46,11 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps)  => {
   const router = useRouter();
   const pathName = usePathname();
   const { conversationId } = useParams();
+
+
+  const filteredData = data?.filter((item) =>
+    item.topic.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleNewChatRoute = () => {
     resetMessages();
@@ -112,7 +118,13 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps)  => {
               size={collapsed ? "icon" : "default"}
             >
               <Search className="w-4 h-4" />
-              {!collapsed && <span className="truncate">Search</span>}
+              {!collapsed && <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search chat..."
+                className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400"
+              />}
             </Button>
           </div>
         </div>
@@ -176,8 +188,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps)  => {
                 </Button>
               </>
             )}
-            {!isLoading &&
-              data?.map((item) => {
+           {!isLoading &&
+              filteredData?.map((item) => {
                 const isActive = conversationId === item.session_id || item.session_id === conId;
 
                 return (
@@ -185,7 +197,9 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps)  => {
                     onClick={() => handleRouteHistory(`${item.session_id}`)}
                     key={item.session_id}
                     variant={"ghost"}
-                    className={`w-full h-9 cursor-pointer gap-2 ${collapsed ? "justify-center" : "justify-start"} ${isActive ? "bg-gray-100" : ""}`}
+                    className={`w-full h-9 cursor-pointer gap-2 ${
+                      collapsed ? "justify-center" : "justify-start"
+                    } ${isActive ? "bg-gray-100" : ""}`}
                     size={collapsed ? "icon" : "default"}
                     title={item.topic}
                   >
@@ -193,7 +207,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps)  => {
                     {!collapsed && <span className="truncate max-w-[180px]">{item.topic}</span>}
                   </Button>
                 );
-              })}
+              })
+            }
           </div>
         </div>
 

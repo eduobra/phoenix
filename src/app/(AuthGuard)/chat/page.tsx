@@ -1,7 +1,18 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Plus, Mic, ArrowUp, ChevronDown ,Square } from "lucide-react";
+import {   Plus,
+  Mic,
+  ArrowUp,
+  ChevronDown,
+  MoveDown,
+  ArrowDown,
+  Copy,
+  ThumbsUp,
+  ThumbsDown,
+  Share2,
+  RotateCcw,
+  MoreHorizontal,} from "lucide-react";
 import { useConversationLists, useSendMessageMutation } from "@/query";
 
 import { v4 as uuid } from "uuid";
@@ -123,11 +134,11 @@ const cancelMessage = () => {
     {messages.length === 0 ? (
       <div className="grid h-full place-items-center">
         <div className="px-6 text-center">
-          <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
-            AI
-          </div>
+          {/* <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
+            A\
+          </div> */}
           <h2 className="mb-1 text-xl font-semibold text-gray-900">
-            Start a new conversation
+            Whats on your mind?
           </h2>
           <p className="text-sm text-gray-500">Type a message below to begin.</p>
         </div>
@@ -138,7 +149,7 @@ const cancelMessage = () => {
           <div key={m.id} className="flex flex-col gap-2">
            {m.message && (
               <div className="flex justify-end group">
-                <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
+                <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
                   <p className="text-sm whitespace-pre-wrap">{m.message}</p>
 
                   {/* Action buttons (show on hover) */}
@@ -166,10 +177,51 @@ const cancelMessage = () => {
             )}
 
             {m.answer ? (
-              <div className="flex justify-start">
+              <div className="flex flex-col items-start gap-1">
                 <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
                   <Markdown content={m.answer} />
                 </div>
+
+                 {/* Action icons */}
+                    <div className="flex items-center gap-3 px-2">
+                      {/* Copy */}
+                      <button
+                        className="p-1 rounded hover:bg-gray-300"
+                        title="Copy"
+                        onClick={() => navigator.clipboard.writeText(m.answer)}
+                      >
+                        <Copy className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      {/* Like */}
+                      <button className="p-1 rounded hover:bg-gray-300" title="Like">
+                        <ThumbsUp className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      {/* Dislike */}
+                      <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
+                        <ThumbsDown className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      {/* Share */}
+                      <button className="p-1 rounded hover:bg-gray-300" title="Share">
+                        <Share2 className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      {/* Try Again */}
+                      <button
+                        className="p-1 rounded hover:bg-gray-300"
+                        title="Try Again"
+                        onClick={() => sendMessage()}
+                      >
+                        <RotateCcw className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      {/* More Options */}
+                      <button className="p-1 rounded hover:bg-gray-300" title="More">
+                        <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
               </div>
             ) : (
               loading &&
@@ -238,29 +290,28 @@ const cancelMessage = () => {
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
             <Mic className="w-5 h-5 text-gray-500" />
           </button>
-        </div>
 
-        {/* Send / Stop button */}
-        {loading ? (
-          <button
-            type="button"
-            onClick={cancelMessage}
-          //     className="grid mb-3 text-white bg-gray-800 rounded-full shadow-md size-10 place-items-center hover:bg-red-500 animate-pulse cursor-pointer"
-          //   >
-          //     <div className="w-3.5 h-3.5 bg-white rounded-sm" />
-          // </button>
-            className="flex mb-3 items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
-            >
-              <div className="w-3.5 h-3.5 bg-white rounded-sm" />
-            </button>
-        ) : (
-          <button
-            type="submit"
-            className="grid mb-3 text-white bg-blue-900 rounded-full shadow-md size-10 place-items-center hover:bg-blue-800 cursor-pointer"
-          >
-            <ArrowUp className="w-5 h-5" />
-          </button>
-        )}
+           {loading ? (
+              <button
+                type="button"
+                onClick={cancelMessage}
+              //     className="grid mb-3 text-white bg-gray-800 rounded-full shadow-md size-10 place-items-center hover:bg-red-500 animate-pulse cursor-pointer"
+              //   >
+              //     <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+              // </button>
+                className="flex items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
+                >
+                  <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+                </button>
+            ) : (
+              <button
+                type="submit"
+                  className="grid  text-white bg-black rounded-full shadow-md size-10 place-items-center hover:bg-blue-800 cursor-pointer"
+              >
+                <ArrowUp className="w-5 h-5" />
+              </button>
+            )}
+        </div>
       </form>
     </div>
   </div>
