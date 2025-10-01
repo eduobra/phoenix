@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Send, User, Bot } from "lucide-react";
+import TypingIndicator from "@/components/ui/TypingIndicator";
 
 type Message = {
   id: number;
@@ -20,33 +21,98 @@ const starterTopics = [
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const handleSend = (text: string) => {
+  // ✅ Auto-scroll when messages update or typing
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, typing]);
+
+  const handleSend = async (text: string) => {
     if (!text.trim()) return;
 
-    const newMsg: Message = {
+    const userMsg: Message = {
       id: Date.now(),
       sender: "user",
       text,
       createdAt: new Date(),
     };
-
-    setMessages((prev) => [...prev, newMsg]);
-
-    // Fake bot reply after 1s (you can replace with API call)
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: "bot",
-          text: `🤖 This is a sample response to: "${text}"`,
-          createdAt: new Date(),
-        },
-      ]);
-    }, 1000);
-
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
+
+    const botMsgId = Date.now() + 1;
+    setMessages((prev) => [
+      ...prev,
+      { id: botMsgId, sender: "bot", text: "", createdAt: new Date() },
+    ]);
+    setTyping(true); // show typing indicator immediately
+
+    try {
+      const response = await fetch("http://20.6.33.11:8080/api/v1/ask/about", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stream: true, input: text }),
+      });
+
+      if (!response.body) throw new Error("No response body");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      let botText = "";
+      const queue: string[] = []; // tokens waiting to be typed
+      let isTyping = false;
+
+      // Function that slowly types tokens
+      const typeNext = () => {
+        if (queue.length === 0) {
+          isTyping = false;
+          setTyping(false); // hide typing indicator when done
+          return;
+        }
+        isTyping = true;
+        const next = queue.shift();
+        if (next) {
+          botText += next + " ";
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === botMsgId ? { ...m, text: botText } : m
+            )
+          );
+        }
+        setTimeout(typeNext, 60); // ⏱️ adjust typing speed
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n").filter((l) => l.startsWith("data:"));
+
+        for (const line of lines) {
+          const token = line.replace("data:", "").trim();
+          if (token) {
+            queue.push(token);
+            if (!isTyping) typeNext(); // start typing if idle
+          }
+        }
+      }
+
+      // once stream ends, make sure typing is false
+      setTyping(false);
+    } catch (err) {
+      console.error("Streaming error:", err);
+      setTyping(false);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === botMsgId
+            ? { ...m, text: "⚠️ Failed to load response." }
+            : m
+        )
+      );
+    }
   };
 
   return (
@@ -56,11 +122,13 @@ const Chat = () => {
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
             <img
-                    src="/agent_logo.png"
-                    alt="Company Logo"
-                    className="w-36 h-36 mb-2 object-contain"
-                />
-            <p className="mb-4 text-sm">Hi! I’m your AI assistant. Choose a topic to begin:</p>
+              src="/agent_logo.png"
+              alt="Company Logo"
+              className="w-36 h-36 mb-2 object-contain"
+            />
+            <p className="mb-4 text-sm">
+              Hi! I’m your AI assistant. Choose a topic to begin:
+            </p>
             <div className="flex flex-col gap-2 w-full">
               {starterTopics.map((topic) => (
                 <button
@@ -74,42 +142,62 @@ const Chat = () => {
             </div>
           </div>
         ) : (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-            >
+          <>
+            {messages.map((msg) => (
               <div
-                className={`flex items-end gap-2 max-w-[75%] ${
-                  msg.sender === "user" ? "flex-row-reverse" : "flex-row"
+                key={msg.id}
+                className={`flex ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                {/* Icon */}
                 <div
-                  className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                    msg.sender === "user" ? "bg-indigo-500 text-white" : "bg-gray-200 text-gray-600"
+                  className={`flex items-end gap-2 max-w-[75%] ${
+                    msg.sender === "user" ? "flex-row-reverse" : "flex-row"
                   }`}
                 >
-                  {msg.sender === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                </div>
+                  {/* Icon */}
+                  <div
+                    className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                      msg.sender === "user"
+                        ? "bg-indigo-500 text-white"
+                        : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {msg.sender === "user" ? (
+                      <User className="w-4 h-4" />
+                    ) : (
+                      <Bot className="w-4 h-4" />
+                    )}
+                  </div>
 
-                {/* Message bubble */}
-                <div
-                  className={`px-4 py-2 rounded-2xl text-sm ${
-                    msg.sender === "user"
-                      ? "bg-indigo-500 text-white"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {msg.text}
-                  <div className="mt-1 text-[10px] text-gray-400">
-                    {msg.createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {/* Message bubble */}
+                  <div
+                    className={`px-4 py-2 rounded-2xl text-sm ${
+                      msg.sender === "user"
+                        ? "bg-indigo-500 text-white"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {msg.text || (msg.sender === "bot" && typing ? <TypingIndicator /> : null)}
+                    <div className="mt-1 text-[10px] text-gray-400">
+                      {msg.createdAt.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+{/* 
+            {typing && messages[messages.length - 1]?.sender === "bot" && (
+              <div className="flex justify-start">
+                <TypingIndicator />
+              </div>
+            )} */}
+          </>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input area */}
