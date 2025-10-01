@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import ChatbotWidget from "@/components/ui/ChatbotWidget";
 
 const benefits = ["Free 14-day trial", "No setup fees", "Cancel anytime", "24/7 support included"];
 
@@ -228,6 +229,7 @@ const Index = () => {
       <HeroSection />
       <FeaturesSection />
       <CTASection />
+       <ChatbotWidget />
     </div>
   );
 };

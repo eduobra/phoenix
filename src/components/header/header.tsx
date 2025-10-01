@@ -89,6 +89,33 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
           Ascent AI <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
+         <DropdownMenuContent align="start">
+      {/* Item 1 */}
+      <DropdownMenuItem className="flex flex-col items-start gap-1">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center">
+            <Zap className="mr-2 h-4 w-4" />
+            <span>Ascent AI Plus</span>
+          </div>
+          <Button variant="default" className="h-6 text-xs px-2">
+            Upgrade
+          </Button>
+        </div>
+        <p className="text-xs text-gray-500">Our smartest model and more</p>
+      </DropdownMenuItem>
+
+      {/* Item 2 */}
+      <DropdownMenuItem className="flex flex-col items-start gap-1">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex items-center">
+            <Bot className="mr-2 h-4 w-4" />
+            <span>Ascent AI Standard</span>
+          </div>
+          <Check className="h-4 w-4 text-green-600" />
+        </div>
+        <p className="text-xs text-gray-500">Great balance of speed and quality</p>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
     </DropdownMenu>
   </div>
 
