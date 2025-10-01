@@ -44,6 +44,7 @@ const Page = () => {
       id,
       message: inputValue,
       answer: "",
+      created_at: new Date().toISOString(),
     });
     setInputValue("");
     setLoading(true);
@@ -223,6 +224,18 @@ const cancelMessage = () => {
                         <MoreHorizontal className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
+                     {/* Timestamp for bot answer */}
+                    <span className="text-[10px] text-gray-500 whitespace-nowrap">
+                      {new Date(m.created_at).toLocaleDateString([], {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}{" "}
+                      {new Date(m.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
               </div>
             ) : (
               loading &&
@@ -248,12 +261,14 @@ const cancelMessage = () => {
 
   {/* Scroll to bottom button */}
   {showScrollButton && (
-    <button
-      onClick={scrollToBottom}
-      className="absolute z-50 p-3 text-white transition-all duration-300 bg-blue-900 rounded-full shadow-lg bottom-24 right-6 hover:bg-blue-800 animate-bounce"
-    >
-      <ChevronDown className="w-5 h-5" />
-    </button>
+      <button
+            onClick={scrollToBottom}
+            className="absolute left-1/2 bottom-24 transform -translate-x-1/2 p-2 text-black bg-white rounded-full shadow-md hover:bg-gray-100"
+          >
+            {/* <ChevronDown className="w-5 h-5" /> */}
+            {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
+            <ArrowDown size={18} absoluteStrokeWidth />
+          </button>
   )}
 
   {/* Input box */}

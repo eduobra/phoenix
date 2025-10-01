@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 import { create, StoreApi, useStore } from "zustand";
-type Msg = { id: string; message: string; answer: string };
+type Msg = {
+  created_at: string | number | Date; id: string; message: string; answer: string 
+};
 type ContextState = {
   conversationId: string | null;
   messages: Msg[];

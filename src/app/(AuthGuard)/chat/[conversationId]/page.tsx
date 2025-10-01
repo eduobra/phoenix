@@ -1,3 +1,4 @@
+//history chat page
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -19,7 +20,7 @@ import { v4 as uuid } from "uuid";
 
 import Markdown from "@/components/mark-down";
 
-type Msg = { id: string; message: string; answer: string };
+type Msg = { id: string; message: string; answer: string;created_at: string; };
 
 const Page = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -40,7 +41,9 @@ const Page = () => {
   // Auto scroll when data/messages change
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
+      console.log("data to check",data)
   }, [data, messages, loading]);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,7 +74,7 @@ const Page = () => {
     const id = uuid();
 
     // Add user's message immediately
-    setMessages((prev) => [...prev, { id, message: inputValue, answer: "" }]);
+    setMessages((prev) => [...prev, { id, message: inputValue, answer: "", created_at: new Date().toISOString() }]);
     setInputValue("");
 
     // reset textarea height while typing
@@ -192,69 +195,79 @@ const Page = () => {
               <div key={m.id} className="flex flex-col gap-2">
                 {m.message && (
                   <div className="flex justify-end">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-300 text-black">
+                    <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-gray-300 text-black">
                       <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                     </div>
                   </div>
                 )}
 
-                {m.answer && (
-                  <div className="flex flex-col items-start gap-1 w-screen">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900 overflow-x-auto">
-                      <Markdown content={m.answer} />
-                    </div>
+              {m.answer && (
+              <div className="flex flex-col items-start gap-1 w-sm">
+                {/* Message bubble */}
+                <div className="relative px-4 py-2 rounded-2xl max-w-[100%] bg-gray-200 text-gray-900 overflow-x-auto">
+                  <Markdown content={m.answer} />
+                </div>
 
+                {/* Actions row */}
+                <div className="flex items-center gap-3 px-2 max-w-[100%] w-full relative">
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      className="p-1 rounded hover:bg-gray-300"
+                      title="Copy"
+                      onClick={() => navigator.clipboard.writeText(m.answer ?? "")}
+                    >
+                      <Copy className="w-4 h-4 text-gray-600" />
+                    </button>
 
-                     {/* Action icons */}
-                    <div className="flex items-center gap-3 px-2">
-                      {/* Copy */}
-                      <button
-                        className="p-1 rounded hover:bg-gray-300"
-                        title="Copy"
-                        onClick={() => navigator.clipboard.writeText(m.answer ?? "")}
-                      >
-                        <Copy className="w-4 h-4 text-gray-600" />
-                      </button>
+                    <button className="p-1 rounded hover:bg-gray-300" title="Like">
+                      <ThumbsUp className="w-4 h-4 text-gray-600" />
+                    </button>
 
-                      {/* Like */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="Like">
-                        <ThumbsUp className="w-4 h-4 text-gray-600" />
-                      </button>
+                    <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
+                      <ThumbsDown className="w-4 h-4 text-gray-600" />
+                    </button>
 
-                      {/* Dislike */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
-                        <ThumbsDown className="w-4 h-4 text-gray-600" />
-                      </button>
+                    <button className="p-1 rounded hover:bg-gray-300" title="Share">
+                      <Share2 className="w-4 h-4 text-gray-600" />
+                    </button>
 
-                      {/* Share */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="Share">
-                        <Share2 className="w-4 h-4 text-gray-600" />
-                      </button>
+                    <button
+                      className="p-1 rounded hover:bg-gray-300"
+                      title="Try Again"
+                      onClick={() => sendMessage()}
+                    >
+                      <RotateCcw className="w-4 h-4 text-gray-600" />
+                    </button>
 
-                      {/* Try Again */}
-                      <button
-                        className="p-1 rounded hover:bg-gray-300"
-                        title="Try Again"
-                        onClick={() => sendMessage()}
-                      >
-                        <RotateCcw className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {/* More Options */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="More">
-                        <MoreHorizontal className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
+                    <button className="p-1 rounded hover:bg-gray-300" title="More">
+                      <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                    </button>
                   </div>
-                )}
+
+                  {/* Timestamp snug at bottom right */}
+                  <span className="relative right-0 bottom-0 text-[10px] text-gray-500 whitespace-nowrap">
+                    {new Date(m.created_at).toLocaleDateString([], {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}{" "}
+                    {new Date(m.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+            )}
               </div>
             ))}
 
           {/* messages created during this session */}
           {messages.map((m) => (
-            <div key={m.id} className="flex flex-col gap-2">
+            <div key={m.id} className="flex flex-col gap-2 ">
               {m.message && (
-                <div className="flex justify-end">
+                <div className="flex justify-end ">
                   <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
                     <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                   </div>
@@ -308,6 +321,18 @@ const Page = () => {
                         <MoreHorizontal className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
+                    {/* Timestamp for bot answer */}
+                  <span className="text-[10px] text-gray-500 whitespace-nowrap">
+                    {new Date(m.created_at).toLocaleDateString([], {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}{" "}
+                    {new Date(m.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
                 </div>
               )}
             </div>
