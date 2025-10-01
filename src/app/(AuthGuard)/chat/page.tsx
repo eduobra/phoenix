@@ -267,7 +267,7 @@ const cancelMessage = () => {
         className="flex items-end gap-2"
       >
         {/* Input + icons */}
-        <div className="flex items-center flex-1 gap-2 px-2 py-2 bg-white border border-gray-300 shadow-sm rounded-2xl">
+        <div className="flex items-center w-full gap-2 px-1 py-1 bg-white border border-gray-300 shadow-sm rounded-full m-2">
           <button type="button" className="p-2 rounded-full hover:bg-gray-100">
             <Plus className="w-5 h-5 text-gray-500" />
           </button>
@@ -307,8 +307,12 @@ const cancelMessage = () => {
             ) : (
               <button
                 type="submit"
-                  className="grid  text-white bg-black rounded-full shadow-md size-10 place-items-center hover:bg-blue-800 cursor-pointer"
-              >
+                disabled={!inputValue.trim()} // ✅ disable when empty
+                className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                  inputValue.trim()
+                    ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
+                    : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                }`} >
                 <ArrowUp className="w-5 h-5" />
               </button>
             )}

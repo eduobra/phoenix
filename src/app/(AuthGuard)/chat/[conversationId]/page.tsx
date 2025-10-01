@@ -199,7 +199,7 @@ const Page = () => {
                 )}
 
                 {m.answer && (
-                  <div className="flex flex-col items-start gap-1">
+                  <div className="flex flex-col items-start gap-1 w-screen">
                     <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900 overflow-x-auto">
                       <Markdown content={m.answer} />
                     </div>
@@ -344,7 +344,7 @@ const Page = () => {
     )}
 
     {/* Input Area */}
-    <div className="sticky bottom-0 z-10 px-4 pt-2 pb-4 bg-gray-50 ">
+    <div className="sticky bottom-0 z-20 px-4 pt-2 pb-4 bg-gray-50">
       <div className="w-full max-w-3xl mx-auto ">
         <form
           onSubmit={(e) => {
@@ -353,7 +353,7 @@ const Page = () => {
           }}
           className="flex items-end gap-2 "
         >
-          <div className="flex items-center w-full gap-2 px-2 py-2 bg-white border border-gray-300 shadow-sm rounded-2xl">
+          <div className="flex items-center w-full gap-2 px-1 py-1 bg-white border border-gray-300 shadow-sm rounded-full m-2">
             <button
               type="button"
               className="p-2 rounded-full hover:bg-gray-100"
@@ -396,14 +396,22 @@ const Page = () => {
             ) : (
               <button
                 type="submit"
-                className="grid  text-white bg-black rounded-full shadow-md size-10 place-items-center hover:bg-blue-800 cursor-pointer"
+                disabled={!inputValue.trim()} // ✅ disable when empty
+                className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                  inputValue.trim()
+                    ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
+                    : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 <ArrowUp className="w-5 h-5" />
               </button>
-          )}
+            )}
+            
           </div>
         </form>
+        
       </div>
+      
     </div>
   </div>
 );
