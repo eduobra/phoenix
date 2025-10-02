@@ -34,7 +34,6 @@ const Chat = () => {
 const handleSend = async (text: string) => {
   if (!text.trim()) return;
 
-  // user message
   const userMsg: Message = {
     id: Date.now(),
     sender: "user",
@@ -44,7 +43,6 @@ const handleSend = async (text: string) => {
   setMessages((prev) => [...prev, userMsg]);
   setInput("");
 
-  // bot placeholder
   const botMsgId = Date.now() + 1;
   setMessages((prev) => [
     ...prev,
@@ -56,11 +54,25 @@ const handleSend = async (text: string) => {
     const stream = await mutateAsync({ input: text, stream: true });
 
     let botText = "";
+
     for await (const chunk of stream) {
-      botText += chunk;
-      setMessages((prev) =>
-        prev.map((m) => (m.id === botMsgId ? { ...m, text: botText } : m))
-      );
+      // Optional: add space between chunks if needed
+      if (
+        botText.length > 0 &&
+        !/[ \n.,!?]$/.test(botText) &&
+        !/^[ \n.,!?]/.test(chunk)
+      ) {
+        botText += " ";
+      }
+
+      // Type each character with a delay
+      for (const char of chunk) {
+        botText += char;
+        setMessages((prev) =>
+          prev.map((m) => (m.id === botMsgId ? { ...m, text: botText } : m))
+        );
+        await new Promise((r) => setTimeout(r, 20)); // ⬅ 20ms per char
+      }
     }
 
     setTyping(false);
@@ -74,6 +86,8 @@ const handleSend = async (text: string) => {
     );
   }
 };
+
+
 
 
   return (

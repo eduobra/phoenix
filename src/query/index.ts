@@ -204,7 +204,7 @@ export const useConversationLists = () => {
 
 export const useSendWidgetMessage = () => {
   return useMutation<
-    AsyncGenerator<string, void, unknown>, // streamed chunks
+    AsyncGenerator<string, void, unknown>,
     Error,
     { input: string; stream: true }
   >({
@@ -221,10 +221,24 @@ export const useSendWidgetMessage = () => {
       const decoder = new TextDecoder();
 
       async function* streamGenerator() {
+        let buffer = "";
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          yield decoder.decode(value, { stream: true });
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (line.startsWith("data:")) {
+              const content = line.replace(/^data:\s*/, "").trim();
+              if (content && content !== "[DONE]") {
+                yield content; // ✅ yield the chunk directly, no extra accumulation here
+              }
+            }
+          }
         }
       }
 
@@ -232,6 +246,7 @@ export const useSendWidgetMessage = () => {
     },
   });
 };
+
 
 
 
