@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Send, User, Bot } from "lucide-react";
 import TypingIndicator from "@/components/ui/TypingIndicator";
+import { useSendMessageMutation, useSendWidgetMessage } from "@/query";
 
 type Message = {
   id: number;
@@ -23,97 +24,57 @@ const Chat = () => {
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
+  const { mutateAsync } = useSendWidgetMessage();
+  
   // ✅ Auto-scroll when messages update or typing
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
-  const handleSend = async (text: string) => {
-    if (!text.trim()) return;
+const handleSend = async (text: string) => {
+  if (!text.trim()) return;
 
-    const userMsg: Message = {
-      id: Date.now(),
-      sender: "user",
-      text,
-      createdAt: new Date(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
+  // user message
+  const userMsg: Message = {
+    id: Date.now(),
+    sender: "user",
+    text,
+    createdAt: new Date(),
+  };
+  setMessages((prev) => [...prev, userMsg]);
+  setInput("");
 
-    const botMsgId = Date.now() + 1;
-    setMessages((prev) => [
-      ...prev,
-      { id: botMsgId, sender: "bot", text: "", createdAt: new Date() },
-    ]);
-    setTyping(true); // show typing indicator immediately
+  // bot placeholder
+  const botMsgId = Date.now() + 1;
+  setMessages((prev) => [
+    ...prev,
+    { id: botMsgId, sender: "bot", text: "", createdAt: new Date() },
+  ]);
+  setTyping(true);
 
-    try {
-      const response = await fetch("http://20.6.33.11:8080/api/v1/ask/about", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stream: true, input: text }),
-      });
+  try {
+    const stream = await mutateAsync({ input: text, stream: true });
 
-      if (!response.body) throw new Error("No response body");
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-
-      let botText = "";
-      const queue: string[] = []; // tokens waiting to be typed
-      let isTyping = false;
-
-      // Function that slowly types tokens
-      const typeNext = () => {
-        if (queue.length === 0) {
-          isTyping = false;
-          setTyping(false); // hide typing indicator when done
-          return;
-        }
-        isTyping = true;
-        const next = queue.shift();
-        if (next) {
-          botText += next + " ";
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === botMsgId ? { ...m, text: botText } : m
-            )
-          );
-        }
-        setTimeout(typeNext, 60); // ⏱️ adjust typing speed
-      };
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n").filter((l) => l.startsWith("data:"));
-
-        for (const line of lines) {
-          const token = line.replace("data:", "").trim();
-          if (token) {
-            queue.push(token);
-            if (!isTyping) typeNext(); // start typing if idle
-          }
-        }
-      }
-
-      // once stream ends, make sure typing is false
-      setTyping(false);
-    } catch (err) {
-      console.error("Streaming error:", err);
-      setTyping(false);
+    let botText = "";
+    for await (const chunk of stream) {
+      botText += chunk;
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id === botMsgId
-            ? { ...m, text: "⚠️ Failed to load response." }
-            : m
-        )
+        prev.map((m) => (m.id === botMsgId ? { ...m, text: botText } : m))
       );
     }
-  };
+
+    setTyping(false);
+  } catch (err) {
+    console.error("Streaming error:", err);
+    setTyping(false);
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === botMsgId ? { ...m, text: "⚠️ Failed to load response." } : m
+      )
+    );
+  }
+};
+
 
   return (
     <div className="flex flex-col h-full">
@@ -155,7 +116,7 @@ const Chat = () => {
                     msg.sender === "user" ? "flex-row-reverse" : "flex-row"
                   }`}
                 >
-                  {/* Icon */}
+                  {/* Avatar */}
                   <div
                     className={`flex items-center justify-center w-8 h-8 rounded-full ${
                       msg.sender === "user"
@@ -170,7 +131,7 @@ const Chat = () => {
                     )}
                   </div>
 
-                  {/* Message bubble */}
+                  {/* Bubble */}
                   <div
                     className={`px-4 py-2 rounded-2xl text-sm ${
                       msg.sender === "user"
@@ -178,7 +139,8 @@ const Chat = () => {
                         : "bg-gray-100 text-gray-800"
                     }`}
                   >
-                    {msg.text || (msg.sender === "bot" && typing ? <TypingIndicator /> : null)}
+                    {msg.text ||
+                      (msg.sender === "bot" && typing ? <TypingIndicator /> : null)}
                     <div className="mt-1 text-[10px] text-gray-400">
                       {msg.createdAt.toLocaleTimeString([], {
                         hour: "2-digit",
@@ -189,12 +151,6 @@ const Chat = () => {
                 </div>
               </div>
             ))}
-{/* 
-            {typing && messages[messages.length - 1]?.sender === "bot" && (
-              <div className="flex justify-start">
-                <TypingIndicator />
-              </div>
-            )} */}
           </>
         )}
         <div ref={messagesEndRef} />

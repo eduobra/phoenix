@@ -147,6 +147,8 @@ export const useChatHistoryLists = () => {
   });
 };
 
+
+
 export const useSendMessageMutation = () => {
   const authorization = Authorization();
 
@@ -196,6 +198,43 @@ export const useConversationLists = () => {
     refetchOnWindowFocus: false,
   });
 };
+
+
+
+
+export const useSendWidgetMessage = () => {
+  return useMutation<
+    AsyncGenerator<string, void, unknown>, // streamed chunks
+    Error,
+    { input: string; stream: true }
+  >({
+    mutationFn: async ({ input }) => {
+      const res = await fetch("/api/chat-widgets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input, stream: true }),
+      });
+
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      async function* streamGenerator() {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          yield decoder.decode(value, { stream: true });
+        }
+      }
+
+      return streamGenerator();
+    },
+  });
+};
+
+
+
 
 //   const payloadObj = {
 //     input: inputValue,
