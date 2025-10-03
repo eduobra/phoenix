@@ -72,7 +72,7 @@ const Page = () => {
               <div key={m.id} className="flex flex-col gap-2">
                 {m.message && (
                   <div className="flex justify-end">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
+                    <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-blue-600 text-white">
                       <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                     </div>
                   </div>
@@ -80,7 +80,7 @@ const Page = () => {
 
                 {m.answer && (
                   <div className="flex justify-start">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
+                    <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-gray-200 text-gray-900">
                       <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
                     </div>
                   </div>
@@ -91,7 +91,7 @@ const Page = () => {
               <div key={m.id} className="flex flex-col gap-2">
                 {m.message && (
                   <div className="flex justify-end">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-600 text-white">
+                    <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-blue-600 text-white">
                       <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                     </div>
                   </div>
@@ -99,7 +99,7 @@ const Page = () => {
 
                 {m.answer && (
                   <div className="flex justify-start">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
+                    <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-gray-200 text-gray-900">
                       <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
                     </div>
                   </div>

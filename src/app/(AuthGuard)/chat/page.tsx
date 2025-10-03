@@ -19,6 +19,7 @@ import { v4 as uuid } from "uuid";
 import { useQueryClient } from "@tanstack/react-query";
 import { useChat } from "@/contexts/ChatContext";
 import Markdown from "@/components/mark-down";
+import UsageLimitModal from "@/components/ui/UsageLimitModal";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -179,8 +180,8 @@ const cancelMessage = () => {
             )}
 
             {m.answer ? (
-              <div className="flex flex-col items-start gap-1">
-                <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900">
+              <div className="flex flex-col items-start gap-1 w-full">
+                <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900">
                   <Markdown content={m.answer} />
                 </div>
 
@@ -326,7 +327,7 @@ const cancelMessage = () => {
                 className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
                   inputValue.trim()
                     ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                    : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-300 text-white cursor-not-allowed"
                 }`} >
                 <ArrowUp className="w-5 h-5" />
               </button>
@@ -334,7 +335,9 @@ const cancelMessage = () => {
         </div>
       </form>
     </div>
+    <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
   </div>
+   
 </div>
 
   );

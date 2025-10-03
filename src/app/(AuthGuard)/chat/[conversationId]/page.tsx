@@ -19,8 +19,10 @@ import { useParams } from "next/navigation";
 import { v4 as uuid } from "uuid";
 
 import Markdown from "@/components/mark-down";
+import UsageLimitModal from "@/components/ui/UsageLimitModal";
 
 type Msg = { id: string; message: string; answer: string;created_at: string; };
+
 
 const Page = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -34,11 +36,47 @@ const Page = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
-
-  // AbortController ref used across send/cancel
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  // Auto scroll when data/messages change
+
+    const startListening = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Speech recognition not supported in this browser.");
+      return;
+    }
+
+    const SpeechRecognition =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US"; // or "fil-PH" for Tagalog
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInputValue(transcript); // put text inside your textarea
+      handleInputGrow(); // resize textarea as if typing
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  };
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
       console.log("data to check",data)
@@ -91,7 +129,7 @@ const Page = () => {
       const res = await mutateAsync({
         input: inputValue,
         session_id: conversationId,
-        stream: false,
+        stream: true,
         signal: controller.signal, // pass signal so mutation can abort
       });
 
@@ -195,16 +233,16 @@ const Page = () => {
               <div key={m.id} className="flex flex-col gap-2">
                 {m.message && (
                   <div className="flex justify-end">
-                    <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-gray-300 text-black">
+                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
                       <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                     </div>
                   </div>
                 )}
 
               {m.answer && (
-              <div className="flex flex-col items-start gap-1 w-sm">
+              <div className="flex flex-col items-start gap-1 w-full">
                 {/* Message bubble */}
-                <div className="relative px-4 py-2 rounded-2xl max-w-[100%] bg-gray-200 text-gray-900 overflow-x-auto">
+                <div className="relative px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900 overflow-x-auto">
                   <Markdown content={m.answer} />
                 </div>
 
@@ -275,8 +313,8 @@ const Page = () => {
               )}
 
               {m.answer && (
-                <div className="flex flex-col items-start gap-1">
-                  <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-gray-900 overflow-x-auto">
+                <div className="flex flex-col items-start gap-1 w-full">
+                  <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900 overflow-x-auto">
                     <Markdown content={m.answer} />
                     
                   </div>
@@ -403,10 +441,16 @@ const Page = () => {
             />
 
             <button
-              type="button"
-              className="p-2 rounded-full hover:bg-gray-100"
-            >
-              <Mic className="w-5 h-5 text-gray-500" />
+                  type="button"
+                  onClick={isListening ? stopListening : startListening}
+                  className={`p-2 rounded-full transition ${
+                    isListening ? "bg-red-500 text-white" : "hover:bg-gray-100"
+                  }`}
+                  title={isListening ? "Stop listening" : "Start voice input"}
+                >
+              <Mic  className={`w-5 h-5 ${
+                isListening ? "text-white" : "text-gray-500"
+              }`}/>
 
             </button>
             {loading ? (
@@ -425,7 +469,7 @@ const Page = () => {
                 className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
                   inputValue.trim()
                     ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                    : "bg-gray-100 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-300 text-white cursor-not-allowed"
                 }`}
               >
                 <ArrowUp className="w-5 h-5" />
@@ -438,6 +482,7 @@ const Page = () => {
       </div>
       
     </div>
+    <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
   </div>
 );
 

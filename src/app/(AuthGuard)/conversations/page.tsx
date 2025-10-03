@@ -63,7 +63,7 @@ const Page = () => {
             {messages.map((m) => (
               <div key={m.id} className={`flex w-full ${m.sender === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`px-4 py-2 rounded-2xl max-w-[80%] ${m.sender === "user" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-900"}`}
+                  className={`px-4 py-2 rounded-2xl max-w-[100%] ${m.sender === "user" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-900"}`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{m.content}</p>
                 </div>
