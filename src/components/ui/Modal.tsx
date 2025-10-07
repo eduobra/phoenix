@@ -22,7 +22,7 @@ export default function Modal({ isOpen, title, message, onClose }: ModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm transition-opacity">
-      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 transform transition-all duration-300 scale-100">
+    <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 transform transition-all duration-300 scale-100 animate-modalIn">
         {title && (
           <h2 className="text-lg font-semibold text-gray-900 mb-3 text-center">{title}</h2>
         )}

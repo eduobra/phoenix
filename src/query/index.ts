@@ -204,7 +204,7 @@ export const useConversationLists = () => {
 
 export const useSendWidgetMessage = () => {
   return useMutation<
-    AsyncGenerator<string, void, unknown>,
+    AsyncGenerator<string, void, unknown>, // streamed text
     Error,
     { input: string; stream: true }
   >({
@@ -228,14 +228,15 @@ export const useSendWidgetMessage = () => {
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
 
-          for (const line of lines) {
-            if (line.startsWith("data:")) {
-              const content = line.replace(/^data:\s*/, "").trim();
-              if (content && content !== "[DONE]") {
-                yield content; // ✅ yield the chunk directly, no extra accumulation here
+          const parts = buffer.split("\n");
+          buffer = parts.pop() || "";
+
+          for (const part of parts) {
+            if (part.startsWith("data:")) {
+              const cleaned = part.replace(/^data:\s*/, "").trim();
+              if (cleaned && cleaned !== "[DONE]") {
+                yield cleaned; // 👈 only yield clean text
               }
             }
           }
@@ -246,7 +247,6 @@ export const useSendWidgetMessage = () => {
     },
   });
 };
-
 
 
 

@@ -20,6 +20,7 @@ import { v4 as uuid } from "uuid";
 
 import Markdown from "@/components/mark-down";
 import UsageLimitModal from "@/components/ui/UsageLimitModal";
+import Modal from "@/components/ui/Modal";
 
 type Msg = { id: string; message: string; answer: string;created_at: string; };
 
@@ -40,6 +41,11 @@ const Page = () => {
   const [isListening, setIsListening] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
+  const MAX_CHARACTERS = 10000;
+  const WARNING_THRESHOLD = 0.9; // 90%
+
+  const [charCount, setCharCount] = useState(0);
 
 
     const startListening = () => {
@@ -129,7 +135,7 @@ const Page = () => {
       const res = await mutateAsync({
         input: inputValue,
         session_id: conversationId,
-        stream: true,
+        stream: false,
         signal: controller.signal, // pass signal so mutation can abort
       });
 
@@ -147,19 +153,24 @@ const Page = () => {
       );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      // If aborted, we typically handle removal in cancelMessage.
-      // But also log other errors for debugging.
-      if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
-        console.log("Request aborted by user.");
-      } else {
-        console.error("Send message error:", err);
-      }
-    } finally {
-      // cleanup: hide stop button and clear stored controller
-      abortControllerRef.current = null;
-      setLoading(false);
-      if (inputRef.current) inputRef.current.style.height = "0px";
+    }  catch (err: any) {
+        if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
+        setErrorModal({
+              isOpen: true,
+              message: err.message,
+            });
+        } else {
+          
+          setErrorModal({
+            isOpen: true,
+            message: "Looks like the server isn’t responding right now. Try again later.",
+          });
+        }
+    }finally {
+          // cleanup: hide stop button and clear stored controller
+          abortControllerRef.current = null;
+          setLoading(false);
+          if (inputRef.current) inputRef.current.style.height = "0px";
     }
   };
 
@@ -240,64 +251,64 @@ const Page = () => {
                 )}
 
               {m.answer && (
-              <div className="flex flex-col items-start gap-1 w-full">
-                {/* Message bubble */}
-                <div className="relative px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900 overflow-x-auto">
-                  <Markdown content={m.answer} />
-                </div>
-
-                {/* Actions row */}
-                <div className="flex items-center gap-3 px-2 max-w-[100%] w-full relative">
-                  {/* Action buttons */}
-                  <div className="flex items-center gap-3">
-                    <button
-                      className="p-1 rounded hover:bg-gray-300"
-                      title="Copy"
-                      onClick={() => navigator.clipboard.writeText(m.answer ?? "")}
-                    >
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    </button>
-
-                    <button className="p-1 rounded hover:bg-gray-300" title="Like">
-                      <ThumbsUp className="w-4 h-4 text-gray-600" />
-                    </button>
-
-                    <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
-                      <ThumbsDown className="w-4 h-4 text-gray-600" />
-                    </button>
-
-                    <button className="p-1 rounded hover:bg-gray-300" title="Share">
-                      <Share2 className="w-4 h-4 text-gray-600" />
-                    </button>
-
-                    <button
-                      className="p-1 rounded hover:bg-gray-300"
-                      title="Try Again"
-                      onClick={() => sendMessage()}
-                    >
-                      <RotateCcw className="w-4 h-4 text-gray-600" />
-                    </button>
-
-                    <button className="p-1 rounded hover:bg-gray-300" title="More">
-                      <MoreHorizontal className="w-4 h-4 text-gray-600" />
-                    </button>
+                <div className="flex flex-col items-start gap-1 w-full">
+                  {/* Message bubble */}
+                  <div className="relative px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900 overflow-x-auto">
+                    <Markdown content={m.answer} />
                   </div>
 
-                  {/* Timestamp snug at bottom right */}
-                  <span className="relative right-0 bottom-0 text-[10px] text-gray-500 whitespace-nowrap">
-                    {new Date(m.created_at).toLocaleDateString([], {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}{" "}
-                    {new Date(m.created_at).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+                  {/* Actions row */}
+                   <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-1 px-2">
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-3">
+                      <button
+                        className="p-1 rounded hover:bg-gray-300"
+                        title="Copy"
+                        onClick={() => navigator.clipboard.writeText(m.answer ?? "")}
+                      >
+                        <Copy className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      <button className="p-1 rounded hover:bg-gray-300" title="Like">
+                        <ThumbsUp className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
+                        <ThumbsDown className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      <button className="p-1 rounded hover:bg-gray-300" title="Share">
+                        <Share2 className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      <button
+                        className="p-1 rounded hover:bg-gray-300"
+                        title="Try Again"
+                        onClick={() => sendMessage()}
+                      >
+                        <RotateCcw className="w-4 h-4 text-gray-600" />
+                      </button>
+
+                      <button className="p-1 rounded hover:bg-gray-300" title="More">
+                        <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
+
+                    {/* Timestamp snug at bottom right */}
+                    <span className="relative right-0 bottom-0 text-[10px] text-gray-500 whitespace-nowrap">
+                      {new Date(m.created_at).toLocaleDateString([], {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}{" "}
+                      {new Date(m.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
               </div>
             ))}
 
@@ -407,82 +418,91 @@ const Page = () => {
     )}
 
     {/* Input Area */}
-    <div className="sticky bottom-0 z-20 px-4 pt-2 pb-4 bg-gray-50">
+    <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
       <div className="w-full max-w-3xl mx-auto ">
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendMessage();
-          }}
-          className="flex items-end gap-2 "
-        >
-          <div className="flex items-center w-full gap-2 px-1 py-1 bg-white border border-gray-300 shadow-sm rounded-full m-2">
-            <button
-              type="button"
-              className="p-2 rounded-full hover:bg-gray-100"
-            >
-              <Plus className="w-5 h-5 text-gray-500" />
-            </button>
-
-            <textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onInput={handleInputGrow}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+                onSubmit={(e) => {
                   e.preventDefault();
                   sendMessage();
-                }
-              }}
-              rows={1}
-              placeholder="Type your message..."
-              className="flex-1 bg-transparent resize-none outline-none  px-3 py-2 leading-6 max-h-[200px] min-h-[44px] placeholder:text-gray-400"
-            />
-
-            <button
-                  type="button"
-                  onClick={isListening ? stopListening : startListening}
-                  className={`p-2 rounded-full transition ${
-                    isListening ? "bg-red-500 text-white" : "hover:bg-gray-100"
-                  }`}
-                  title={isListening ? "Stop listening" : "Start voice input"}
-                >
-              <Mic  className={`w-5 h-5 ${
-                isListening ? "text-white" : "text-gray-500"
-              }`}/>
-
-            </button>
-            {loading ? (
-              <button
-                type="button"
-                onClick={cancelMessage}
-                className="flex items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
-                title="Stop generating"
+                }}
+                className="flex items-end gap-2"
               >
-                <div className="w-3.5 h-3.5 bg-white rounded-sm" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={!inputValue.trim()} // ✅ disable when empty
-                className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
-                  inputValue.trim()
-                    ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                    : "bg-gray-300 text-white cursor-not-allowed"
-                }`}
-              >
-                <ArrowUp className="w-5 h-5" />
-              </button>
-            )}
-            
-          </div>
-        </form>
+                <div className="flex w-full items-end gap-2 bg-white border border-gray-300 shadow-sm rounded-3xl px-2 py-2 m-2">
+                  {/* Left buttons */}
+                  <div className="flex flex-col justify-end">
+                    <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+                      <Plus className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+        
+                  {/* Textarea (auto-growing upward) */}
+                  <div className="flex-1 flex flex-col justify-end">
+                    <textarea
+                      ref={inputRef}
+                      value={inputValue}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setInputValue(val);
+                        setCharCount(val.length);
+                      }}
+                      onInput={handleInputGrow}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (inputValue.trim() && inputValue.length <= MAX_CHARACTERS) {
+                            sendMessage();
+                          }
+                        }
+                      }}
+                      rows={1}
+                      maxLength={MAX_CHARACTERS}
+                      placeholder="Ask Ascent AI"
+                      className="w-full bg-transparent resize-none outline-none pt-3 px-3 leading-6 max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
+                    />
+                    
+                  </div>
+        
+                  {/* Right buttons */}
+                  <div className="flex items-end gap-1">
+                    <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+                      <Mic className="w-5 h-5 text-gray-500" />
+                    </button>
+        
+                    {loading ? (
+                      <button
+                        type="button"
+                        onClick={cancelMessage}
+                        className="flex items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
+                      >
+                        <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={!inputValue.trim()}
+                        className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                          inputValue.trim()
+                            ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
+                            : "bg-gray-300 text-white cursor-not-allowed"
+                        }`}
+                      >
+                        <ArrowUp className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </form>
         
       </div>
       
     </div>
     <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
+    <Modal
+      isOpen={errorModal.isOpen}
+      title="Oops! Something went wrong."
+      message={errorModal.message}
+      onClose={() => setErrorModal({ isOpen: false, message: "" })}
+    />
   </div>
 );
 

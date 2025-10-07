@@ -20,6 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useChat } from "@/contexts/ChatContext";
 import Markdown from "@/components/mark-down";
 import UsageLimitModal from "@/components/ui/UsageLimitModal";
+import Modal from "@/components/ui/Modal";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -37,7 +38,7 @@ const Page = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null); 
   const removeMessage = useChat((state) => state.removeMessage);
-
+  const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
   const sendMessage = async () => {
     if (!inputValue.trim()) return;
     const id = uuid();
@@ -78,12 +79,16 @@ const Page = () => {
 
       setLoading(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      if (err.name === "AbortError") {
-        console.log("Request aborted"); 
-      } else {
-        setLoading(false); 
-      }
+    }  catch (err: any) {
+        if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
+          console.log("Request aborted by user.");
+        } else {
+          console.error("Send message error:", err);
+          setErrorModal({
+            isOpen: true,
+            message: "Looks like the server isn’t responding right now. Try again later.",
+          });
+        }
     }
   };
   useEffect(() => {
@@ -273,7 +278,7 @@ const cancelMessage = () => {
   )}
 
   {/* Input box */}
-  <div className="sticky bottom-0 z-20 px-4 pt-2 pb-4 bg-gray-50">
+  <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
     <div className="w-full max-w-3xl mx-auto">
       <form
         onSubmit={(e) => {
@@ -282,60 +287,72 @@ const cancelMessage = () => {
         }}
         className="flex items-end gap-2"
       >
-        {/* Input + icons */}
-        <div className="flex items-center w-full gap-2 px-1 py-1 bg-white border border-gray-300 shadow-sm rounded-full m-2">
-          <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <Plus className="w-5 h-5 text-gray-500" />
-          </button>
+        <div className="flex w-full items-end gap-2 bg-white border border-gray-300 shadow-sm rounded-3xl px-3 py-2 m-2">
+          {/* Left buttons */}
+          <div className="flex flex-col justify-end">
+            <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+              <Plus className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
 
-          <textarea
-            ref={inputRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onInput={handleInputGrow}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-            rows={1}
-            placeholder="Type your message..."
-            className="flex-1 bg-transparent resize-none outline-none px-3 py-2 leading-6 max-h-[200px] min-h-[44px] placeholder:text-gray-400"
-          />
+          {/* Textarea (auto-growing upward) */}
+          <div className="flex-1 flex flex-col justify-end">
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onInput={handleInputGrow}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              rows={1}
+              maxLength={10000}
+              placeholder="Ask Ascent AI"
+              className="w-full bg-transparent pt-3 resize-none outline-none px-3  max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
+            />
+          </div>
 
-          <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-            <Mic className="w-5 h-5 text-gray-500" />
-          </button>
+          {/* Right buttons */}
+          <div className="flex items-end gap-1">
+            <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+              <Mic className="w-5 h-5 text-gray-500" />
+            </button>
 
-           {loading ? (
+            {loading ? (
               <button
                 type="button"
                 onClick={cancelMessage}
-              //     className="grid mb-3 text-white bg-gray-800 rounded-full shadow-md size-10 place-items-center hover:bg-red-500 animate-pulse cursor-pointer"
-              //   >
-              //     <div className="w-3.5 h-3.5 bg-white rounded-sm" />
-              // </button>
-                className="flex items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
-                >
-                  <div className="w-3.5 h-3.5 bg-white rounded-sm" />
-                </button>
+                className="flex items-center  justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
+              >
+                <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+              </button>
             ) : (
               <button
                 type="submit"
-                disabled={!inputValue.trim()} // ✅ disable when empty
+                disabled={!inputValue.trim()}
                 className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
                   inputValue.trim()
                     ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
                     : "bg-gray-300 text-white cursor-not-allowed"
-                }`} >
+                }`}
+              >
                 <ArrowUp className="w-5 h-5" />
               </button>
             )}
+          </div>
         </div>
       </form>
     </div>
     <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
+    <Modal
+        isOpen={errorModal.isOpen}
+        title="Oops! Something went wrong."
+        message={errorModal.message}
+        onClose={() => setErrorModal({ isOpen: false, message: "" })}
+      />
   </div>
    
 </div>
