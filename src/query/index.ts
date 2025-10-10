@@ -15,6 +15,7 @@ export interface Conversations {
   user_id: string;
   session_id: string;
   message: string;
+  messages:string;
   answer: null | string;
   created_at: Date;
   updated_at: Date;
@@ -155,11 +156,10 @@ export const useSendMessageMutation = () => {
   return useMutation<
     SendMessageResponse,
     SendMessageResponse,
-    { session_id: string; input: string; stream: boolean; signal?: AbortSignal } // 👈 add signal
+    { session_id: string; input: string; stream: boolean; signal?: AbortSignal }
   >({
     mutationFn: async (payload) => {
       const { signal, ...body } = payload;
-
       const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY || "supersecretkey";
       const messageToSign = JSON.stringify({
         body,
@@ -167,19 +167,78 @@ export const useSendMessageMutation = () => {
       });
       const xApiKey = await computeHmac(messageToSign, secretKey);
 
-      const response = await axiosInstace.post(`/send-message`, body, {
+      // ✅ Normal (non-streaming) behavior
+      if (!body.stream) {
+        const response = await axiosInstace.post(`/send-message`, body, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: authorization,
+            "x-api-key": xApiKey,
+          },
+          signal,
+        });
+        return response.data;
+      }
+
+      // ✅ Streaming behavior (same pattern as your working widget)
+      const res = await fetch(`/api/send-message`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: authorization,
           "x-api-key": xApiKey,
         },
-        signal, // 👈 attach here so AbortController works
+        body: JSON.stringify(body),
+        signal,
       });
 
-      return response.data;
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n");
+        buffer = parts.pop() || "";
+
+        for (const part of parts) {
+          if (part.startsWith("data:")) {
+            const cleaned = part.replace(/^data:\s*/, "").trim();
+            if (cleaned && cleaned !== "[DONE]") {
+              fullText += cleaned; // accumulate streamed content
+            }
+          }
+        }
+      }
+
+      // ✅ Return structured response compatible with your sendMessage()
+      return {
+        session_id: body.session_id,
+        response: {
+          messages: [
+            {
+              id: crypto.randomUUID(),
+              content: fullText,
+              additional_kwargs: {},
+              response_metadata: {},
+              type: "ai",
+              name: null,
+              example: false,
+            },
+          ],
+        },
+      } as SendMessageResponse;
     },
   });
 };
+
+
 
 
 export const useConversationLists = () => {

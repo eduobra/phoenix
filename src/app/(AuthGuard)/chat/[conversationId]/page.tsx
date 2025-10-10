@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 //history chat page
 "use client";
 
@@ -197,74 +198,76 @@ const Page = () => {
 
  return (
   <div className="relative flex flex-col w-full h-full bg-gray-50">
-    {/* Scrollable messages container */}
-    <div
-      ref={scrollContainerRef}
-      className="flex-1 p-4 overflow-y-auto scroll-smooth"
-    >
-      {isLoading ? (
-        <div className="flex flex-col gap-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex flex-col gap-2 animate-pulse">
-              <div className="flex justify-end">
-                <div className="px-4 py-3 rounded-2xl max-w-[60%] bg-blue-200/60">
-                  <div className="w-24 h-3 mb-2 bg-blue-300 rounded"></div>
-                  <div className="w-16 h-3 bg-blue-300 rounded"></div>
-                </div>
+  {/* Scrollable messages container */}
+  <div
+    ref={scrollContainerRef}
+    className="flex-1 p-4 overflow-y-auto scroll-smooth"
+  >
+    {isLoading ? (
+      <div className="flex flex-col gap-3">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex flex-col gap-2 animate-pulse">
+            <div className="flex justify-end">
+              <div className="px-4 py-3 rounded-2xl max-w-[60%] bg-blue-200/60">
+                <div className="w-24 h-3 mb-2 bg-blue-300 rounded"></div>
+                <div className="w-16 h-3 bg-blue-300 rounded"></div>
               </div>
+            </div>
 
-              <div className="flex justify-start">
-                <div className="px-4 py-3 rounded-2xl max-w-[70%] bg-gray-200/80">
-                  <div className="w-32 h-3 mb-2 bg-gray-300 rounded"></div>
-                  <div className="w-20 h-3 bg-gray-300 rounded"></div>
-                </div>
+            <div className="flex justify-start">
+              <div className="px-4 py-3 rounded-2xl max-w-[70%] bg-gray-200/80">
+                <div className="w-32 h-3 mb-2 bg-gray-300 rounded"></div>
+                <div className="w-20 h-3 bg-gray-300 rounded"></div>
               </div>
             </div>
-          ))}
-        </div>
-      ) : data?.length === 0 ? (
-        <div className="grid h-full place-items-center">
-          <div className="px-6 text-center">
-            <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
-              AI
-            </div>
-            <h2 className="mb-1 text-xl font-semibold text-gray-900">
-              Start a new conversation
-            </h2>
-            <p className="text-sm text-gray-500">
-              Type a message below to begin.
-            </p>
           </div>
+        ))}
+      </div>
+    ) : !data?.messages?.length ? (
+      <div className="grid h-full place-items-center">
+        <div className="px-6 text-center">
+          <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
+            AI
+          </div>
+          <h2 className="mb-1 text-xl font-semibold text-gray-900">
+            Start a new conversation
+          </h2>
+          <p className="text-sm text-gray-500">
+            Type a message below to begin.
+          </p>
         </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {/* existing conversation history */}
-          {Array.isArray(data) &&
-            data.map((m) => (
-              <div key={m.id} className="flex flex-col gap-2">
-                {m.message && (
-                  <div className="flex justify-end">
-                    <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
-                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
-                    </div>
+      </div>
+    ) : (
+      <div className="flex flex-col gap-3">
+        {/* existing conversation history */}
+        {Array.isArray(data?.messages) &&
+          data.messages.map((m: any) => (
+            <div key={m.id} className="flex flex-col gap-2">
+              {m.role === "user" && (
+                <div className="flex justify-end">
+                  <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
+                    <p className="text-sm whitespace-pre-wrap">{m.content}</p>
                   </div>
-                )}
+                </div>
+              )}
 
-              {m.answer && (
+              {m.role === "assistant" && (
                 <div className="flex flex-col items-start gap-1 w-full">
                   {/* Message bubble */}
-                  <div className="relative px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900 overflow-x-auto">
-                    <Markdown content={m.answer} />
+                  <div className="relative px-4 py-2 rounded-2xl max-w-[100%] text-gray-900 overflow-x-auto   ">
+                    <Markdown content={m.content} />
                   </div>
 
                   {/* Actions row */}
-                   <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-1 px-2">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-1 px-2">
                     {/* Action buttons */}
                     <div className="flex items-center gap-3">
                       <button
                         className="p-1 rounded hover:bg-gray-300"
                         title="Copy"
-                        onClick={() => navigator.clipboard.writeText(m.answer ?? "")}
+                        onClick={() =>
+                          navigator.clipboard.writeText(m.content ?? "")
+                        }
                       >
                         <Copy className="w-4 h-4 text-gray-600" />
                       </button>
@@ -309,201 +312,189 @@ const Page = () => {
                   </div>
                 </div>
               )}
-              </div>
-            ))}
-
-          {/* messages created during this session */}
-          {messages.map((m) => (
-            <div key={m.id} className="flex flex-col gap-2 ">
-              {m.message && (
-                <div className="flex justify-end ">
-                  <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
-                    <p className="text-sm whitespace-pre-wrap">{m.message}</p>
-                  </div>
-                </div>
-              )}
-
-              {m.answer && (
-                <div className="flex flex-col items-start gap-1 w-full">
-                  <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900 overflow-x-auto">
-                    <Markdown content={m.answer} />
-                    
-                  </div>
-
-                   {/* Action icons */}
-                    <div className="flex items-center gap-3 px-2">
-                      {/* Copy */}
-                      <button
-                        className="p-1 rounded hover:bg-gray-300"
-                        title="Copy"
-                        onClick={() => navigator.clipboard.writeText(m.answer)}
-                      >
-                        <Copy className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {/* Like */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="Like">
-                        <ThumbsUp className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {/* Dislike */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
-                        <ThumbsDown className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {/* Share */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="Share">
-                        <Share2 className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {/* Try Again */}
-                      <button
-                        className="p-1 rounded hover:bg-gray-300"
-                        title="Try Again"
-                        onClick={() => sendMessage()}
-                      >
-                        <RotateCcw className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      {/* More Options */}
-                      <button className="p-1 rounded hover:bg-gray-300" title="More">
-                        <MoreHorizontal className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
-                    {/* Timestamp for bot answer */}
-                  <span className="text-[10px] text-gray-500 whitespace-nowrap">
-                    {new Date(m.created_at).toLocaleDateString([], {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}{" "}
-                    {new Date(m.created_at).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              )}
             </div>
           ))}
 
-          {/* inline loader bubble when sending */}
-          {loading && (
-            <div className="flex justify-start">
-              <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                  <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+        {/* messages created during this session */}
+        {messages.map((m) => (
+          <div key={m.id} className="flex flex-col gap-2 ">
+            {m.message && (
+              <div className="flex justify-end ">
+                <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
+                  <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div ref={endRef} />
-        </div>
-      )}
-    </div>
-
-    {/* Scroll to bottom button */}
-    {showScrollButton && (
-      <button
-        onClick={scrollToBottom}
-        className="absolute left-1/2 bottom-24 transform -translate-x-1/2 p-2 text-black bg-white rounded-full shadow-md hover:bg-gray-100"
-      >
-        {/* <ChevronDown className="w-5 h-5" /> */}
-        {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
-        <ArrowDown size={18} absoluteStrokeWidth />
-      </button>
-    )}
-
-    {/* Input Area */}
-    <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
-      <div className="w-full max-w-3xl mx-auto ">
-        <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  sendMessage();
-                }}
-                className="flex items-end gap-2"
-              >
-                <div className="flex w-full items-end gap-2 bg-white border border-gray-300 shadow-sm rounded-3xl px-2 py-2 m-2">
-                  {/* Left buttons */}
-                  <div className="flex flex-col justify-end">
-                    <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                      <Plus className="w-5 h-5 text-gray-500" />
-                    </button>
-                  </div>
-        
-                  {/* Textarea (auto-growing upward) */}
-                  <div className="flex-1 flex flex-col justify-end">
-                    <textarea
-                      ref={inputRef}
-                      value={inputValue}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setInputValue(val);
-                        setCharCount(val.length);
-                      }}
-                      onInput={handleInputGrow}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          if (inputValue.trim() && inputValue.length <= MAX_CHARACTERS) {
-                            sendMessage();
-                          }
-                        }
-                      }}
-                      rows={1}
-                      maxLength={MAX_CHARACTERS}
-                      placeholder="Ask Ascent AI"
-                      className="w-full bg-transparent resize-none outline-none pt-3 px-3 leading-6 max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
-                    />
-                    
-                  </div>
-        
-                  {/* Right buttons */}
-                  <div className="flex items-end gap-1">
-                    <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                      <Mic className="w-5 h-5 text-gray-500" />
-                    </button>
-        
-                    {loading ? (
-                      <button
-                        type="button"
-                        onClick={cancelMessage}
-                        className="flex items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
-                      >
-                        <div className="w-3.5 h-3.5 bg-white rounded-sm" />
-                      </button>
-                    ) : (
-                      <button
-                        type="submit"
-                        disabled={!inputValue.trim()}
-                        className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
-                          inputValue.trim()
-                            ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                            : "bg-gray-300 text-white cursor-not-allowed"
-                        }`}
-                      >
-                        <ArrowUp className="w-5 h-5" />
-                      </button>
-                    )}
-                  </div>
+            {m.answer && (
+              <div className="flex flex-col items-start gap-1 w-full">
+                <div className="px-4 py-2 rounded-2xl max-w-[100%] text-gray-900 overflow-x-auto">
+                  <Markdown content={m.answer} />
                 </div>
-              </form>
-        
+
+                {/* Action icons */}
+                <div className="flex items-center gap-3 px-2">
+                  <button
+                    className="p-1 rounded hover:bg-gray-300"
+                    title="Copy"
+                    onClick={() => navigator.clipboard.writeText(m.answer)}
+                  >
+                    <Copy className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button className="p-1 rounded hover:bg-gray-300" title="Like">
+                    <ThumbsUp className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
+                    <ThumbsDown className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button className="p-1 rounded hover:bg-gray-300" title="Share">
+                    <Share2 className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button
+                    className="p-1 rounded hover:bg-gray-300"
+                    title="Try Again"
+                    onClick={() => sendMessage()}
+                  >
+                    <RotateCcw className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button className="p-1 rounded hover:bg-gray-300" title="More">
+                    <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+
+                <span className="text-[10px] text-gray-500 whitespace-nowrap">
+                  {new Date(m.created_at).toLocaleDateString([], {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}{" "}
+                  {new Date(m.created_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* inline loader bubble when sending */}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div ref={endRef} />
       </div>
-      
-    </div>
-    <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
-    <Modal
-      isOpen={errorModal.isOpen}
-      title="Oops! Something went wrong."
-      message={errorModal.message}
-      onClose={() => setErrorModal({ isOpen: false, message: "" })}
-    />
+    )}
   </div>
+
+  {/* Scroll to bottom button */}
+  {showScrollButton && (
+    <button
+      onClick={scrollToBottom}
+      className="absolute left-1/2 bottom-24 transform -translate-x-1/2 p-2 text-black bg-white rounded-full shadow-md mb-4 hover:bg-gray-100"
+    >
+      <ArrowDown size={18} absoluteStrokeWidth />
+    </button>
+  )}
+
+  {/* Input Area */}
+  <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
+    <div className="w-full max-w-3xl mx-auto ">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          sendMessage();
+        }}
+        className="flex items-end gap-2"
+      >
+        <div className="flex w-full items-end gap-2 bg-white border border-gray-300 shadow-sm rounded-3xl px-2 py-2 m-2">
+          {/* Left buttons */}
+          <div className="flex flex-col justify-end">
+            <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+              <Plus className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+
+          {/* Textarea */}
+          <div className="flex-1 flex flex-col justify-end">
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => {
+                const val = e.target.value;
+                setInputValue(val);
+                setCharCount(val.length);
+              }}
+              onInput={handleInputGrow}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (
+                    inputValue.trim() &&
+                    inputValue.length <= MAX_CHARACTERS
+                  ) {
+                    sendMessage();
+                  }
+                }
+              }}
+              rows={1}
+              maxLength={MAX_CHARACTERS}
+              placeholder="Ask Ascent AI"
+              className="w-full bg-transparent resize-none outline-none pt-3 px-3 leading-6 max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
+            />
+          </div>
+
+          {/* Right buttons */}
+          <div className="flex items-end gap-1">
+            <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+              <Mic className="w-5 h-5 text-gray-500" />
+            </button>
+
+            {loading ? (
+              <button
+                type="button"
+                onClick={cancelMessage}
+                className="flex items-center justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-300 transition-colors cursor-pointer"
+              >
+                <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={!inputValue.trim()}
+                className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                  inputValue.trim()
+                    ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
+                    : "bg-gray-300 text-white cursor-not-allowed"
+                }`}
+              >
+                <ArrowUp className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
+  <Modal
+    isOpen={errorModal.isOpen}
+    title="Oops! Something went wrong."
+    message={errorModal.message}
+    onClose={() => setErrorModal({ isOpen: false, message: "" })}
+  />
+</div>
+
 );
 
 };

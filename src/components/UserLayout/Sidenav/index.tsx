@@ -12,6 +12,7 @@ import {
   Settings,
   HelpCircle,
   ArrowUpCircle,
+   MoreHorizontal, Share2, Edit3, Archive, Trash2
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,6 +32,15 @@ import { useChat } from "@/contexts/ChatContext";
 type SidenavProps = {
   isOpen: boolean;
   onClose: () => void;
+};
+type ChatMessage = {
+  id: string;
+  content: string;
+  type?: string;
+  name?: string | null;
+  example?: boolean;
+  session_id?: string;
+  topic?: string;
 };
 
 const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
@@ -52,8 +62,18 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
   const pathName = usePathname();
   const { conversationId } = useParams();
 
-  const filteredData = data?.filter((item) =>
-    item.topic.toLowerCase().includes(searchQuery.toLowerCase())
+  // Safely extract messages from the API response
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
+ const chatList: ChatMessage[] = Array.isArray((data as any)?.sessions)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ? (data as any).sessions
+  : [];
+
+
+  // Safely filter without crashing when null or undefined
+  const filteredData = chatList.filter(
+    (item) =>
+      item?.topic?.toLowerCase()?.includes(searchQuery.toLowerCase()) ?? false
   );
 
   const handleNewChatRoute = () => {
@@ -211,28 +231,69 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                 </>
               )}
               {!isLoading &&
-                filteredData?.map((item) => {
-                  const isActive =
-                    conversationId === item.session_id ||
-                    item.session_id === conId;
-                  return (
-                    <Button
+              filteredData?.map((item) => {
+                const isActive =
+                  conversationId === item.session_id || item.session_id === conId;
+
+                return (
+                  <div
+                    key={item.session_id}
+                    className={`group flex items-center justify-between w-full h-9 px-2 rounded-md  hover:bg-gray-100 ${
+                      isActive ? "bg-gray-100" : ""
+                    }`}
+                  >
+                    {/* Left side (clickable chat item) */}
+                    <button
                       onClick={() => handleRouteHistory(`${item.session_id}`)}
-                      key={item.session_id}
-                      variant="ghost"
-                      className={`w-full h-9 cursor-pointer gap-2 justify-start ${
-                        isActive ? "bg-gray-100" : ""
-                      }`}
-                      size="default"
+                      className="flex items-center gap-2 w-full text-left flex-1 cursor-pointer"
                       title={item.topic}
                     >
-                      <MessageCircle className="w-4 h-4" />
-                      <span className="truncate max-w-[180px]">
+                      <MessageCircle className="w-4 h-4 text-gray-600" />
+                      <span className="truncate text-sm max-w-[150px] text-gray-800">
                         {item.topic}
                       </span>
-                    </Button>
-                  );
-                })}
+                    </button>
+
+                    {/* Right side (3 dots on hover) */}
+                    <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="w-6 h-6 p-0 text-gray-500 hover:text-gray-800 cursor-pointer"
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-40 rounded-xl shadow-md"
+                        >
+                          <DropdownMenuItem className="cursor-pointer">
+                            <Share2 className="w-4 h-4 mr-2" /> Share
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem className="cursor-pointer">
+                            <Edit3 className="w-4 h-4 mr-2" /> Rename
+                          </DropdownMenuItem>
+
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem className="cursor-pointer">
+                            <Archive className="w-4 h-4 mr-2" /> Archive
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem className="text-red-600 cursor-pointer">
+                            <Trash2 className="w-4 h-4 mr-2 text-red-600" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

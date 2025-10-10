@@ -39,58 +39,68 @@ const Page = () => {
   const [abortController, setAbortController] = useState<AbortController | null>(null); 
   const removeMessage = useChat((state) => state.removeMessage);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
-  const sendMessage = async () => {
-    if (!inputValue.trim()) return;
-    const id = uuid();
-    addMessage({
-      id,
-      message: inputValue,
-      answer: "",
-      created_at: new Date().toISOString(),
+  
+const sendMessage = async () => {
+  if (!inputValue.trim()) return;
+  const controller = new AbortController();
+  setAbortController(controller);
+  const id = uuid();
+  addMessage({
+    id,
+    message: inputValue,
+    answer: "",
+    created_at: new Date().toISOString(),
+  });
+  setInputValue("");
+  setLoading(true);
+
+  try {
+    const response = await mutateAsync({
+      input: inputValue,
+      session_id: conversationId ? conversationId : id,
+      stream: false, 
+      signal: controller.signal, 
     });
-    setInputValue("");
-    setLoading(true);
 
-    const controller = new AbortController();
-    setAbortController(controller);
+    // Extract the latest assistant reply
+    const messages = response.response.messages;
+    const lastMessage = messages[messages.length - 1];
+    let answerText = "";
 
-    try {
-      const res = await mutateAsync({
-        input: inputValue,
-        session_id: conversationId ? conversationId : id,
-        stream: false,
-        signal: controller.signal,
-      });
-
-      updateMessageAnswer(
-        id,
-        res.response.messages[res.response.messages.length - 1].content
-      );
-
-      if (!conversationId) {
-        queryClient.invalidateQueries({
-          queryKey: ["chat-history"],
-        });
-        window.history.replaceState(null, "", `/chat/${id}`);
-        setConversationId(id);
-      }
-
-      if (inputRef.current) inputRef.current.style.height = "0px";
-
-      setLoading(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }  catch (err: any) {
-        if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
-          console.log("Request aborted by user.");
-        } else {
-          console.error("Send message error:", err);
-          setErrorModal({
-            isOpen: true,
-            message: "Looks like the server isn’t responding right now. Try again later.",
-          });
-        }
+    // Some APIs wrap assistant content in JSON strings
+    if (lastMessage.content.startsWith("{")) {
+      const parsed = JSON.parse(lastMessage.content);
+      answerText = parsed.content || "";
+    } else {
+      answerText = lastMessage.content;
     }
-  };
+
+    // ✨ Simulate typing effect
+    let simulatedText = "";
+    for (const char of answerText) {
+      simulatedText += char;
+      updateMessageAnswer(id, simulatedText);
+      await new Promise((r) => setTimeout(r, Math.random() * 20 + 10)); // varied typing speed
+    }
+
+    // ✅ Save conversation ID if new
+    if (!conversationId) {
+      window.history.replaceState(null, "", `/chat/${id}`);
+      setConversationId(id);
+    }
+
+  } catch (err) {
+    console.error("Send message error:", err);
+    setErrorModal({
+      isOpen: true,
+      message: "Looks like the server isn’t responding right now. Try again later.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   useEffect(() => {
     if (endRef.current) {
       endRef.current.scrollIntoView({ behavior: "smooth" });
@@ -269,7 +279,7 @@ const cancelMessage = () => {
   {showScrollButton && (
       <button
             onClick={scrollToBottom}
-            className="absolute left-1/2 bottom-24 transform -translate-x-1/2 p-2 text-black bg-white rounded-full shadow-md hover:bg-gray-100"
+            className="absolute left-1/2 bottom-24 transform -translate-x-1/2 p-2 text-black bg-white rounded-full shadow-md mb-4 hover:bg-gray-100"
           >
             {/* <ChevronDown className="w-5 h-5" /> */}
             {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
@@ -325,9 +335,9 @@ const cancelMessage = () => {
               <button
                 type="button"
                 onClick={cancelMessage}
-                className="flex items-center  justify-center w-10 h-10 bg-gray-800 rounded-full shadow-md hover:bg-gray-900 transition-colors"
+                className="flex items-center  justify-center w-10 h-10 bg-gray-200 rounded-full shadow-md hover:bg-gray-300 transition-colors cursor-pointer"
               >
-                <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+                <div className="w-3.5 h-3.5 bg-black rounded-sm" />
               </button>
             ) : (
               <button
