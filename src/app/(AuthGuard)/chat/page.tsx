@@ -40,111 +40,103 @@ const Page = () => {
   const removeMessage = useChat((state) => state.removeMessage);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
   
-const sendMessage = async () => {
-  if (!inputValue.trim()) return;
-  const controller = new AbortController();
-  setAbortController(controller);
-  const id = uuid();
-  addMessage({
-    id,
-    message: inputValue,
-    answer: "",
-    created_at: new Date().toISOString(),
-  });
-  setInputValue("");
-  setLoading(true);
+    const sendMessage = async () => {
+      if (!inputValue.trim()) return;
+      const controller = new AbortController();
+      setAbortController(controller);
+      const id = uuid();
 
-  try {
-    const response = await mutateAsync({
-      input: inputValue,
-      session_id: conversationId ? conversationId : id,
-      stream: false, 
-      signal: controller.signal, 
-    });
+      addMessage({
+        id,
+        message: inputValue,
+        answer: "",
+        created_at: new Date().toISOString(),
+      });
 
-    // Extract the latest assistant reply
-    const messages = response.response.messages;
-    const lastMessage = messages[messages.length - 1];
-    let answerText = "";
+      setInputValue("");
+      setLoading(true);
 
-    // Some APIs wrap assistant content in JSON strings
-    if (lastMessage.content.startsWith("{")) {
-      const parsed = JSON.parse(lastMessage.content);
-      answerText = parsed.content || "";
-    } else {
-      answerText = lastMessage.content;
-    }
+      try {
+        const response = await mutateAsync({
+          input: inputValue,
+          session_id: conversationId ? conversationId : id,
+          stream: false,
+          signal: controller.signal,
+        });
 
-    // ✨ Simulate typing effect
-    let simulatedText = "";
-    for (const char of answerText) {
-      simulatedText += char;
-      updateMessageAnswer(id, simulatedText);
-      await new Promise((r) => setTimeout(r, Math.random() * 20 + 10)); // varied typing speed
-    }
+        const messages = response.response.messages;
+        const lastMessage = messages[messages.length - 1];
+        let answerText = "";
 
-    // ✅ Save conversation ID if new
-    if (!conversationId) {
-      window.history.replaceState(null, "", `/chat/${id}`);
-      setConversationId(id);
-    }
-
-  } catch (err) {
-    console.error("Send message error:", err);
-    setErrorModal({
-      isOpen: true,
-      message: "Looks like the server isn’t responding right now. Try again later.",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  useEffect(() => {
-    if (endRef.current) {
-      endRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-    scrollToBottom();
-  }, [messages, loading]);
-  useEffect(() => {
-    const container = chatContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      // Show button if user scrolled up more than 100px from bottom
-      const isScrolledUp = container.scrollHeight - container.scrollTop - container.clientHeight > 100;
-      setShowScrollButton(isScrolledUp);
+        if (lastMessage.content.startsWith("{")) {
+          const parsed = JSON.parse(lastMessage.content);
+          answerText = parsed.content || "";
+        } else {
+          answerText = lastMessage.content;
+        }
+        updateMessageAnswer(id, answerText);
+        if (!conversationId) {
+          window.history.replaceState(null, "", `/chat/${id}`);
+          setConversationId(id);
+          queryClient.invalidateQueries({ queryKey: ["chat-history"] });
+        }
+      } catch (err) {
+        console.error("Send message error:", err);
+        setErrorModal({
+          isOpen: true,
+          message: "Looks like the server isn’t responding right now. Try again later.",
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
 
-  const scrollToBottom = () => {
-    if (endRef.current) {
-      endRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
-  const handleInputGrow = () => {
-    if (!inputRef.current) return;
-    inputRef.current.style.height = "44px";
-    inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
-  };
+      useEffect(() => {
+        if (endRef.current) {
+          endRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+        scrollToBottom();
+      }, [messages, loading]);
+      useEffect(() => {
+        const container = chatContainerRef.current;
+        if (!container) return;
 
-const cancelMessage = () => {
-  if (abortController) {
-    abortController.abort();
-    setAbortController(null);
-    setLoading(false);
+        const handleScroll = () => {
+          // Show button if user scrolled up more than 100px from bottom
+          const isScrolledUp = container.scrollHeight - container.scrollTop - container.clientHeight > 100;
+          setShowScrollButton(isScrolledUp);
+        };
 
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage && !lastMessage.answer) {
-      removeMessage(lastMessage.id); // works now
-    }
-  }
-};
+        container.addEventListener("scroll", handleScroll);
+        return () => container.removeEventListener("scroll", handleScroll);
+      }, []);
+
+      const scrollToBottom = () => {
+        if (endRef.current) {
+          endRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      };
+
+      const handleInputGrow = () => {
+        if (!inputRef.current) return;
+        inputRef.current.style.height = "44px";
+        inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+      };
+
+    const cancelMessage = () => {
+      if (abortController) {
+        abortController.abort();
+        setAbortController(null);
+        setLoading(false);
+
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage && !lastMessage.answer) {
+          removeMessage(lastMessage.id); // works now
+        }
+      }
+    };
   return (
     <div className="relative flex flex-col w-full h-full bg-gray-50">
   {/* Chat messages container */}
