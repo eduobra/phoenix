@@ -15,8 +15,9 @@ export interface Conversations {
   user_id: string;
   session_id: string;
   message: string;
-  messages:string;
+  messages:Message[];
   answer: null | string;
+  role: "user" | "assistant";
   created_at: Date;
   updated_at: Date;
 }
@@ -131,7 +132,19 @@ export interface OutputTokenDetails {
   audio: number;
   reasoning: number;
 }
-
+export interface ConversationResponse {
+  trace_id: string;
+  messages: {
+    id: number;
+    user_id: number;
+    session_id: string;
+    role: "user" | "assistant";
+    content: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+  }[];
+}
 export const useChatHistoryLists = () => {
   const authorization = Authorization();
   return useQuery<ChatHistortLists[]>({
@@ -244,14 +257,15 @@ export const useSendMessageMutation = () => {
 export const useConversationLists = () => {
   const authorization = Authorization();
   const { conversationId } = useParams();
-  return useQuery<Conversations[]>({
+  return useQuery<ConversationResponse>({
     queryKey: ["conversations", { conversationId }],
     queryFn: async () => {
-      const response = await axiosInstace.get<Conversations[]>(`/conversations?session_id=${conversationId}`, {
-        headers: {
-          Authorization: authorization,
-        },
-      });
+      const response = await axiosInstace.get<ConversationResponse>(
+        `/conversations?session_id=${conversationId}`,
+        {
+          headers: { Authorization: authorization },
+        }
+      );
       return response.data;
     },
     refetchOnWindowFocus: false,

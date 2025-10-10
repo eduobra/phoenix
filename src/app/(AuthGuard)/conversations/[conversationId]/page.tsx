@@ -5,7 +5,9 @@ import { Plus, Mic, ArrowUp } from "lucide-react";
 import { useConversationLists, useSendMessageMutation } from "@/query";
 import { useParams } from "next/navigation";
 import { v4 as uuid } from "uuid";
+
 type Msg = { id: string; message: string; answer: string };
+
 const Page = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { data, isLoading } = useConversationLists();
@@ -18,30 +20,32 @@ const Page = () => {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [data]);
+  }, [data, messages]);
 
   const sendMessage = async () => {
     if (!inputValue.trim()) return;
     const id = uuid();
+
     setMessages((prev) => [...prev, { id, message: inputValue, answer: "" }]);
+
     const res = await mutateAsync({
       input: inputValue,
       session_id: conversationId,
       stream: false,
     });
 
-    setMessages((prev) => {
-      return prev.map((value) => {
-        if (value.id == id) {
-          return {
-            ...value,
-            message: inputValue,
-            answer: res.response.messages[res.response.messages.length - 1].content,
-          };
-        }
-        return value;
-      });
-    });
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === id
+          ? {
+              ...msg,
+              answer: res.response.messages[res.response.messages.length - 1].content,
+            }
+          : msg
+      )
+    );
+
+    setInputValue("");
   };
 
   const handleInputGrow = () => {
@@ -50,53 +54,50 @@ const Page = () => {
     inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
   };
 
-  if (isLoading) {
-    return <>loading..</>;
-  }
+  if (isLoading) return <>Loading...</>;
+
   return (
     <div className="relative flex flex-col w-full h-full bg-gray-50">
       <div className="flex-1 p-4 overflow-y-auto">
-        {data?.length === 0 ? (
+        {!data?.messages?.length ? (
           <div className="grid h-full place-items-center">
             <div className="px-6 text-center">
               <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
                 AI
               </div>
-              <h2 className="mb-1 text-xl font-semibold text-gray-900">Start a new conversation</h2>
+              <h2 className="mb-1 text-xl font-semibold text-gray-900">
+                Start a new conversation
+              </h2>
               <p className="text-sm text-gray-500">Type a message below to begin.</p>
             </div>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {data?.map((m) => (
+            {data.messages.map((m) => (
               <div key={m.id} className="flex flex-col gap-2">
-                {m.message && (
+                {m.role === "user" ? (
                   <div className="flex justify-end">
                     <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-blue-600 text-white">
-                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
+                      <p className="text-sm whitespace-pre-wrap">{m.content}</p>
                     </div>
                   </div>
-                )}
-
-                {m.answer && (
+                ) : (
                   <div className="flex justify-start">
                     <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-gray-200 text-gray-900">
-                      <p className="text-sm whitespace-pre-wrap">{m.answer}</p>
+                      <p className="text-sm whitespace-pre-wrap">{m.content}</p>
                     </div>
                   </div>
                 )}
               </div>
             ))}
-            {messages?.map((m) => (
-              <div key={m.id} className="flex flex-col gap-2">
-                {m.message && (
-                  <div className="flex justify-end">
-                    <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-blue-600 text-white">
-                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
-                    </div>
-                  </div>
-                )}
 
+            {messages.map((m) => (
+              <div key={m.id} className="flex flex-col gap-2">
+                <div className="flex justify-end">
+                  <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-blue-600 text-white">
+                    <p className="text-sm whitespace-pre-wrap">{m.message}</p>
+                  </div>
+                </div>
                 {m.answer && (
                   <div className="flex justify-start">
                     <div className="px-4 py-2 rounded-2xl max-w-[100%] bg-gray-200 text-gray-900">
