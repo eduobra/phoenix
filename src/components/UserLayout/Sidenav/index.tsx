@@ -28,7 +28,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChatHistoryLists, useSoftDeleteConversation } from "@/query";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
-import { toast } from "sonner"; 
 type SidenavProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -293,22 +292,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                             if (!confirm("Are you sure you want to delete this conversation?")) return;
 
                             softDeleteConversation(
-                              { session_id: item.session_id as string }, // ✅ Safe cast
-                              {
-                                onSuccess: () => {
-                                  toast?.success?.("Conversation deleted successfully") ||
-                                    alert("Conversation deleted successfully");
-
-                                  // ✅ Optional: Remove from UI immediately
-                                  // e.g. refetch query or filter local list if you use local state
-                                  if (conversationId === item.session_id) {
-                                    router.push("/chat");
-                                  }
-                                },
-                                onError: (err) => {
-                                  toast?.error?.(err.message) || alert("Failed to delete conversation");
-                                },
-                              }
+                              { session_id: item.session_id as string }, 
+                              
                             );
                           }}
                         >
