@@ -179,7 +179,7 @@ export const useSendMessageMutation = () => {
         header: authorization.split(" ")[1],
       });
       const xApiKey = await computeHmac(messageToSign, secretKey);
-
+      console.log("xApiKey",xApiKey)
       // ✅ Normal (non-streaming) behavior
       if (!body.stream) {
         const response = await axiosInstace.post(`/send-message`, body, {
@@ -321,7 +321,39 @@ export const useSendWidgetMessage = () => {
   });
 };
 
+export const useSoftDeleteConversation = () => {
+  const authorization = Authorization();
 
+  return useMutation<
+    { success: boolean; message: string }, // ✅ response
+    Error,
+    { session_id: string } // ✅ payload
+  >({
+    mutationFn: async ({ session_id }) => {
+      const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY || "supersecretkey";
+      const messageToSign = JSON.stringify({
+        body: { session_id },
+        header: authorization.split(" ")[1],
+      });
+      const xApiKey = await computeHmac(messageToSign, secretKey);
+
+      const res = await fetch(`/api/soft-delete?session_id=${session_id}`, {
+        method: "DELETE", // ✅ Correct HTTP method
+        headers: {
+          Authorization: authorization,
+          "x-api-key": xApiKey,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to delete conversation");
+      }
+
+      return res.json();
+    },
+  });
+};
 
 
 //   const payloadObj = {

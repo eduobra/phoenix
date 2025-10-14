@@ -25,10 +25,10 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { useChatHistoryLists } from "@/query";
+import { useChatHistoryLists, useSoftDeleteConversation } from "@/query";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
-
+import { toast } from "sonner"; 
 type SidenavProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -61,7 +61,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
   const router = useRouter();
   const pathName = usePathname();
   const { conversationId } = useParams();
-
+  const { mutate: softDeleteConversation, isPending: deleting } = useSoftDeleteConversation();
   // Safely extract messages from the API response
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
  const chatList: ChatMessage[] = Array.isArray((data as any)?.sessions)
@@ -285,9 +285,45 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                             <Archive className="w-4 h-4 mr-2" /> Archive
                           </DropdownMenuItem>
 
-                          <DropdownMenuItem className="text-red-600 cursor-pointer">
-                            <Trash2 className="w-4 h-4 mr-2 text-red-600" /> Delete
-                          </DropdownMenuItem>
+                         <DropdownMenuItem
+                          className="text-red-600 cursor-pointer"
+                          onClick={() => {
+                            if (deleting) return;
+                            if (!item.session_id) return; // ✅ Prevent undefined
+                            if (!confirm("Are you sure you want to delete this conversation?")) return;
+
+                            softDeleteConversation(
+                              { session_id: item.session_id as string }, // ✅ Safe cast
+                              {
+                                onSuccess: () => {
+                                  toast?.success?.("Conversation deleted successfully") ||
+                                    alert("Conversation deleted successfully");
+
+                                  // ✅ Optional: Remove from UI immediately
+                                  // e.g. refetch query or filter local list if you use local state
+                                  if (conversationId === item.session_id) {
+                                    router.push("/chat");
+                                  }
+                                },
+                                onError: (err) => {
+                                  toast?.error?.(err.message) || alert("Failed to delete conversation");
+                                },
+                              }
+                            );
+                          }}
+                        >
+                          {deleting ? (
+                            <>
+                              <Trash2 className="w-4 h-4 mr-2 text-gray-400 animate-pulse" />
+                              Deleting...
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="w-4 h-4 mr-2 text-red-600" /> Delete
+                            </>
+                          )}
+                        </DropdownMenuItem>
+
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
