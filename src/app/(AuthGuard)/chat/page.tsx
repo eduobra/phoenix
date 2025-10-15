@@ -42,13 +42,19 @@ const Page = () => {
   
     const sendMessage = async () => {
       if (!inputValue.trim()) return;
+
+       const sanitizedInput = inputValue
+          .replace(/[‘’]/g, "'")   
+          .replace(/[“”]/g, '"')
+          .normalize("NFC"); 
+
       const controller = new AbortController();
       setAbortController(controller);
       const id = uuid();
 
       addMessage({
         id,
-        message: inputValue,
+        message: sanitizedInput,
         answer: "",
         created_at: new Date().toISOString(),
       });
@@ -58,7 +64,7 @@ const Page = () => {
 
       try {
         const response = await mutateAsync({
-          input: inputValue,
+          input: sanitizedInput,
           session_id: conversationId ? conversationId : id,
           stream: false,
           signal: controller.signal,

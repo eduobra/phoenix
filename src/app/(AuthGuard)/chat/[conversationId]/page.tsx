@@ -117,7 +117,10 @@ const Page = () => {
     if (!inputValue.trim()) return;
 
     const id = uuid();
-
+    const sanitizedInput = inputValue
+          .replace(/[‘’]/g, "'")   
+          .replace(/[“”]/g, '"')
+          .normalize("NFC");
     // Add user's message immediately
     setMessages((prev) => [...prev, { id, message: inputValue, answer: "", created_at: new Date().toISOString() }]);
     setInputValue("");
@@ -134,7 +137,7 @@ const Page = () => {
 
     try {
       const res = await mutateAsync({
-        input: inputValue,
+        input: sanitizedInput,
         session_id: conversationId,
         stream: false,
         signal: controller.signal, // pass signal so mutation can abort
