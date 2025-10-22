@@ -282,11 +282,6 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                           </DropdownMenuItem>
 
                           <DropdownMenuSeparator />
-
-                          <DropdownMenuItem className="cursor-pointer">
-                            <Archive className="w-4 h-4 mr-2" /> Archive
-                          </DropdownMenuItem>
-
                        <DropdownMenuItem
                           className="text-red-600 cursor-pointer"
                           onClick={() => {
