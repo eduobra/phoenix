@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//history chat page
+
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -72,8 +72,8 @@ const Page = () => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         transcript += event.results[i][0].transcript;
       }
-      setInputValue(transcript); // put text inside your textarea
-      handleInputGrow(); // resize textarea as if typing
+      setInputValue(transcript); 
+      handleInputGrow(); 
     };
 
     recognitionRef.current = recognition;
@@ -121,18 +121,14 @@ const Page = () => {
           .replace(/[‘’]/g, "'")   
           .replace(/[“”]/g, '"')
           .normalize("NFC");
-    // Add user's message immediately
     setMessages((prev) => [...prev, { id, message: inputValue, answer: "", created_at: new Date().toISOString() }]);
+
     setInputValue("");
 
-    // reset textarea height while typing
     if (inputRef.current) inputRef.current.style.height = "44px";
 
-    // create abort controller and store it
     const controller = new AbortController();
     abortControllerRef.current = controller;
-
-    // show stop button
     setLoading(true);
 
     try {
@@ -140,10 +136,9 @@ const Page = () => {
         input: sanitizedInput,
         session_id: conversationId,
         stream: false,
-        signal: controller.signal, // pass signal so mutation can abort
+        signal: controller.signal, 
       });
 
-      // attach answer to the message
       setMessages((prev) =>
         prev.map((value) =>
           value.id === id
@@ -171,30 +166,29 @@ const Page = () => {
           });
         }
     }finally {
-          // cleanup: hide stop button and clear stored controller
+    
           abortControllerRef.current = null;
           setLoading(false);
           if (inputRef.current) inputRef.current.style.height = "0px";
     }
   };
 
-  // Cancel / stop message generation
+
   const cancelMessage = () => {
     if (abortControllerRef.current) {
-      // abort the in-flight request
+    
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
 
-      // remove the last pending user message (optional behavior)
+
       setMessages((prev) => {
-        // Only remove if the last message has no answer (was pending)
+   
         const last = prev[prev.length - 1];
         if (!last) return prev;
-        if (last.answer) return prev; // last already answered
+        if (last.answer) return prev; 
         return prev.slice(0, -1);
       });
 
-      // stop loading UI
       setLoading(false);
     }
   };
@@ -242,7 +236,6 @@ const Page = () => {
       </div>
     ) : (
       <div className="flex flex-col gap-3">
-        {/* existing conversation history */}
         {Array.isArray(data?.messages) &&
           data.messages.map((m: any) => (
             <div key={m.id} className="flex flex-col gap-2">
@@ -256,14 +249,10 @@ const Page = () => {
 
               {m.role === "assistant" && (
                 <div className="flex flex-col items-start gap-1 w-full">
-                  {/* Message bubble */}
                   <div className="relative px-4 py-2 rounded-2xl max-w-[100%] text-gray-900 overflow-x-auto   ">
                     <Markdown content={m.content} />
                   </div>
-
-                  {/* Actions row */}
                   <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-1 px-2">
-                    {/* Action buttons */}
                     <div className="flex items-center gap-3">
                       <button
                         className="p-1 rounded hover:bg-gray-300"
@@ -300,7 +289,6 @@ const Page = () => {
                       </button>
                     </div>
 
-                    {/* Timestamp snug at bottom right */}
                     <span className="relative right-0 bottom-0 text-[10px] text-gray-500 whitespace-nowrap">
                       {new Date(m.created_at).toLocaleDateString([], {
                         month: "short",
@@ -318,7 +306,6 @@ const Page = () => {
             </div>
           ))}
 
-        {/* messages created during this session */}
         {messages.map((m) => (
           <div key={m.id} className="flex flex-col gap-2 ">
             {m.message && (
@@ -335,7 +322,6 @@ const Page = () => {
                   <Markdown content={m.answer} />
                 </div>
 
-                {/* Action icons */}
                 <div className="flex items-center gap-3 px-2">
                   <button
                     className="p-1 rounded hover:bg-gray-300"
@@ -381,7 +367,6 @@ const Page = () => {
           </div>
         ))}
 
-        {/* inline loader bubble when sending */}
         {loading && (
           <div className="flex justify-start">
             <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
@@ -399,7 +384,6 @@ const Page = () => {
     )}
   </div>
 
-  {/* Scroll to bottom button */}
   {showScrollButton && (
     <button
       onClick={scrollToBottom}
@@ -409,7 +393,6 @@ const Page = () => {
     </button>
   )}
 
-  {/* Input Area */}
   <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
     <div className="w-full max-w-3xl mx-auto ">
       <form
@@ -420,14 +403,12 @@ const Page = () => {
         className="flex items-end gap-2"
       >
         <div className="flex w-full items-end gap-2 bg-white border border-gray-300 shadow-sm rounded-3xl px-2 py-2 m-2">
-          {/* Left buttons */}
           <div className="flex flex-col justify-end">
             <button type="button" className="p-2 rounded-full hover:bg-gray-100">
               <Plus className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
-          {/* Textarea */}
           <div className="flex-1 flex flex-col justify-end">
             <textarea
               ref={inputRef}
@@ -456,7 +437,6 @@ const Page = () => {
             />
           </div>
 
-          {/* Right buttons */}
           <div className="flex items-end gap-1">
             <button type="button" className="p-2 rounded-full hover:bg-gray-100">
               <Mic className="w-5 h-5 text-gray-500" />

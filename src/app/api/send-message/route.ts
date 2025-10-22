@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import axios, { AxiosError } from "axios";
 import { axiosInstaceBackend } from "@/lib/axiosInstanct";
 
-export const runtime = "nodejs"; // ✅ use Node runtime, not Edge, so we can access streams
+export const runtime = "nodejs"; 
 
 export async function POST(req: Request) {
   const authHeader = req.headers.get("authorization") || "";

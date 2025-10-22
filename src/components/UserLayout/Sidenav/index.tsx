@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChatHistoryLists, useSoftDeleteConversation } from "@/query";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
+import ArchiveModal from "@/components/ui/ArchiveModal";
 type SidenavProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -61,6 +62,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
   const pathName = usePathname();
   const { conversationId } = useParams();
   const { mutate: softDeleteConversation, isPending: deleting } = useSoftDeleteConversation();
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+
   // Safely extract messages from the API response
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
  const chatList: ChatMessage[] = Array.isArray((data as any)?.sessions)
@@ -284,16 +287,26 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                             <Archive className="w-4 h-4 mr-2" /> Archive
                           </DropdownMenuItem>
 
-                         <DropdownMenuItem
+                       <DropdownMenuItem
                           className="text-red-600 cursor-pointer"
                           onClick={() => {
                             if (deleting) return;
-                            if (!item.session_id) return; // ✅ Prevent undefined
+                            if (!item.session_id) return;
                             if (!confirm("Are you sure you want to delete this conversation?")) return;
 
                             softDeleteConversation(
-                              { session_id: item.session_id as string }, 
-                              
+                              { session_id: item.session_id },
+                              {
+                                onSuccess: () => {
+                                  alert("Conversation deleted successfully");
+                                  if (conversationId === item.session_id) {
+                                    router.push("/chat");
+                                  }
+                                },
+                                onError: (err) => {
+                                  alert(err.message);
+                                },
+                              }
                             );
                           }}
                         >
@@ -321,76 +334,97 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
 
         {/* BOTTOM (account menu pinned) */}
         <div className="relative px-1 py-2 border-t shrink-0 dark:border-neutral-800">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className={`flex justify-start w-full gap-3 cursor-pointer rounded-md border bg-gray-100 hover:bg-gray-200/70 px-3 py-5 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 ${
-                  collapsed ? "justify-center px-1" : ""
-                }`}
-                title="Account"
-                aria-label="Account menu"
-              >
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <Avatar>
-                    <AvatarFallback className="text-white bg-amber-700 uppercase">
-                      {displayEmail[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  {!collapsed && (
-                    <div className="flex flex-col items-start min-w-0">
-                      <div className="text-sm font-medium truncate max-w-[160px] md:max-w-[180px] dark:text-neutral-200">
-                        {userData?.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-neutral-400">
-                        Free
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent
-              side="top"
-              align="end"
-              className="w-64 rounded-xl dark:bg-neutral-800 dark:border-neutral-700"
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className={`flex justify-start w-full gap-3 cursor-pointer rounded-md border bg-gray-100 hover:bg-gray-200/70 px-3 py-5 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 ${
+                collapsed ? "justify-center px-1" : ""
+              }`}
+              title="Account"
+              aria-label="Account menu"
             >
-              <DropdownMenuLabel className="px-4 py-3 dark:text-neutral-200">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 text-white border border-white rounded-full shadow-sm bg-amber-700 aspect-square dark:border-neutral-800">
-                    {avatarInitial}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium truncate dark:text-neutral-200">
-                      {displayEmail}
+              <div className="flex items-center gap-3 overflow-hidden">
+                <Avatar>
+                  <AvatarFallback className="text-white bg-amber-700 uppercase">
+                    {displayEmail[0]}
+                  </AvatarFallback>
+                </Avatar>
+                {!collapsed && (
+                  <div className="flex flex-col items-start min-w-0">
+                    <div className="text-sm font-medium truncate max-w-[160px] md:max-w-[180px] dark:text-neutral-200">
+                      {userData?.name}
                     </div>
                     <div className="text-xs text-gray-500 dark:text-neutral-400">
                       Free
                     </div>
                   </div>
+                )}
+              </div>
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            side="top"
+            align="end"
+            className="w-64 rounded-xl dark:bg-neutral-800 dark:border-neutral-700"
+          >
+            <DropdownMenuLabel className="px-4 py-3 dark:text-neutral-200">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 text-white border border-white rounded-full shadow-sm bg-amber-700 aspect-square dark:border-neutral-800">
+                  {avatarInitial}
                 </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator className="dark:bg-neutral-700" />
-              <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
-                <ArrowUpCircle className="w-4 h-4 mr-2" /> Upgrade plan
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
-                <Settings className="w-4 h-4 mr-2" /> Configuration
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
-                <HelpCircle className="w-4 h-4 mr-2" /> Help
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="dark:bg-neutral-700" />
-              <DropdownMenuItem
-                className="text-red-600 cursor-pointer"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4 mr-2" /> Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium truncate dark:text-neutral-200">
+                    {displayEmail}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-neutral-400">
+                    Free
+                  </div>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+
+            <DropdownMenuSeparator className="dark:bg-neutral-700" />
+
+            <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
+              <ArrowUpCircle className="w-4 h-4 mr-2" /> Upgrade plan
+            </DropdownMenuItem>
+
+            <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
+              <Settings className="w-4 h-4 mr-2" /> Configuration
+            </DropdownMenuItem>
+
+            <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
+              <HelpCircle className="w-4 h-4 mr-2" /> Help
+            </DropdownMenuItem>
+
+            {/* ✅ Archive button triggers modal */}
+            <DropdownMenuItem
+              className="cursor-pointer dark:text-neutral-200"
+              onClick={() => setShowArchiveModal(true)}
+            >
+              <ArrowUpCircle className="w-4 h-4 mr-2" /> Archive
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="dark:bg-neutral-700" />
+
+            <DropdownMenuItem
+              className="text-red-600 cursor-pointer"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" /> Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* ✅ Move the modal HERE — outside of DropdownMenu */}
+        <ArchiveModal
+          open={showArchiveModal}
+          onClose={() => setShowArchiveModal(false)} // replace later with API data
+        />
+      </div>
+
       </aside>
     </>
   );

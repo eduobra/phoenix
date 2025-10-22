@@ -110,7 +110,6 @@ const Page = () => {
         if (!container) return;
 
         const handleScroll = () => {
-          // Show button if user scrolled up more than 100px from bottom
           const isScrolledUp = container.scrollHeight - container.scrollTop - container.clientHeight > 100;
           setShowScrollButton(isScrolledUp);
         };
@@ -139,20 +138,17 @@ const Page = () => {
 
         const lastMessage = messages[messages.length - 1];
         if (lastMessage && !lastMessage.answer) {
-          removeMessage(lastMessage.id); // works now
+          removeMessage(lastMessage.id); 
         }
       }
     };
   return (
     <div className="relative flex flex-col w-full h-full bg-gray-50">
-  {/* Chat messages container */}
   <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
     {messages.length === 0 ? (
       <div className="grid h-full place-items-center">
         <div className="px-6 text-center">
-          {/* <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
-            A\
-          </div> */}
+        
           <h2 className="mb-1 text-xl font-semibold text-gray-900">
             Whats on your mind?
           </h2>
@@ -168,9 +164,9 @@ const Page = () => {
                 <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
                   <p className="text-sm whitespace-pre-wrap">{m.message}</p>
 
-                  {/* Action buttons (show on hover) */}
+             
                   <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {/* Copy button */}
+                
                     <button
                       onClick={() => navigator.clipboard.writeText(m.message)}
                       className="p-1 rounded-md bg-white/20 hover:bg-white/30"
@@ -179,7 +175,6 @@ const Page = () => {
                       📋
                     </button>
 
-                    {/* Edit button */}
                     <button
                       onClick={() => setInputValue(m.message)}
                       className="p-1 rounded-md bg-white/20 hover:bg-white/30"
@@ -198,9 +193,7 @@ const Page = () => {
                   <Markdown content={m.answer} />
                 </div>
 
-                 {/* Action icons */}
                     <div className="flex items-center gap-3 px-2">
-                      {/* Copy */}
                       <button
                         className="p-1 rounded hover:bg-gray-300"
                         title="Copy"
@@ -209,22 +202,18 @@ const Page = () => {
                         <Copy className="w-4 h-4 text-gray-600" />
                       </button>
 
-                      {/* Like */}
                       <button className="p-1 rounded hover:bg-gray-300" title="Like">
                         <ThumbsUp className="w-4 h-4 text-gray-600" />
                       </button>
 
-                      {/* Dislike */}
                       <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
                         <ThumbsDown className="w-4 h-4 text-gray-600" />
                       </button>
 
-                      {/* Share */}
                       <button className="p-1 rounded hover:bg-gray-300" title="Share">
                         <Share2 className="w-4 h-4 text-gray-600" />
                       </button>
 
-                      {/* Try Again */}
                       <button
                         className="p-1 rounded hover:bg-gray-300"
                         title="Try Again"
@@ -233,12 +222,11 @@ const Page = () => {
                         <RotateCcw className="w-4 h-4 text-gray-600" />
                       </button>
 
-                      {/* More Options */}
                       <button className="p-1 rounded hover:bg-gray-300" title="More">
                         <MoreHorizontal className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
-                     {/* Timestamp for bot answer */}
+
                     <span className="text-[10px] text-gray-500 whitespace-nowrap">
                       {new Date(m.created_at).toLocaleDateString([], {
                         month: "short",
@@ -273,7 +261,7 @@ const Page = () => {
     )}
   </div>
 
-  {/* Scroll to bottom button */}
+
   {showScrollButton && (
       <button
             onClick={scrollToBottom}
@@ -285,7 +273,7 @@ const Page = () => {
           </button>
   )}
 
-  {/* Input box */}
+ 
   <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
     <div className="w-full max-w-3xl mx-auto">
       <form
@@ -296,14 +284,14 @@ const Page = () => {
         className="flex items-end gap-2"
       >
         <div className="flex w-full items-end gap-2 bg-white border border-gray-300 shadow-sm rounded-3xl px-3 py-2 m-2">
-          {/* Left buttons */}
+
           <div className="flex flex-col justify-end">
             <button type="button" className="p-2 rounded-full hover:bg-gray-100">
               <Plus className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
-          {/* Textarea (auto-growing upward) */}
+
           <div className="flex-1 flex flex-col justify-end">
             <textarea
               ref={inputRef}
@@ -323,7 +311,7 @@ const Page = () => {
             />
           </div>
 
-          {/* Right buttons */}
+    
           <div className="flex items-end gap-1">
             <button type="button" className="p-2 rounded-full hover:bg-gray-100">
               <Mic className="w-5 h-5 text-gray-500" />
