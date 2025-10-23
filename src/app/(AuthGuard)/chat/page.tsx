@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import {   Plus,
+import {
+  Plus,
   Mic,
   ArrowUp,
-  ChevronDown,
-  MoveDown,
   ArrowDown,
   Copy,
   ThumbsUp,
   ThumbsDown,
   Share2,
   RotateCcw,
-  MoreHorizontal,} from "lucide-react";
-import { useConversationLists, useSendMessageMutation } from "@/query";
+  MoreHorizontal,
+} from "lucide-react";
+import { useSendMessageMutation } from "@/query";
 
 import { v4 as uuid } from "uuid";
 import { useQueryClient } from "@tanstack/react-query";
@@ -36,162 +36,152 @@ const Page = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [abortController, setAbortController] = useState<AbortController | null>(null); 
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
   const removeMessage = useChat((state) => state.removeMessage);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
-  
-    const sendMessage = async () => {
-      if (!inputValue.trim()) return;
 
-       const sanitizedInput = inputValue
-          .replace(/[‘’]/g, "'")   
-          .replace(/[“”]/g, '"')
-          .normalize("NFC"); 
+  const sendMessage = async () => {
+    if (!inputValue.trim()) return;
 
-      const controller = new AbortController();
-      setAbortController(controller);
-      const id = uuid();
+    const sanitizedInput = inputValue.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').normalize("NFC");
 
-      addMessage({
-        id,
-        message: sanitizedInput,
-        answer: "",
-        created_at: new Date().toISOString(),
+    const controller = new AbortController();
+    setAbortController(controller);
+    const id = uuid();
+
+    addMessage({
+      id,
+      message: sanitizedInput,
+      answer: "",
+      created_at: new Date().toISOString(),
+    });
+
+    setInputValue("");
+    setLoading(true);
+
+    try {
+      const response = await mutateAsync({
+        input: sanitizedInput,
+        session_id: conversationId ? conversationId : id,
+        stream: false,
+        signal: controller.signal,
       });
 
-      setInputValue("");
-      setLoading(true);
+      const messages = response.response.messages;
+      const lastMessage = messages[messages.length - 1];
+      let answerText = "";
 
-      try {
-        const response = await mutateAsync({
-          input: sanitizedInput,
-          session_id: conversationId ? conversationId : id,
-          stream: false,
-          signal: controller.signal,
-        });
-
-        const messages = response.response.messages;
-        const lastMessage = messages[messages.length - 1];
-        let answerText = "";
-
-        if (lastMessage.content.startsWith("{")) {
-          const parsed = JSON.parse(lastMessage.content);
-          answerText = parsed.content || "";
-        } else {
-          answerText = lastMessage.content;
-        }
-        updateMessageAnswer(id, answerText);
-        if (!conversationId) {
-          window.history.replaceState(null, "", `/chat/${id}`);
-          setConversationId(id);
-          queryClient.invalidateQueries({ queryKey: ["chat-history"] });
-        }
-      } catch (err) {
-        console.error("Send message error:", err);
-        setErrorModal({
-          isOpen: true,
-          message: "Looks like the server isn’t responding right now. Try again later.",
-        });
-      } finally {
-        setLoading(false);
+      if (lastMessage.content.startsWith("{")) {
+        const parsed = JSON.parse(lastMessage.content);
+        answerText = parsed.content || "";
+      } else {
+        answerText = lastMessage.content;
       }
+      updateMessageAnswer(id, answerText);
+      if (!conversationId) {
+        window.history.replaceState(null, "", `/chat/${id}`);
+        setConversationId(id);
+        queryClient.invalidateQueries({ queryKey: ["chat-history"] });
+      }
+    } catch (err) {
+      console.error("Send message error:", err);
+      setErrorModal({
+        isOpen: true,
+        message: "Looks like the server isn’t responding right now. Try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (endRef.current) {
+      endRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+    scrollToBottom();
+  }, [messages, loading]);
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const isScrolledUp = container.scrollHeight - container.scrollTop - container.clientHeight > 100;
+      setShowScrollButton(isScrolledUp);
     };
 
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
 
+  const scrollToBottom = () => {
+    if (endRef.current) {
+      endRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
-      useEffect(() => {
-        if (endRef.current) {
-          endRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-        scrollToBottom();
-      }, [messages, loading]);
-      useEffect(() => {
-        const container = chatContainerRef.current;
-        if (!container) return;
+  const handleInputGrow = () => {
+    if (!inputRef.current) return;
+    inputRef.current.style.height = "44px";
+    inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+  };
 
-        const handleScroll = () => {
-          const isScrolledUp = container.scrollHeight - container.scrollTop - container.clientHeight > 100;
-          setShowScrollButton(isScrolledUp);
-        };
+  const cancelMessage = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+      setLoading(false);
 
-        container.addEventListener("scroll", handleScroll);
-        return () => container.removeEventListener("scroll", handleScroll);
-      }, []);
-
-      const scrollToBottom = () => {
-        if (endRef.current) {
-          endRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-      };
-
-      const handleInputGrow = () => {
-        if (!inputRef.current) return;
-        inputRef.current.style.height = "44px";
-        inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
-      };
-
-    const cancelMessage = () => {
-      if (abortController) {
-        abortController.abort();
-        setAbortController(null);
-        setLoading(false);
-
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage && !lastMessage.answer) {
-          removeMessage(lastMessage.id); 
-        }
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && !lastMessage.answer) {
+        removeMessage(lastMessage.id);
       }
-    };
+    }
+  };
   return (
     <div className="relative flex flex-col w-full h-full bg-gray-50">
-  <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
-    {messages.length === 0 ? (
-      <div className="grid h-full place-items-center">
-        <div className="px-6 text-center">
-        
-          <h2 className="mb-1 text-xl font-semibold text-gray-900">
-            Whats on your mind?
-          </h2>
-          <p className="text-sm text-gray-500">Type a message below to begin.</p>
-        </div>
-      </div>
-    ) : (
-      <div className="flex flex-col gap-3">
-        {messages.map((m) => (
-          <div key={m.id} className="flex flex-col gap-2">
-           {m.message && (
-              <div className="flex justify-end group">
-                <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
-                  <p className="text-sm whitespace-pre-wrap">{m.message}</p>
+      <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
+        {messages.length === 0 ? (
+          <div className="grid h-full place-items-center">
+            <div className="px-6 text-center">
+              <h2 className="mb-1 text-xl font-semibold text-gray-900">Whats on your mind?</h2>
+              <p className="text-sm text-gray-500">Type a message below to begin.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {messages.map((m) => (
+              <div key={m.id} className="flex flex-col gap-2">
+                {m.message && (
+                  <div className="flex justify-end group">
+                    <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
+                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
 
-             
-                  <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                
-                    <button
-                      onClick={() => navigator.clipboard.writeText(m.message)}
-                      className="p-1 rounded-md bg-white/20 hover:bg-white/30"
-                      title="Copy"
-                    >
-                      📋
-                    </button>
+                      <div className="absolute flex gap-1 transition-opacity opacity-0 top-1 right-1 group-hover:opacity-100">
+                        <button
+                          onClick={() => navigator.clipboard.writeText(m.message)}
+                          className="p-1 rounded-md bg-white/20 hover:bg-white/30"
+                          title="Copy"
+                        >
+                          📋
+                        </button>
 
-                    <button
-                      onClick={() => setInputValue(m.message)}
-                      className="p-1 rounded-md bg-white/20 hover:bg-white/30"
-                      title="Edit & Resend"
-                    >
-                      ✏️
-                    </button>
+                        <button
+                          onClick={() => setInputValue(m.message)}
+                          className="p-1 rounded-md bg-white/20 hover:bg-white/30"
+                          title="Edit & Resend"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            {m.answer ? (
-              <div className="flex flex-col items-start gap-1 w-full">
-                <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900">
-                  <Markdown content={m.answer} />
-                </div>
+                {m.answer ? (
+                  <div className="flex flex-col items-start w-full gap-1">
+                    <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900">
+                      <Markdown content={m.answer} />
+                    </div>
 
                     <div className="flex items-center gap-3 px-2">
                       <button
@@ -214,11 +204,7 @@ const Page = () => {
                         <Share2 className="w-4 h-4 text-gray-600" />
                       </button>
 
-                      <button
-                        className="p-1 rounded hover:bg-gray-300"
-                        title="Try Again"
-                        onClick={() => sendMessage()}
-                      >
+                      <button className="p-1 rounded hover:bg-gray-300" title="Try Again" onClick={() => sendMessage()}>
                         <RotateCcw className="w-4 h-4 text-gray-600" />
                       </button>
 
@@ -238,121 +224,114 @@ const Page = () => {
                         minute: "2-digit",
                       })}
                     </span>
-              </div>
-            ) : (
-              loading &&
-              m.id === messages[messages.length - 1].id && (
-                <div className="flex justify-start">
-                  <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                    </div>
                   </div>
-                </div>
-              )
-            )}
-          </div>
-        ))}
+                ) : (
+                  loading &&
+                  m.id === messages[messages.length - 1].id && (
+                    <div className="flex justify-start">
+                      <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            ))}
 
-        <div ref={endRef} />
+            <div ref={endRef} />
+          </div>
+        )}
       </div>
-    )}
-  </div>
 
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute p-2 mb-4 text-black transform -translate-x-1/2 bg-white rounded-full shadow-md left-1/2 bottom-24 hover:bg-gray-100"
+        >
+          {/* <ChevronDown className="w-5 h-5" /> */}
+          {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
+          <ArrowDown size={18} absoluteStrokeWidth />
+        </button>
+      )}
 
-  {showScrollButton && (
-      <button
-            onClick={scrollToBottom}
-            className="absolute left-1/2 bottom-24 transform -translate-x-1/2 p-2 text-black bg-white rounded-full shadow-md mb-4 hover:bg-gray-100"
+      <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
+        <div className="w-full max-w-3xl mx-auto">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessage();
+            }}
+            className="flex items-end gap-2"
           >
-            {/* <ChevronDown className="w-5 h-5" /> */}
-            {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
-            <ArrowDown size={18} absoluteStrokeWidth />
-          </button>
-  )}
+            <div className="flex items-end w-full gap-2 px-3 py-2 m-2 bg-white border border-gray-300 shadow-sm rounded-3xl">
+              <div className="flex flex-col justify-end">
+                <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+                  <Plus className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
 
- 
-  <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
-    <div className="w-full max-w-3xl mx-auto">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          sendMessage();
-        }}
-        className="flex items-end gap-2"
-      >
-        <div className="flex w-full items-end gap-2 bg-white border border-gray-300 shadow-sm rounded-3xl px-3 py-2 m-2">
+              <div className="flex flex-col justify-end flex-1">
+                <textarea
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onInput={handleInputGrow}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  rows={1}
+                  maxLength={10000}
+                  placeholder="Ask Ascent AI"
+                  className="w-full bg-transparent pt-3 resize-none outline-none px-3  max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
+                />
+              </div>
 
-          <div className="flex flex-col justify-end">
-            <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-              <Plus className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
+              <div className="flex items-end gap-1">
+                <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+                  <Mic className="w-5 h-5 text-gray-500" />
+                </button>
 
-
-          <div className="flex-1 flex flex-col justify-end">
-            <textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onInput={handleInputGrow}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-              rows={1}
-              maxLength={10000}
-              placeholder="Ask Ascent AI"
-              className="w-full bg-transparent pt-3 resize-none outline-none px-3  max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
-            />
-          </div>
-
-    
-          <div className="flex items-end gap-1">
-            <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-              <Mic className="w-5 h-5 text-gray-500" />
-            </button>
-
-            {loading ? (
-              <button
-                type="button"
-                onClick={cancelMessage}
-                className="flex items-center  justify-center w-10 h-10 bg-gray-200 rounded-full shadow-md hover:bg-gray-300 transition-colors cursor-pointer"
-              >
-                <div className="w-3.5 h-3.5 bg-black rounded-sm" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={!inputValue.trim()}
-                className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
-                  inputValue.trim()
-                    ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                    : "bg-gray-300 text-white cursor-not-allowed"
-                }`}
-              >
-                <ArrowUp className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+                {loading ? (
+                  <button
+                    type="button"
+                    onClick={cancelMessage}
+                    className="flex items-center justify-center w-10 h-10 transition-colors bg-gray-200 rounded-full shadow-md cursor-pointer hover:bg-gray-300"
+                  >
+                    <div className="w-3.5 h-3.5 bg-black rounded-sm" />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={!inputValue.trim()}
+                    className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                      inputValue.trim()
+                        ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
+                        : "bg-gray-300 text-white cursor-not-allowed"
+                    }`}
+                  >
+                    <ArrowUp className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </form>
         </div>
-      </form>
+        <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
+        <Modal
+          isOpen={errorModal.isOpen}
+          title="Oops! Something went wrong."
+          message={errorModal.message}
+          onClose={() => setErrorModal({ isOpen: false, message: "" })}
+        />
+      </div>
     </div>
-    <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
-    <Modal
-        isOpen={errorModal.isOpen}
-        title="Oops! Something went wrong."
-        message={errorModal.message}
-        onClose={() => setErrorModal({ isOpen: false, message: "" })}
-      />
-  </div>
-   
-</div>
-
   );
 };
 
