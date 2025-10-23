@@ -266,6 +266,7 @@ const Page = () => {
                           <button className="p-1 rounded hover:bg-gray-300" title="More">
                             <MoreHorizontal className="w-4 h-4 text-gray-600" />
                           </button>
+                          {m.run_id && <TraceHistory traceId={m.run_id} />}
                         </div>
 
                         <span className="relative right-0 bottom-0 text-[10px] text-gray-500 whitespace-nowrap">
@@ -324,7 +325,6 @@ const Page = () => {
                       <button className="p-1 rounded hover:bg-gray-300" title="More">
                         <MoreHorizontal className="w-4 h-4 text-gray-600" />
                       </button>
-                      {m.run_id && <TraceHistory traceId={m.run_id} />}
                     </div>
 
                     <span className="text-[10px] text-gray-500 whitespace-nowrap">
