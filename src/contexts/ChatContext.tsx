@@ -3,7 +3,11 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { create, StoreApi, useStore } from "zustand";
 type Msg = {
-  created_at: string | number | Date; id: string; message: string; answer: string 
+  created_at: string | number | Date;
+  id: string;
+  message: string;
+  answer: string;
+  run_id?: string | null;
 };
 type ContextState = {
   conversationId: string | null;
@@ -22,9 +26,9 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
     return create<ContextState>()((set) => ({
       conversationId: null,
       messages: [],
-    
+
       setConversationId: (conversationId) => set({ conversationId }),
-      
+
       addMessage: (msg) =>
         set((state) => ({
           messages: [...state.messages, msg],
@@ -38,7 +42,7 @@ export const ChatContextProvider = ({ children }: { children: ReactNode }) => {
       removeMessage: (id) =>
         set((state) => ({
           messages: state.messages.filter((m) => m.id !== id),
-        })), 
+        })),
       resetMessages: () => set({ messages: [], conversationId: null }),
     }));
   });

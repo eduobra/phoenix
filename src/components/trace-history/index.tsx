@@ -1,7 +1,7 @@
 import { Brain, ChevronsRight, Coins, File, Info, Link, PanelRight } from "lucide-react";
 
 import { Wrench } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader } from "../ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { ReactNode, useState } from "react";
 import dayjs from "dayjs";
@@ -11,7 +11,7 @@ import { TraceNode } from "@/types/trace";
 import Skeleton from "@mui/material/Skeleton";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
 import { Separator } from "../ui/separator";
-
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import TraceRunId from "./TraceRunId";
 
 function formatDuration(ms: number): string {
@@ -300,6 +300,9 @@ const TraceHistory = ({ traceId }: { traceId: string }) => {
                 <ChevronsRight />
               </Button>
               <p className="text-sm"> {traceId}</p>
+              <VisuallyHidden>
+                <SheetTitle>Trace History</SheetTitle>
+              </VisuallyHidden>
             </SheetHeader>
             <div className="flex flex-1 h-full p-0 overflow-hidden ">
               <div className="flex flex-col h-full w-[450px]">

@@ -21,6 +21,8 @@ import { useChat } from "@/contexts/ChatContext";
 import Markdown from "@/components/mark-down";
 import UsageLimitModal from "@/components/ui/UsageLimitModal";
 import Modal from "@/components/ui/Modal";
+import TraceHistory from "@/components/trace-history";
+import { TraceContextProvider } from "@/contexts/TraceContext";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -138,200 +140,207 @@ const Page = () => {
     }
   };
   return (
-    <div className="relative flex flex-col w-full h-full bg-gray-50">
-      <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
-        {messages.length === 0 ? (
-          <div className="grid h-full place-items-center">
-            <div className="px-6 text-center">
-              <h2 className="mb-1 text-xl font-semibold text-gray-900">Whats on your mind?</h2>
-              <p className="text-sm text-gray-500">Type a message below to begin.</p>
+    <TraceContextProvider>
+      <div className="relative flex flex-col w-full h-full bg-gray-50">
+        <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
+          {messages.length === 0 ? (
+            <div className="grid h-full place-items-center">
+              <div className="px-6 text-center">
+                <h2 className="mb-1 text-xl font-semibold text-gray-900">Whats on your mind?</h2>
+                <p className="text-sm text-gray-500">Type a message below to begin.</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {messages.map((m) => (
-              <div key={m.id} className="flex flex-col gap-2">
-                {m.message && (
-                  <div className="flex justify-end group">
-                    <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
-                      <p className="text-sm whitespace-pre-wrap">{m.message}</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {messages.map((m) => (
+                <div key={m.id} className="flex flex-col gap-2">
+                  {m.message && (
+                    <div className="flex justify-end group">
+                      <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
+                        <p className="text-sm whitespace-pre-wrap">{m.message}</p>
 
-                      <div className="absolute flex gap-1 transition-opacity opacity-0 top-1 right-1 group-hover:opacity-100">
-                        <button
-                          onClick={() => navigator.clipboard.writeText(m.message)}
-                          className="p-1 rounded-md bg-white/20 hover:bg-white/30"
-                          title="Copy"
-                        >
-                          📋
-                        </button>
+                        <div className="absolute flex gap-1 transition-opacity opacity-0 top-1 right-1 group-hover:opacity-100">
+                          <button
+                            onClick={() => navigator.clipboard.writeText(m.message)}
+                            className="p-1 rounded-md bg-white/20 hover:bg-white/30"
+                            title="Copy"
+                          >
+                            📋
+                          </button>
 
-                        <button
-                          onClick={() => setInputValue(m.message)}
-                          className="p-1 rounded-md bg-white/20 hover:bg-white/30"
-                          title="Edit & Resend"
-                        >
-                          ✏️
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {m.answer ? (
-                  <div className="flex flex-col items-start w-full gap-1">
-                    <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900">
-                      <Markdown content={m.answer} />
-                    </div>
-
-                    <div className="flex items-center gap-3 px-2">
-                      <button
-                        className="p-1 rounded hover:bg-gray-300"
-                        title="Copy"
-                        onClick={() => navigator.clipboard.writeText(m.answer)}
-                      >
-                        <Copy className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      <button className="p-1 rounded hover:bg-gray-300" title="Like">
-                        <ThumbsUp className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
-                        <ThumbsDown className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      <button className="p-1 rounded hover:bg-gray-300" title="Share">
-                        <Share2 className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      <button className="p-1 rounded hover:bg-gray-300" title="Try Again" onClick={() => sendMessage()}>
-                        <RotateCcw className="w-4 h-4 text-gray-600" />
-                      </button>
-
-                      <button className="p-1 rounded hover:bg-gray-300" title="More">
-                        <MoreHorizontal className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
-
-                    <span className="text-[10px] text-gray-500 whitespace-nowrap">
-                      {new Date(m.created_at).toLocaleDateString([], {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}{" "}
-                      {new Date(m.created_at).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                ) : (
-                  loading &&
-                  m.id === messages[messages.length - 1].id && (
-                    <div className="flex justify-start">
-                      <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                        <div className="flex gap-1">
-                          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                          <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                          <button
+                            onClick={() => setInputValue(m.message)}
+                            className="p-1 rounded-md bg-white/20 hover:bg-white/30"
+                            title="Edit & Resend"
+                          >
+                            ✏️
+                          </button>
                         </div>
                       </div>
                     </div>
-                  )
-                )}
-              </div>
-            ))}
+                  )}
 
-            <div ref={endRef} />
-          </div>
-        )}
-      </div>
+                  {m.answer ? (
+                    <div className="flex flex-col items-start w-full gap-1">
+                      <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900">
+                        <Markdown content={m.answer} />
+                      </div>
 
-      {showScrollButton && (
-        <button
-          onClick={scrollToBottom}
-          className="absolute p-2 mb-4 text-black transform -translate-x-1/2 bg-white rounded-full shadow-md left-1/2 bottom-24 hover:bg-gray-100"
-        >
-          {/* <ChevronDown className="w-5 h-5" /> */}
-          {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
-          <ArrowDown size={18} absoluteStrokeWidth />
-        </button>
-      )}
+                      <div className="flex items-center gap-3 px-2">
+                        <button
+                          className="p-1 rounded hover:bg-gray-300"
+                          title="Copy"
+                          onClick={() => navigator.clipboard.writeText(m.answer)}
+                        >
+                          <Copy className="w-4 h-4 text-gray-600" />
+                        </button>
 
-      <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
-        <div className="w-full max-w-3xl mx-auto">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              sendMessage();
-            }}
-            className="flex items-end gap-2"
-          >
-            <div className="flex items-end w-full gap-2 px-3 py-2 m-2 bg-white border border-gray-300 shadow-sm rounded-3xl">
-              <div className="flex flex-col justify-end">
-                <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                  <Plus className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
+                        <button className="p-1 rounded hover:bg-gray-300" title="Like">
+                          <ThumbsUp className="w-4 h-4 text-gray-600" />
+                        </button>
 
-              <div className="flex flex-col justify-end flex-1">
-                <textarea
-                  ref={inputRef}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onInput={handleInputGrow}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage();
-                    }
-                  }}
-                  rows={1}
-                  maxLength={10000}
-                  placeholder="Ask Ascent AI"
-                  className="w-full bg-transparent pt-3 resize-none outline-none px-3  max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
-                />
-              </div>
+                        <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
+                          <ThumbsDown className="w-4 h-4 text-gray-600" />
+                        </button>
 
-              <div className="flex items-end gap-1">
-                <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                  <Mic className="w-5 h-5 text-gray-500" />
-                </button>
+                        <button className="p-1 rounded hover:bg-gray-300" title="Share">
+                          <Share2 className="w-4 h-4 text-gray-600" />
+                        </button>
 
-                {loading ? (
-                  <button
-                    type="button"
-                    onClick={cancelMessage}
-                    className="flex items-center justify-center w-10 h-10 transition-colors bg-gray-200 rounded-full shadow-md cursor-pointer hover:bg-gray-300"
-                  >
-                    <div className="w-3.5 h-3.5 bg-black rounded-sm" />
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={!inputValue.trim()}
-                    className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
-                      inputValue.trim()
-                        ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                        : "bg-gray-300 text-white cursor-not-allowed"
-                    }`}
-                  >
-                    <ArrowUp className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
+                        <button
+                          className="p-1 rounded hover:bg-gray-300"
+                          title="Try Again"
+                          onClick={() => sendMessage()}
+                        >
+                          <RotateCcw className="w-4 h-4 text-gray-600" />
+                        </button>
+
+                        <button className="p-1 rounded hover:bg-gray-300" title="More">
+                          <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                        </button>
+                        {m.run_id && <TraceHistory traceId={m.run_id} />}
+                      </div>
+
+                      <span className="text-[10px] text-gray-500 whitespace-nowrap">
+                        {new Date(m.created_at).toLocaleDateString([], {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}{" "}
+                        {new Date(m.created_at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                  ) : (
+                    loading &&
+                    m.id === messages[messages.length - 1].id && (
+                      <div className="flex justify-start">
+                        <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
+                          <div className="flex gap-1">
+                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
+                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              ))}
+
+              <div ref={endRef} />
             </div>
-          </form>
+          )}
         </div>
-        <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
-        <Modal
-          isOpen={errorModal.isOpen}
-          title="Oops! Something went wrong."
-          message={errorModal.message}
-          onClose={() => setErrorModal({ isOpen: false, message: "" })}
-        />
+
+        {showScrollButton && (
+          <button
+            onClick={scrollToBottom}
+            className="absolute p-2 mb-4 text-black transform -translate-x-1/2 bg-white rounded-full shadow-md left-1/2 bottom-24 hover:bg-gray-100"
+          >
+            {/* <ChevronDown className="w-5 h-5" /> */}
+            {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
+            <ArrowDown size={18} absoluteStrokeWidth />
+          </button>
+        )}
+
+        <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
+          <div className="w-full max-w-3xl mx-auto">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage();
+              }}
+              className="flex items-end gap-2"
+            >
+              <div className="flex items-end w-full gap-2 px-3 py-2 m-2 bg-white border border-gray-300 shadow-sm rounded-3xl">
+                <div className="flex flex-col justify-end">
+                  <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+                    <Plus className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+
+                <div className="flex flex-col justify-end flex-1">
+                  <textarea
+                    ref={inputRef}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onInput={handleInputGrow}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                    rows={1}
+                    maxLength={10000}
+                    placeholder="Ask Ascent AI"
+                    className="w-full bg-transparent pt-3 resize-none outline-none px-3  max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
+                  />
+                </div>
+
+                <div className="flex items-end gap-1">
+                  <button type="button" className="p-2 rounded-full hover:bg-gray-100">
+                    <Mic className="w-5 h-5 text-gray-500" />
+                  </button>
+
+                  {loading ? (
+                    <button
+                      type="button"
+                      onClick={cancelMessage}
+                      className="flex items-center justify-center w-10 h-10 transition-colors bg-gray-200 rounded-full shadow-md cursor-pointer hover:bg-gray-300"
+                    >
+                      <div className="w-3.5 h-3.5 bg-black rounded-sm" />
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={!inputValue.trim()}
+                      className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                        inputValue.trim()
+                          ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
+                          : "bg-gray-300 text-white cursor-not-allowed"
+                      }`}
+                    >
+                      <ArrowUp className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+          <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
+          <Modal
+            isOpen={errorModal.isOpen}
+            title="Oops! Something went wrong."
+            message={errorModal.message}
+            onClose={() => setErrorModal({ isOpen: false, message: "" })}
+          />
+        </div>
       </div>
-    </div>
+    </TraceContextProvider>
   );
 };
 
