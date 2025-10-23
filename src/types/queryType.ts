@@ -9,7 +9,7 @@ export interface Conversations {
   user_id: string;
   session_id: string;
   message: string;
-  messages:Message[];
+  messages: Message[];
   answer: null | string;
   role: "user" | "assistant";
   created_at: Date;
@@ -19,6 +19,7 @@ export interface Conversations {
 export interface SendMessageResponse {
   response: Response;
   session_id: string;
+  run_id: string;
 }
 
 export interface Response {

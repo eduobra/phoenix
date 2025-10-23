@@ -306,7 +306,7 @@ const TraceHistory = ({ traceId }: { traceId: string }) => {
             </SheetHeader>
             <div className="flex flex-1 h-full p-0 overflow-hidden ">
               <div className="flex flex-col h-full w-[450px]">
-                <div className="flex-1 h-full overflow-hidden border-r border-r-gray-300/50">
+                <div className="flex-1 h-full overflow-auto border-r border-r-gray-300/50">
                   <DocumentTreeContent traceId={traceId} />
                 </div>
               </div>
