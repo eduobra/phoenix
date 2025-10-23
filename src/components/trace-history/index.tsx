@@ -13,6 +13,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Separator } from "../ui/separator";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import TraceRunId from "./TraceRunId";
+import { useTrace } from "@/contexts/TraceContext";
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms.toLocaleString()}ms`;
@@ -283,8 +284,10 @@ const DocumentTreeContent = ({ traceId }: { traceId: string }) => {
 
 const TraceHistory = ({ traceId }: { traceId: string }) => {
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
+  const setTrace = useTrace((state) => state.setTrace);
   const onToggleSheet = () => {
     setSheetOpen((prev) => !prev);
+    if (!sheetOpen) setTrace(null);
   };
   return (
     <>
@@ -306,7 +309,7 @@ const TraceHistory = ({ traceId }: { traceId: string }) => {
             </SheetHeader>
             <div className="flex flex-1 h-full p-0 overflow-hidden ">
               <div className="flex flex-col h-full w-[450px]">
-                <div className="flex-1 h-full overflow-auto border-r border-r-gray-300/50">
+                <div className="flex-1 h-full overflow-auto border-r scroll-thin border-r-gray-300/50">
                   <DocumentTreeContent traceId={traceId} />
                 </div>
               </div>
