@@ -263,7 +263,7 @@ export const useTraceById = (traceId: string) => {
   return useQuery<TreeTraceListsType, AxiosError<{ error: string }>>({
     queryKey: ["trace-by-id", { traceId }],
     queryFn: async () => {
-      const response = await axiosInstanceBackendForCustomer.get(`/api/v1/trace/${traceId}`, {
+      const response = await axiosInstace.get(`/trace/${traceId}`, {
         headers: { Authorization: authorization },
       });
       return response.data;
@@ -278,7 +278,7 @@ export const useTraceRunById = (runId: string) => {
   return useQuery<DefaultResponse, AxiosError<{ error: string }>>({
     queryKey: ["trace-run-by-id", { runId }],
     queryFn: async () => {
-      const response = await axiosInstanceBackendForCustomer.get(`/api/v1/trace/run/${runId}`, {
+      const response = await axiosInstace.get(`/trace/run/${runId}`, {
         headers: { Authorization: authorization },
       });
       return response.data;
