@@ -29,6 +29,8 @@ import { useChatHistoryLists, useSoftDeleteConversation } from "@/query";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 import ArchiveModal from "@/components/ui/ArchiveModal";
+import SettingsModal from "@/components/ui/SettingsModal";
+
 type SidenavProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -63,6 +65,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
   const { conversationId } = useParams();
   const { mutate: softDeleteConversation, isPending: deleting } = useSoftDeleteConversation();
   const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   // Safely extract messages from the API response
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -386,8 +389,11 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
               <ArrowUpCircle className="w-4 h-4 mr-2" /> Upgrade plan
             </DropdownMenuItem>
 
-            <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
-              <Settings className="w-4 h-4 mr-2" /> Configuration
+            <DropdownMenuItem
+              className="cursor-pointer dark:text-neutral-200"
+              onClick={() => setShowSettingsModal(true)}
+            >
+              <Settings className="w-4 h-4 mr-2" /> Settings
             </DropdownMenuItem>
 
             <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
@@ -417,6 +423,11 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
         <ArchiveModal
           open={showArchiveModal}
           onClose={() => setShowArchiveModal(false)} // replace later with API data
+        />
+
+        <SettingsModal
+          open={showSettingsModal}
+          onClose={() => setShowSettingsModal(false)}
         />
       </div>
 
