@@ -51,18 +51,18 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-5xl px-6 mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-white/10 from-[#6366F1] to-[#8B5CF6] backdrop-blur-sm">
             <Zap className="w-4 h-4 text-[#6366F1]" />
-            <span className="text-xs font-medium bg-gradient-to-r text-white bg-clip-text ">
+            <span className="text-xs font-medium bg-gradient-to-r text-[#6366F1] bg-clip-text ">
               Empowering Decision-Driven Enterprises
             </span>
         </div>
-         <h1 className="mb-6 text-6xl font-light text-[3rem]  text-white md:text-8xl">
-          <span className="block">Ascent AI</span>
-          <span className="block text-transparent bg-gradient-primary bg-clip-text">
-            Agent Suite
-          </span>
-        </h1>
+        <h1 className="mb-6 text-[3rem] font-bold text-white text-center">
+        <span className="block">Ascent AI</span>
+        <span className="block text-transparent bg-gradient-primary bg-clip-text">
+          Agent Suite
+        </span>
+      </h1>
 
-       <p className="max-w-3xl mx-auto mb-8 text-xl md:text-2xl leading-relaxed font-normal text-[#777c81] [line-height:1.5em]">
+      <p className="max-w-3xl mx-auto mb-8 text-xl md:text-2xl leading-[1.5em] font-normal text-[#4B5563]">
         Unleash a new era of intelligent decision-making.<br /><br />
         Ascent AI empowers your Finance, Sales, and Logistics teams with AI-driven advisers
         that analyze data, deliver insights, and recommend the best actions in real time.<br /><br />
@@ -70,7 +70,8 @@ const HeroSection = () => {
         ahead.
       </p>
 
-       <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+
+     <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
         {/* Primary CTA — Start Free Trial */}
         <Link href="/login" passHref className="w-full sm:w-48">
           <Button
@@ -87,39 +88,23 @@ const HeroSection = () => {
           <Button
             variant="ghost"
             size="lg"
-            className="w-full font-semibold text-white border border-white hover:brightness-110 hover:bg-white transition-all duration-300"
+            className="w-full font-semibold text-white border border-white transition-all duration-300 hover:brightness-110 hover:bg-white hover:text-[#111827]"
           >
             Watch Overview Video
           </Button>
         </Link>
       </div>
-
-
-
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 pt-8 mt-16 border-t border-border/20">
-          <div className="text-center">
-            <div className="text-3xl font-medium text-[#6B7280]">500+</div>
-            <div className="text-sm font-normal text-[#6B7280] leading-snug">
-              Business<br />
-              Workflows<br />
-              Automated
-            </div>
-          </div>
-          <div className="text-center">
-              <div className="text-3xl font-medium text-[#6B7280]">99.9%</div>
-              <div className="text-sm font-normal text-[#6B7280] leading-snug">
-                Uptime
-              </div>
-          </div>
-          <div className="text-center">
-               <div className="text-3xl font-medium text-[#6B7280]">24/7</div>
-                <div className="text-sm font-normal text-[#6B7280] leading-snug">
-                AI-Powered<br />
-                Support
-              </div>
-          </div>
+       <div className="pt-8 mt-16 border-t border-border/20 text-center text-[#6B7280]">
+          <p className="text-sm font-normal">
+            <span className="font-medium">500+</span> Business Workflows Automated
+            <span className="mx-2">•</span>
+            <span className="font-medium">99.9%</span> Uptime
+            <span className="mx-2">•</span>
+            <span className="font-medium">24/7</span> AI-Powered Support
+          </p>
         </div>
+
       </div>
     </section>
   );
@@ -182,38 +167,36 @@ const FeaturesSection = () => {
           <h2 className="mb-6 text-4xl md:text-5xl font-bold text-[#111827]">
             Powerful AI Agents Capabilities
           </h2>
-          <p className="text-lg md:text-xl text-[#4B5563] leading-relaxed">
+          <p className="max-w-3xl mx-auto text-lg md:text-xl text-[#4B5563] leading-relaxed">
             Discover the intelligence behind Ascent AI Agents — a suite of autonomous agents that 
             think, reason, and collaborate to drive smarter decisions and operational excellence.
           </p>
         </div>
       </section>
 
-
-       <section className="pb-10 bg-white">
-          <div className="max-w-6xl mx-auto px-6 text-center">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center justify-start p-8 h-full text-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
-                >
-                  <div className="flex items-center justify-center w-14 h-14 mb-4 rounded-lg ">
-                    <feature.icon className="w-8 h-8 text-[#6C63FF]" />
-                  </div>
-                  <h3 className="mb-3 text-[1.25rem] font-semibold text-[#111827]">
-                    {feature.title}
-                  </h3>
-                  <p
-                    className="leading-relaxed text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: feature.description }}
-                  ></p>
+     <section className="pb-10 bg-white">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="flex flex-col items-center justify-start p-8 h-full text-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+              >
+                <div className="flex items-center justify-center w-14 h-14 mb-4 rounded-lg">
+                  <feature.icon className="w-8 h-8 text-[#6C63FF]" />
                 </div>
-              ))}
-            </div>
+                <h3 className="mb-3 text-[1.25rem] font-semibold text-[#111827]">
+                  {feature.title}
+                </h3>
+                <p
+                  className="text-[1rem] font-normal text-[#4B5563] leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: feature.description }}
+                ></p>
+              </div>
+            ))}
           </div>
-        </section>
-
+        </div>
+      </section>
       </div>
   );
 };
@@ -231,7 +214,7 @@ const CTASection = () => {
          <div className="max-w-4xl mx-auto px-4">
             <h2 className="mb-6 text-[2.5rem] font-bold leading-tight text-white">
               Ready to Transform Your Business with{" "}
-              <span className="block bg-gradient-to-r from-[#312E81] to-[#4F46E5] bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r  bg-clip-text text-white">
                 Agentic AI?
               </span>
             </h2>
@@ -262,14 +245,19 @@ const CTASection = () => {
           </a>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {benefits.map((benefit, index) => (
-            <div key={index} className="flex items-center gap-2 text-white">
-              <CheckCircle className="flex-shrink-0 w-5 h-5 text-primary-glow" />
-              <span className="text-sm">{benefit}</span>
-            </div>
-          ))}
-        </div>
+       <div className="flex flex-col items-center justify-center gap-2 text-[#E5E7EB]/90 md:flex-row md:gap-6 text-sm">
+        <span>
+          <strong className="font-medium text-white">500+</strong> Business Workflows Automated
+        </span>
+        <span className="hidden md:inline">•</span>
+        <span>
+          <strong className="font-medium text-white">99.9%</strong> Platform Uptime
+        </span>
+        <span className="hidden md:inline">•</span>
+        <span>
+          <strong className="font-medium text-white">24/7</strong> AI Agent Support
+        </span>
+      </div>
       </div>
     </section>
   );
