@@ -1,34 +1,23 @@
 import { Button } from "@/components/ui/button";
 
-import { CheckCircle } from "lucide-react";
 import Image from "next/image";
 
-import { Card } from "@/components/ui/card";
 import {
-  Bot,
   Brain,
   Zap,
-  Shield,
-  BarChart3,
-  Workflow,
-  MessageSquare,
   Globe,
   Clock,
   ArrowRight,
   Sparkles,
   Network,
-  EarthLock,
- BrainCircuit,
  TowerControl,
  ShieldCheck,
  MessageCircleMore,
- Share2
 } from "lucide-react";
 import Link from "next/link";
 import ChatbotWidget from "@/components/ui/ChatbotWidget";
-import NetworkGraph from "@/components/Icons/NetworkGraph";
 
-const benefits = ["Free 14-day trial", "No setup fees", "Cancel anytime", "24/7 support included"];
+
 
 const HeroSection = () => {
   return (
