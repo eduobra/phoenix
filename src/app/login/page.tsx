@@ -163,10 +163,11 @@ export default function LoginPage() {
             <input
               type="email"
               placeholder="you@example.com"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-black focus:outline-none"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-black focus:outline-none  cursor-not-allowed opacity-50"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled
             />
           </div>
 
@@ -175,19 +176,20 @@ export default function LoginPage() {
             <input
               type="password"
               placeholder="••••••••"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-black focus:outline-none"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-black focus:outline-none  cursor-not-allowed opacity-50"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled
             />
             <div className="mt-1 text-right">
-              <a href="#" className="text-xs font-medium text-blue-600 hover:underline">
+              <a href="" className="text-xs font-medium text-blue-600 hover:underline  cursor-not-allowed opacity-50" >
                 Forgot password?
               </a>
             </div>
           </div>
 
-          <button type="submit" className="w-full py-2 text-white bg-gray-900 rounded-lg hover:bg-black">
+          <button type="submit" className="w-full py-2 text-white bg-gray-900 rounded-lg hover:bg-black  cursor-not-allowed opacity-50" disabled>
             Login
           </button>
 
@@ -200,8 +202,8 @@ export default function LoginPage() {
           <button
             id="googleSignInDiv"
             type="button"
-            onClick={handleGoogleSignIn}
-            className="flex items-center justify-center w-full py-2 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+            className="flex items-center justify-center w-full py-2 text-sm border border-gray-300 rounded-lg cursor-not-allowed opacity-50"
+            disabled
           >
             <FcGoogle className="mr-2 text-lg" />
             Sign in with Google
@@ -211,6 +213,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleMicrosoftSignIn}
             className="flex items-center justify-center w-full py-2 mt-2 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+            
           >
             <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23">
               <rect x="1" y="1" width="10" height="10" fill="#F25022" />

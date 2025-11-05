@@ -448,7 +448,7 @@ const Page = () => {
           </div>
         </div>
 
-        <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
+        {/* <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} /> */}
         <Modal
           isOpen={errorModal.isOpen}
           title="Oops! Something went wrong."
