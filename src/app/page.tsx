@@ -91,8 +91,8 @@ const HeroSection = () => {
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:items-center sm:gap-8">
             
             {/* Item 1 */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-center sm:text-left">
-              <span className="text-[16px] font-[500]">500+</span>
+            <div className="flex  sm:flex-row sm:items-center gap-1 sm:gap-1 text-center sm:text-left">
+              <span className="text-[16px] font-[600]">500+</span>
               <span className="text-[16px] font-[400]">Business Workflows Automated</span>
             </div>
 
@@ -100,8 +100,8 @@ const HeroSection = () => {
             <span className="hidden sm:inline text-[18px]">•</span>
 
             {/* Item 2 */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-center sm:text-left">
-              <span className="text-[16px] font-[500]">99.9%</span>
+            <div className="flex  sm:flex-row sm:items-center gap-1 sm:gap-1 text-center sm:text-left">
+              <span className="text-[16px] font-[600]">99.9%</span>
               <span className="text-[16px] font-[400]">Uptime</span>
             </div>
 
@@ -109,8 +109,8 @@ const HeroSection = () => {
             <span className="hidden sm:inline text-[18px]">•</span>
 
             {/* Item 3 */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-center sm:text-left">
-              <span className="text-[16px] font-[500]">24/7</span>
+            <div className="flex mb-4 sm:flex-row sm:items-center gap-1 sm:gap-1 text-center sm:text-left">
+              <span className="text-[16px] font-[600]">24/7</span>
               <span className="text-[16px] font-[400]">AI-Powered Support</span>
             </div>
 
