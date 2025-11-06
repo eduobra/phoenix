@@ -80,7 +80,7 @@ const HeroSection = () => {
           <Button
             variant="ghost"
             size="lg"
-            className="w-full font-semibold text-white border border-white transition-all duration-300 hover:brightness-110 hover:bg-white hover:text-[#111827]"
+            className="w-full font-semibold text-white border border-white transition-all duration-300 hover:brightness-110 hover:bg-background hover:text-[#111827]"
           >
             Watch Overview Video
           </Button>
@@ -92,7 +92,7 @@ const HeroSection = () => {
             
             {/* Item 1 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-center sm:text-left">
-              <span className="text-[20px] font-[500]">500+</span>
+              <span className="text-[16px] font-[500]">500+</span>
               <span className="text-[16px] font-[400]">Business Workflows Automated</span>
             </div>
 
@@ -101,7 +101,7 @@ const HeroSection = () => {
 
             {/* Item 2 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-center sm:text-left">
-              <span className="text-[20px] font-[500]">99.9%</span>
+              <span className="text-[16px] font-[500]">99.9%</span>
               <span className="text-[16px] font-[400]">Uptime</span>
             </div>
 
@@ -110,7 +110,7 @@ const HeroSection = () => {
 
             {/* Item 3 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-center sm:text-left">
-              <span className="text-[20px] font-[500]">24/7</span>
+              <span className="text-[16px] font-[500]">24/7</span>
               <span className="text-[16px] font-[400]">AI-Powered Support</span>
             </div>
 
@@ -173,7 +173,7 @@ const FeaturesSection = () => {
   return (
    
       <div className="mx-auto max-w-7xl">
-      <section className="py-20 bg-white text-center">
+      <section className="py-20 bg-background text-center">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="mb-6 text-4xl md:text-5xl font-bold text-[#111827]">
             Powerful AI Agents Capabilities
@@ -185,13 +185,13 @@ const FeaturesSection = () => {
         </div>
       </section>
 
-        <section className="pb-10 bg-white">
+        <section className="pb-10 bg-background">
   <div className="max-w-6xl mx-auto px-6 text-center">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
       {features.map((feature, index) => (
         <div
           key={index}
-          className="flex flex-col items-center justify-start px-6 py-8 h-full text-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+          className="flex flex-col items-center justify-start px-6 py-8 h-full text-center rounded-2xl border border-gray-200 bg-background shadow-sm hover:shadow-md transition-all duration-300"
         >
           <div className="flex items-center justify-center w-14 h-14 mb-4 rounded-lg">
             {typeof feature.icon === "string" ? (
