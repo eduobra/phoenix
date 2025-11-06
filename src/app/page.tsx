@@ -35,7 +35,7 @@ const HeroSection = () => {
       <div className="absolute top-1/6 right-13  animate-pulse">
         <Brain className="w-6 h-6 text-primary-glow" />
       </div>
-      <div className="absolute delay-300 bottom-1/3 left-1/4 animate-bounce">
+      <div className="absolute delay-300 bottom-1/5 left-1/5 animate-bounce">
         <Sparkles className="w-4 h-4 text-primary-glow" />
       </div>
 
