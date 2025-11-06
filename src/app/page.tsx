@@ -32,7 +32,7 @@ const HeroSection = () => {
       <div className="absolute top-30 left-10 animate-bounce">
         <div className="w-3 h-3 rounded-full bg-primary-glow shadow-glow" />
       </div>
-      <div className="absolute top-1/6 right-13  animate-pulse">
+      <div className="absolute top-1/8 right-13  animate-pulse">
         <Brain className="w-6 h-6 text-primary-glow" />
       </div>
       <div className="absolute delay-300 bottom-1/5 left-1/5 animate-bounce">
