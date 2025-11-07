@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Star,
@@ -12,6 +12,23 @@ import {
 } from "lucide-react";
 
 export default function AccountSection() {
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+
+  useEffect(() => {
+    const authDataString = localStorage.getItem("authData");
+    if (authDataString) {
+      try {
+        const authData = JSON.parse(authDataString);
+        const userData = authData?.state?.userData;
+        if (userData) {
+          setUser({ name: userData.name, email: userData.email });
+        }
+      } catch (err) {
+        console.error("Failed to parse authData from localStorage:", err);
+      }
+    }
+  }, []);
+
   return (
     <div className="w-full space-y-6">
       {/* --- Account Info --- */}
@@ -19,9 +36,21 @@ export default function AccountSection() {
         <h2 className="text-lg font-semibold text-card-foreground-900 flex items-center gap-2">
           <User className="w-5 h-5 text-card-foreground-500" /> Account Info
         </h2>
-        <InfoItem icon={<CircleUser className="text-card-foreground-500" />} label="Username" value="john_doe" />
-        <InfoItem icon={<Mail className="text-card-foreground-500" />} label="Email" value="john@example.com" />
-        <InfoItem icon={<Star className="text-card-foreground-500" />} label="Plan Type" value="Free" />
+        <InfoItem
+          icon={<CircleUser className="text-card-foreground-500" />}
+          label="Username"
+          value={user?.name || "N/A"}
+        />
+        <InfoItem
+          icon={<Mail className="text-card-foreground-500" />}
+          label="Email"
+          value={user?.email || "N/A"}
+        />
+        <InfoItem
+          icon={<Star className="text-card-foreground-500" />}
+          label="Plan Type"
+          value="Free"
+        />
       </div>
 
       {/* --- Upgrade Plan --- */}
