@@ -1,17 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
-import { toast } from "sonner";
 import { Switch } from "../ui/switch";
+import Modal from "../ui/Modal"; // assuming you have a Modal component
 
 export default function PersonalizationContent() {
   const [ascentPersonality, setAscentPersonality] = useState("");
   const [memoryEnabled, setMemoryEnabled] = useState(true);
 
+  // Modal state
+  const [modal, setModal] = useState({ isOpen: false, message: "" });
+
   const handleMemoryToggle = () => {
     setMemoryEnabled((prev) => {
       const newState = !prev;
-      toast.success(`Knowledge Context ${newState ? "enabled" : "disabled"}`);
+
+      // Show modal instead of toast
+      setModal({
+        isOpen: true,
+        message: `Knowledge Context ${newState ? "enabled" : "disabled"}`,
+      });
+
       return newState;
     });
   };
@@ -62,6 +71,14 @@ export default function PersonalizationContent() {
           </a>
         </p>
       </div>
+
+      {/* Modal */}
+      <Modal
+        isOpen={modal.isOpen}
+        title="Knowledge Context"
+        message={modal.message}
+        onClose={() => setModal({ isOpen: false, message: "" })}
+      />
     </div>
   );
 }
