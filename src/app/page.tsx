@@ -87,7 +87,7 @@ const HeroSection = () => {
         </Link>
       </div>
         {/* Stats */}
-      <div className="pt-8 mt-16 border-t border-border/20 text-center text-[#6B7280]">
+      <div className="pt-8 mt-16 mb-4 border-t border-border/20 text-center text-[#6B7280]">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:items-center sm:gap-8">
             
             {/* Item 1 */}
@@ -109,7 +109,7 @@ const HeroSection = () => {
             <span className="hidden sm:inline text-[18px]">•</span>
 
             {/* Item 3 */}
-            <div className="flex mb-4 sm:flex-row sm:items-center gap-1 sm:gap-1 text-center sm:text-left">
+            <div className="flex sm:flex-row sm:items-center gap-1 sm:gap-1 text-center sm:text-left">
               <span className="text-[16px] font-[600]">24/7</span>
               <span className="text-[16px] font-[400]">AI-Powered Support</span>
             </div>
