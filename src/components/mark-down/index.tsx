@@ -110,7 +110,7 @@ const components: Partial<Components> = {
     </div>
   ),
   thead: ({ children, ...props }) => (
-    <thead className="text-xs bg-gray-100" {...props}>
+    <thead className="text-xs bg-card-100" {...props}>
       {children}
     </thead>
   ),

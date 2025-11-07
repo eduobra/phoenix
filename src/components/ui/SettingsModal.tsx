@@ -17,7 +17,6 @@ const menuItems = [
   "Apps & Connectors",
   "Data controls",
   "Security",
-  "Parental controls",
   "Account",
 ];
 
@@ -34,17 +33,17 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
 
   const modalContent = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm px-2">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-[800px] h-[90vh] md:h-[500px] flex flex-col md:flex-row overflow-hidden animate-modalIn">
+      <div className="bg-background rounded-3xl shadow-xl w-full max-w-[800px] h-[90vh] md:h-[500px] flex flex-col md:flex-row overflow-hidden animate-modalIn">
         {/* Sidebar / Top menu (responsive) */}
-        <aside className="bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 p-4 md:w-1/3">
+        <aside className="bg-card-50 border-b md:border-b-0 md:border-r border-gray-200 p-4 md:w-1/3">
           <div className="flex justify-between items-center md:block">
-            <h2 className="text-lg font-semibold text-gray-800 mb-0 md:mb-4">
+            <h2 className="text-lg font-semibold text-card-foreground-800 mb-0 md:mb-4">
               Settings
             </h2>
             {/* Hamburger toggle for mobile */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-gray-600 hover:text-gray-800 text-xl"
+              className="md:hidden text-card-foreground-600 hover:text-card-foreground-800 text-xl"
             >
               ☰
             </button>
@@ -65,7 +64,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
                   className={`w-full text-left px-4 py-2 rounded-lg transition-colors duration-200 ${
                     activeMenu === item
                       ? "bg-blue-100 text-blue-700 font-semibold"
-                      : "text-gray-700 hover:bg-gray-100"
+                      : "text-card-foreground-700 hover:bg-card-100"
                   }`}
                 >
                   {item}
@@ -78,25 +77,25 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
         {/* Content */}
         <div className="flex-1 p-6 overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg md:text-xl font-semibold text-gray-800">
+            <h3 className="text-lg md:text-xl font-semibold text-card-foreground-800">
               {activeMenu}
             </h3>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-xl md:text-2xl"
+              className="text-card-foreground-500 hover:text-card-foreground-700 text-xl md:text-2xl"
             >
               ✖
             </button>
           </div>
 
-          <div className="text-gray-600 text-sm md:text-base space-y-2">
+          <div className="text-card-foreground-600 text-sm md:text-base space-y-2">
             {activeMenu === "General" && <GeneralSettings />}
             {activeMenu === "Notification" && (<NotificationContent />)}
             {activeMenu === "Personalization" && <PersonalizationContent />}
             {activeMenu === "Apps & Connectors" && <AppsConnectorsContent />}
             {activeMenu === "Data controls" && <DataControlsContent />}
             {activeMenu === "Security" &&  <SecuritySettings />}
-            {activeMenu === "Parental controls" && <ParentalControlsSection />}
+            {/* {activeMenu === "Parental controls" && <ParentalControlsSection />} */}
             {activeMenu === "Account" && <AccountSection />}
           </div>
         </div>

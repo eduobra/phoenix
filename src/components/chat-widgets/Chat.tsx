@@ -15,9 +15,10 @@ type Message = {
 };
 
 const starterTopics = [
-  "What can you do?",
-  "Show me a demo",
-  "How can AI help my business?",
+  "Summarize this month’s P&L",
+  "Compare Q2 vs Q3 revenue by department",
+  "Explain cashflow variance",
+  "Forecast next quarter’s OPEX"
 ];
 
 const Chat = () => {
@@ -123,14 +124,15 @@ const Chat = () => {
       {/* Messages area */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-center text-card-foreground-500">
             <img
               src="/agent_logo.png"
               alt="Company Logo"
               className="w-36 h-36 mb-2 object-contain"
             />
             <p className="mb-4 text-sm">
-              Hi! I’m your AI assistant. Choose a topic to begin:
+              Hi, I’m Ascent Finance Agent. I can summarize financials, generate KPI reports, 
+                    detect anomalies, and forecast revenue. What would you like to do?
             </p>
             <div className="flex flex-col gap-2 w-full">
               {starterTopics.map((topic) => (
@@ -163,7 +165,7 @@ const Chat = () => {
                     className={`flex items-center justify-center w-8 h-8 rounded-full ${
                       msg.sender === "user"
                         ? "bg-indigo-500 text-white"
-                        : "bg-gray-200 text-gray-600"
+                        : "bg-card-200 text-card-foreground-600"
                     }`}
                   >
                     {msg.sender === "user" ? (
@@ -178,7 +180,7 @@ const Chat = () => {
                     className={`px-4 py-2 rounded-2xl text-sm ${
                       msg.sender === "user"
                         ? "bg-indigo-500 text-white"
-                        : "bg-gray-100 text-gray-800 whitespace-pre-wrap"
+                        : "bg-card-100 text-card-foreground-800 whitespace-pre-wrap"
                     }`}
                   >
                     {msg.sender === "bot" && msg.text ? (
@@ -189,7 +191,7 @@ const Chat = () => {
                       <TypingIndicator />
                     ) : null}
 
-                    <div className="mt-1 text-[10px] text-gray-400">
+                    <div className="mt-1 text-[10px] text-card-foreground-400">
                       {msg.createdAt.toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -206,7 +208,7 @@ const Chat = () => {
 
       {/* Input area */}
       {messages.length > 0 && (
-        <div className="p-3 border-t bg-white">
+        <div className="p-3 border-t bg-background">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -232,7 +234,7 @@ const Chat = () => {
           {/* Optional clear chat button */}
           <button
             onClick={clearChat}
-            className="mt-2 text-xs text-gray-400 hover:text-red-500"
+            className="mt-2 text-xs text-card-foreground-400 hover:text-red-500"
           >
             Clear chat history
           </button>

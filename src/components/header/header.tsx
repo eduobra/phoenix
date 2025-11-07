@@ -31,7 +31,7 @@ type HeaderProps = {
 
 export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between border-b bg-white px-3 py-2">
+    <header className="flex items-center justify-between border-b bg-background px-3 py-2">
   {/* Left Section (Equal + Ascent AI on mobile) */}
   <div className="flex items-center sm:hidden">
     {/* Sidebar toggle button */}
@@ -48,7 +48,7 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 cursor-pointer ml-1">
-          Ascent AI <ChevronDown className="h-4 w-4" />
+          yGen Innovations <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
@@ -63,7 +63,7 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
             Upgrade
           </Button>
         </div>
-        <p className="text-xs text-gray-500">Our smartest model and more</p>
+        <p className="text-xs text-card-foreground-500">Our smartest model and more</p>
       </DropdownMenuItem>
 
       {/* Item 2 */}
@@ -75,7 +75,7 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
           </div>
           <Check className="h-4 w-4 text-green-600" />
         </div>
-        <p className="text-xs text-gray-500">Great balance of speed and quality</p>
+        <p className="text-xs text-card-foreground-500">Great balance of speed and quality</p>
       </DropdownMenuItem>
     </DropdownMenuContent>
     </DropdownMenu>
@@ -85,8 +85,8 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
   <div className="hidden sm:flex items-center space-x-1 w-full justify-center sm:w-auto sm:justify-start">
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 cursor-pointer">
-          Ascent AI <ChevronDown className="h-4 w-4" />
+        <Button variant="ghost" size="sm" className="h-8 cursor-pointer font-bold">
+          Ascent AI by yGen Innovations<ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
          <DropdownMenuContent align="start">
@@ -101,7 +101,7 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
             Upgrade
           </Button>
         </div>
-        <p className="text-xs text-gray-500">Our smartest model and more</p>
+        <p className="text-xs text-card-foreground-500">Our smartest model and more</p>
       </DropdownMenuItem>
 
       {/* Item 2 */}
@@ -113,7 +113,7 @@ export default function Header({ user, logout ,toggleSidebar }: HeaderProps) {
           </div>
           <Check className="h-4 w-4 text-green-600" />
         </div>
-        <p className="text-xs text-gray-500">Great balance of speed and quality</p>
+        <p className="text-xs text-card-foreground-500">Great balance of speed and quality</p>
       </DropdownMenuItem>
     </DropdownMenuContent>
     </DropdownMenu>

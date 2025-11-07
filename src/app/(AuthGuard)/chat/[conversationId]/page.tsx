@@ -24,6 +24,7 @@ import UsageLimitModal from "@/components/ui/UsageLimitModal";
 import Modal from "@/components/ui/Modal";
 import TraceHistory from "@/components/trace-history";
 import { TraceContextProvider } from "@/contexts/TraceContext";
+import { useAccentColor } from "@/hooks/useAccentColor";
 
 type Msg = { id: string; message: string; answer: string; created_at: string; run_id?: string | null };
 
@@ -48,7 +49,7 @@ const Page = () => {
   const WARNING_THRESHOLD = 0.9; // 90%
 
   const [charCount, setCharCount] = useState(0);
-
+  const { accent, updateAccent } = useAccentColor();
   const startListening = () => {
     if (!("webkitSpeechRecognition" in window)) {
       alert("Speech recognition not supported in this browser.");
@@ -150,7 +151,7 @@ const Page = () => {
     } catch (err: any) {
       if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
         setErrorModal({
-          isOpen: true,
+          isOpen: false,
           message: err.message,
         });
       } else {
@@ -184,7 +185,7 @@ const Page = () => {
 
   return (
     <TraceContextProvider>
-      <div className="relative flex flex-col w-full h-full bg-gray-50">
+      <div className="relative flex flex-col w-full h-full bg-card">
         {/* Scrollable messages container */}
         <div ref={scrollContainerRef} className="flex-1 p-4 overflow-y-auto scroll-smooth">
           {isLoading ? (
@@ -199,9 +200,9 @@ const Page = () => {
                   </div>
 
                   <div className="flex justify-start">
-                    <div className="px-4 py-3 rounded-2xl max-w-[70%] bg-gray-200/80">
-                      <div className="w-32 h-3 mb-2 bg-gray-300 rounded"></div>
-                      <div className="w-20 h-3 bg-gray-300 rounded"></div>
+                    <div className="px-4 py-3 rounded-2xl max-w-[70%] bg-card-200/80">
+                      <div className="w-32 h-3 mb-2 bg-card-300 rounded"></div>
+                      <div className="w-20 h-3 bg-card-300 rounded"></div>
                     </div>
                   </div>
                 </div>
@@ -213,8 +214,8 @@ const Page = () => {
                 <div className="grid w-12 h-12 mx-auto mb-4 text-white bg-blue-600 rounded-2xl place-items-center">
                   AI
                 </div>
-                <h2 className="mb-1 text-xl font-semibold text-gray-900">Start a new conversation</h2>
-                <p className="text-sm text-gray-500">Type a message below to begin.</p>
+                <h2 className="mb-1 text-xl font-semibold text-foreground-900">Start a new conversation</h2>
+                <p className="text-sm text-foreground-500">Type a message below to begin.</p>
               </div>
             </div>
           ) : (
@@ -222,9 +223,19 @@ const Page = () => {
               {Array.isArray(data?.messages) &&
                 data.messages.map((m: any) => (
                   <div key={m.id} className="flex flex-col gap-2">
-                    {m.role === "user" && (
+                   {m.role === "user" && (
                       <div className="flex justify-end">
-                        <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
+                        <div
+                          className={`px-4 py-2 rounded-2xl max-w-[80%] text-white ${
+                            accent === "Blue"
+                              ? "bg-blue-500"
+                              : accent === "Violet"
+                              ? "bg-violet-500"
+                              : accent === "Slate Gray"
+                              ? "bg-slate-500"
+                              : "bg-primary"
+                          }`}
+                        >
                           <p className="text-sm whitespace-pre-wrap">{m.content}</p>
                         </div>
                       </div>
@@ -232,46 +243,46 @@ const Page = () => {
 
                     {m.role === "assistant" && (
                       <div className="flex flex-col items-start w-full gap-1">
-                        <div className="relative px-4 py-2 rounded-2xl max-w-[100%] text-gray-900 overflow-x-auto   ">
+                        <div className="relative px-4 py-2 rounded-2xl max-w-[100%] text-foreground-900 overflow-x-auto   ">
                           <Markdown content={m.content} />
                         </div>
                         <div className="flex flex-col justify-between w-full gap-1 px-2 md:flex-row md:items-center">
                           <div className="flex items-center gap-3">
                             <button
-                              className="p-1 rounded hover:bg-gray-300"
+                              className="p-1 rounded hover:bg-card-300"
                               title="Copy"
                               onClick={() => navigator.clipboard.writeText(m.content ?? "")}
                             >
-                              <Copy className="w-4 h-4 text-gray-600" />
+                              <Copy className="w-4 h-4 text-foreground-600" />
                             </button>
 
-                            <button className="p-1 rounded hover:bg-gray-300" title="Like">
-                              <ThumbsUp className="w-4 h-4 text-gray-600" />
+                            <button className="p-1 rounded hover:bg-card-300" title="Like">
+                              <ThumbsUp className="w-4 h-4 text-foreground-600" />
                             </button>
 
-                            <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
-                              <ThumbsDown className="w-4 h-4 text-gray-600" />
+                            <button className="p-1 rounded hover:bg-card-300" title="Dislike">
+                              <ThumbsDown className="w-4 h-4 text-foreground-600" />
                             </button>
 
-                            <button className="p-1 rounded hover:bg-gray-300" title="Share">
-                              <Share2 className="w-4 h-4 text-gray-600" />
+                            <button className="p-1 rounded hover:bg-card-300" title="Share">
+                              <Share2 className="w-4 h-4 text-foreground-600" />
                             </button>
 
                             <button
-                              className="p-1 rounded hover:bg-gray-300"
+                              className="p-1 rounded hover:bg-card-300"
                               title="Try Again"
                               onClick={() => sendMessage()}
                             >
-                              <RotateCcw className="w-4 h-4 text-gray-600" />
+                              <RotateCcw className="w-4 h-4 text-foreground-600" />
                             </button>
 
-                            <button className="p-1 rounded hover:bg-gray-300" title="More">
-                              <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                            <button className="p-1 rounded hover:bg-card-300" title="More">
+                              <MoreHorizontal className="w-4 h-4 text-foreground-600" />
                             </button>
                             {m.run_id && <TraceHistory traceId={m.run_id} />}
                           </div>
 
-                          <span className="relative right-0 bottom-0 text-[10px] text-gray-500 whitespace-nowrap">
+                          <span className="relative right-0 bottom-0 text-[10px] text-foreground-500 whitespace-nowrap">
                             {new Date(m.created_at).toLocaleDateString([], {
                               month: "short",
                               day: "numeric",
@@ -292,7 +303,7 @@ const Page = () => {
                 <div key={m.id} className="flex flex-col gap-2 ">
                   {m.message && (
                     <div className="flex justify-end ">
-                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
+                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-card-200 text-foreground">
                         <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                       </div>
                     </div>
@@ -300,40 +311,40 @@ const Page = () => {
 
                   {m.answer && (
                     <div className="flex flex-col items-start w-full gap-1">
-                      <div className="px-4 py-2 rounded-2xl max-w-[100%] text-gray-900 overflow-x-auto">
+                      <div className="px-4 py-2 rounded-2xl max-w-[100%] text-foreground-900 overflow-x-auto">
                         <Markdown content={m.answer} />
                       </div>
 
                       <div className="flex items-center gap-3 px-2">
                         <button
-                          className="p-1 rounded hover:bg-gray-300"
+                          className="p-1 rounded hover:bg-card-300"
                           title="Copy"
                           onClick={() => navigator.clipboard.writeText(m.answer)}
                         >
-                          <Copy className="w-4 h-4 text-gray-600" />
+                          <Copy className="w-4 h-4 text-foreground-600" />
                         </button>
-                        <button className="p-1 rounded hover:bg-gray-300" title="Like">
-                          <ThumbsUp className="w-4 h-4 text-gray-600" />
+                        <button className="p-1 rounded hover:bg-card-300" title="Like">
+                          <ThumbsUp className="w-4 h-4 text-foreground-600" />
                         </button>
-                        <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
-                          <ThumbsDown className="w-4 h-4 text-gray-600" />
+                        <button className="p-1 rounded hover:bg-card-300" title="Dislike">
+                          <ThumbsDown className="w-4 h-4 text-foreground-600" />
                         </button>
-                        <button className="p-1 rounded hover:bg-gray-300" title="Share">
-                          <Share2 className="w-4 h-4 text-gray-600" />
+                        <button className="p-1 rounded hover:bg-card-300" title="Share">
+                          <Share2 className="w-4 h-4 text-foreground-600" />
                         </button>
                         <button
-                          className="p-1 rounded hover:bg-gray-300"
+                          className="p-1 rounded hover:bg-card-300"
                           title="Try Again"
                           onClick={() => sendMessage()}
                         >
-                          <RotateCcw className="w-4 h-4 text-gray-600" />
+                          <RotateCcw className="w-4 h-4 text-foreground-600" />
                         </button>
-                        <button className="p-1 rounded hover:bg-gray-300" title="More">
-                          <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                        <button className="p-1 rounded hover:bg-card-300" title="More">
+                          <MoreHorizontal className="w-4 h-4 text-foreground-600" />
                         </button>
                       </div>
 
-                      <span className="text-[10px] text-gray-500 whitespace-nowrap">
+                      <span className="text-[10px] text-foreground-500 whitespace-nowrap">
                         {new Date(m.created_at).toLocaleDateString([], {
                           month: "short",
                           day: "numeric",
@@ -349,13 +360,20 @@ const Page = () => {
                 </div>
               ))}
 
-              {loading && (
+             {loading && (
                 <div className="flex justify-start">
-                  <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                      <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                  <div
+                    className="px-4 py-2 rounded-2xl bg-card-200 dark:bg-[#2B2B2B] text-card-foreground-900 
+                              border border-border/30 shadow-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
+                        <span className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></span>
+                        <span className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                        <span className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 animate-pulse">
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -369,13 +387,13 @@ const Page = () => {
         {showScrollButton && (
           <button
             onClick={scrollToBottom}
-            className="absolute p-2 mb-4 text-black transform -translate-x-1/2 bg-white rounded-full shadow-md left-1/2 bottom-24 hover:bg-gray-100"
+            className="absolute p-2 mb-4 text-foreground transform -translate-x-1/2 bg-background rounded-full shadow-md left-1/2 bottom-24 hover:bg-card-100"
           >
             <ArrowDown size={18} absoluteStrokeWidth />
           </button>
         )}
 
-        <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
+        <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-card-50">
           <div className="w-full max-w-3xl mx-auto ">
             <form
               onSubmit={(e) => {
@@ -384,10 +402,10 @@ const Page = () => {
               }}
               className="flex items-end gap-2"
             >
-              <div className="flex items-end w-full gap-2 px-2 py-2 m-2 bg-white border border-gray-300 shadow-sm rounded-3xl">
+              <div className="flex items-end w-full gap-2 px-2 py-2 m-2 bg-background border border-gray-300 shadow-sm rounded-3xl">
                 <div className="flex flex-col justify-end">
-                  <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                    <Plus className="w-5 h-5 text-gray-500" />
+                  <button type="button" className="p-2 rounded-full hover:bg-card-100">
+                    <Plus className="w-5 h-5 text-foreground-500" />
                   </button>
                 </div>
 
@@ -411,32 +429,32 @@ const Page = () => {
                     }}
                     rows={1}
                     maxLength={MAX_CHARACTERS}
-                    placeholder="Ask Ascent AI"
-                    className="w-full bg-transparent resize-none outline-none pt-3 px-3 leading-6 max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
-                  />
+                  placeholder="Ask me about your financial performance, budgets, or forecasts…"
+                  className="flex-1 bg-transparent pt-3 resize-none outline-none px-3 max-h-[200px] min-h-[44px] placeholder:text-[0.875rem] placeholder:text-card-foreground-400 overflow-y-auto"
+                />
                 </div>
 
                 <div className="flex items-end gap-1">
-                  <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                    <Mic className="w-5 h-5 text-gray-500" />
+                  <button type="button" className="p-2 rounded-full hover:bg-card-100">
+                    <Mic className="w-5 h-5 text-foreground-500" />
                   </button>
 
                   {loading ? (
                     <button
                       type="button"
                       onClick={cancelMessage}
-                      className="flex items-center justify-center w-10 h-10 transition-colors bg-gray-800 rounded-full shadow-md cursor-pointer hover:bg-gray-300"
+                      className="flex items-center justify-center  w-10 h-10 transition-colors bg-card-800 rounded-full shadow-md cursor-pointer hover:bg-card-300"
                     >
-                      <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+                      <div className="w-3.5 h-3.5 bg-background rounded-sm" />
                     </button>
                   ) : (
                     <button
                       type="submit"
                       disabled={!inputValue.trim()}
-                      className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                      className={`grid rounded-full  shadow-md size-10 place-items-center  transition-colors ${
                         inputValue.trim()
-                          ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                          : "bg-gray-300 text-white cursor-not-allowed"
+                          ? "bg-primary text-white hover:bg-blue-800 cursor-pointer"
+                          : "bg-white text-gray-400 cursor-not-allowed"
                       }`}
                     >
                       <ArrowUp className="w-5 h-5" />

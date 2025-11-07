@@ -10,11 +10,11 @@ const ChatbotWidget = () => {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {open ? (
-        <div className="w-80 h-[500px] bg-white shadow-xl rounded-2xl flex flex-col overflow-hidden">
+        <div className="w-80 h-[500px] bg-background shadow-xl rounded-2xl flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-2 bg-gradient-primary text-white">
-            <span className="font-semibold">Ascent A\</span>
-            <button
+            <span className="font-semibold">Ascent AI assistant</span>
+            <button 
               onClick={() => setOpen(false)}
               aria-label="Close chat widget"
               className="p-1"

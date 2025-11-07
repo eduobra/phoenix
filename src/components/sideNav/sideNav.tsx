@@ -120,7 +120,7 @@ export default function SideNav({
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:static top-0 left-0 h-screen border-r bg-white flex flex-col justify-between transition-all duration-300 z-40
+        className={`fixed md:static top-0 left-0 h-screen border-r bg-background flex flex-col justify-between transition-all duration-300 z-40
         ${collapsed ? "w-16" : "w-64"}
         ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
@@ -199,7 +199,7 @@ export default function SideNav({
 
           {/* Dropdown */}
           {profileOpen && (
-            <div className="absolute z-50 w-48 bg-white border rounded-md shadow-lg bottom-16 left-4">
+            <div className="absolute z-50 w-48 bg-background border rounded-md shadow-lg bottom-16 left-4">
               <ul className="flex flex-col">
                 <li>
                   <Button
@@ -237,7 +237,7 @@ export default function SideNav({
       {/* Configuration Modal */}
       {showConfigModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-[500px] max-w-full">
+          <div className="bg-background rounded-lg shadow-lg p-6 w-[500px] max-w-full">
             <h2 className="mb-4 text-lg font-semibold">Configuration</h2>
 
             {/* Tool Selector */}
