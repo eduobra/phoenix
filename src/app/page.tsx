@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button";
-
+import { useState } from "react";
 import Image from "next/image";
 
 import {
@@ -17,10 +17,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import ChatbotWidget from "@/components/ui/ChatbotWidget";
+import VideoModal from "@/components/ui/VideoModal";
 
 
 
 const HeroSection = () => {
+    const [showVideo, setShowVideo] = useState(false);
   return (
     <section className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-dark">
       {/* Background Image with Overlay */}
@@ -43,7 +45,7 @@ const HeroSection = () => {
       {/* Main Content */}
       <div className="relative z-10 max-w-5xl px-6 mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full border border-white/10 from-[#6366F1] to-[#8B5CF6] backdrop-blur-sm
-          sm:mt-0 mt-20">
+          sm:mt-0 mt-14">
           <Zap className="w-4 h-4 text-[#6366F1]" />
           <span className="text-xs font-medium bg-gradient-to-r text-[#6366F1] bg-clip-text">
             Empowering Decision-Driven Enterprises
@@ -78,18 +80,20 @@ const HeroSection = () => {
         </Link>
 
         {/* Secondary CTA — Watch Overview Video */}
-        <Link href="/promo-video" passHref className="w-full sm:w-48">
-          <Button
-            variant="ghost"
-            size="lg"
-            className="w-full font-semibold text-white border border-white transition-all duration-300 hover:brightness-110 hover:bg-background hover:text-[#111827]"
-          >
-            Watch Overview Video
-          </Button>
+        <Link href="#" passHref className="w-full sm:w-48">
+        <Button
+          variant="ghost"
+          size="lg"
+          // onClick={() => setShowVideo(true)}
+          className="w-full sm:w-48 font-semibold text-white border border-white transition-all duration-300 hover:brightness-110 hover:bg-background hover:text-[#111827]"
+        >
+          Watch Overview Video
+        </Button>
         </Link>
       </div>
+       <VideoModal isOpen={showVideo} onClose={() => setShowVideo(false)} />
         {/* Stats */}
-      <div className="pt-8 mt-16 mb-4 border-t border-border/20 text-center text-[#6B7280]">
+      <div className="pt-8 mt-16 mb-14 border-t border-border/20 text-center text-[#6B7280]">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:items-center sm:gap-8">
             
             {/* Item 1 */}
@@ -310,12 +314,14 @@ const CTASection = () => {
 
 
 const Index = () => {
+
   return (
     <div className="min-h-screen">
       <HeroSection />
       <FeaturesSection />
       <CTASection />
        <ChatbotWidget />
+      
     </div>
   );
 };
