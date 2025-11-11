@@ -85,7 +85,7 @@ const HeroSection = () => {
           variant="ghost"
           size="lg"
           // onClick={() => setShowVideo(true)}
-          className="w-full sm:w-48 font-semibold text-white border border-white transition-all duration-300 hover:brightness-110 hover:bg-background hover:text-[#111827]"
+          className="w-full sm:w-48 font-semibold text-white border border-white transition-all duration-300 hover:brightness-110 hover:bg-blue-400 hover:text-[#fff]"
         >
           Watch Overview Video
         </Button>
@@ -178,7 +178,7 @@ const features = [
 const FeaturesSection = () => {
   return (
     <div id="features" className="mx-auto max-w-7xl">
-      <section className="py-20 text-center">
+      <section className="py-20 text-center bg-white">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="mb-6 text-4xl md:text-5xl font-bold text-[#111827]">
             Powerful AI Agents Capabilities
@@ -190,13 +190,13 @@ const FeaturesSection = () => {
         </div>
       </section>
 
-        <section className="pb-10 bg-background">
+  <section className="pb-10 bg-white">
   <div className="max-w-6xl mx-auto px-6 text-center">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
       {features.map((feature, index) => (
         <div
           key={index}
-          className="flex flex-col items-center justify-start px-6 py-8 h-full text-center rounded-2xl border border-gray-200 bg-background shadow-sm hover:shadow-md transition-all duration-300"
+          className="flex flex-col items-center justify-start px-6 py-8 h-full text-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
         >
           <div className="flex items-center justify-center w-14 h-14 mb-4 rounded-lg">
             {typeof feature.icon === "string" ? (

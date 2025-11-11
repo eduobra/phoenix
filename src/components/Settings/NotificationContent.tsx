@@ -104,9 +104,9 @@ export default function NotificationContent() {
       {/* Modal */}
       {modalMessage && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-80 text-center space-y-4">
-            <h2 className="text-lg font-medium">Notification</h2>
-            <p className="text-sm text-gray-600">{modalMessage}</p>
+          <div className="bg-background p-6 rounded-xl w-80 text-center space-y-4">
+            <h2 className="text-lg text-foreground font-medium">Notification</h2>
+            <p className="text-sm text-foreground">{modalMessage}</p>
             <button
               onClick={() => setModalMessage(null)}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:opacity-90 transition"

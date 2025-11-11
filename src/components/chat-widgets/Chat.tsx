@@ -124,7 +124,7 @@ const Chat = () => {
       {/* Messages area */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center text-card-foreground-500">
+          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
             <img
               src="/agent_logo.png"
               alt="Company Logo"
@@ -165,7 +165,7 @@ const Chat = () => {
                     className={`flex items-center justify-center w-8 h-8 rounded-full ${
                       msg.sender === "user"
                         ? "bg-indigo-500 text-white"
-                        : "bg-card-200 text-card-foreground-600"
+                        : "bg-card-200 text-gray-500"
                     }`}
                   >
                     {msg.sender === "user" ? (
@@ -180,7 +180,7 @@ const Chat = () => {
                     className={`px-4 py-2 rounded-2xl text-sm ${
                       msg.sender === "user"
                         ? "bg-indigo-500 text-white"
-                        : "bg-card-100 text-card-foreground-800 whitespace-pre-wrap"
+                        : "bg-card-100 text-gray-500 whitespace-pre-wrap"
                     }`}
                   >
                     {msg.sender === "bot" && msg.text ? (
@@ -208,7 +208,7 @@ const Chat = () => {
 
       {/* Input area */}
       {messages.length > 0 && (
-        <div className="p-3 border-t bg-background">
+        <div className="p-3 border-t bg-white">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -221,7 +221,7 @@ const Chat = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 text-gray-500 focus:ring-indigo-500"
             />
             <button
               type="submit"
@@ -234,7 +234,7 @@ const Chat = () => {
           {/* Optional clear chat button */}
           <button
             onClick={clearChat}
-            className="mt-2 text-xs text-card-foreground-400 hover:text-red-500"
+            className="mt-2 text-xs text-gray-400 hover:text-red-500"
           >
             Clear chat history
           </button>

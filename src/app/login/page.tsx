@@ -146,24 +146,24 @@ export default function LoginPage() {
   // if (user) return null;
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 bg-card-50">
-      <div className="w-full max-w-sm p-8 bg-background shadow-lg rounded-2xl">
+    <div className="flex items-center justify-center min-h-screen px-4 bg-white">
+      <div className="w-full max-w-sm p-8 bg-white shadow-lg rounded-2xl">
         <div className="flex justify-center mb-4">
           <Image src="/login_logo.png" alt="Logo" width={220} height={120} />
         </div>
 
-        <h2 className="text-xl font-bold text-center text-card-foreground-900">Welcome back</h2>
-        <p className="mb-6 text-sm text-center text-card-foreground-500">Please enter your details to login.</p>
+        <h2 className="text-xl font-bold text-center text-gray-900">Welcome back</h2>
+        <p className="mb-6 text-sm text-center text-gray-900">Please enter your details to login.</p>
 
         {error && <p className="py-2 mb-2 text-sm text-center text-red-600 bg-red-100 rounded">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block mb-1 text-sm font-medium text-card-foreground-700">Email</label>
+            <label className="block mb-1 text-sm font-medium text-gray-900">Email</label>
             <input
               type="email"
               placeholder="you@example.com"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-black focus:outline-none  cursor-not-allowed opacity-50"
+              className="w-full px-3 py-2 text-sm border text-black border-gray-300 rounded-lg  focus:border-black focus:outline-none  cursor-not-allowed opacity-50"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -172,11 +172,11 @@ export default function LoginPage() {
           </div>
 
           <div className="relative">
-            <label className="block mb-1 text-sm font-medium text-card-foreground-700">Password</label>
+            <label className="block mb-1 text-sm font-medium text-gray-900">Password</label>
             <input
               type="password"
               placeholder="••••••••"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-black focus:outline-none  cursor-not-allowed opacity-50"
+              className="w-full px-3 py-2 text-sm border text-black border-gray-300 rounded-lg focus:border-black focus:outline-none  cursor-not-allowed opacity-50"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -195,14 +195,14 @@ export default function LoginPage() {
 
           <div className="flex items-center py-2">
             <div className="flex-grow border-t border-gray-300"></div>
-            <span className="mx-2 text-xs text-card-foreground-400">OR</span>
+            <span className="mx-2 text-xs text-gray-900">OR</span>
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
           <button
             id="googleSignInDiv"
             type="button"
-            className="flex items-center justify-center w-full py-2 text-sm border border-gray-300 rounded-lg cursor-not-allowed opacity-50"
+            className="flex items-center justify-center w-full py-2 text-sm border text-gray-900 border-gray-300 rounded-lg cursor-not-allowed opacity-50"
             disabled
           >
             <FcGoogle className="mr-2 text-lg" />
@@ -212,7 +212,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleMicrosoftSignIn}
-            className="flex items-center justify-center w-full py-2 mt-2 text-sm border border-gray-300 rounded-lg cursor-pointer hover:bg-card-50"
+            className="flex items-center justify-center w-full py-2 mt-2 text-sm border text-gray-900 border-gray-300 rounded-lg cursor-pointer hover:bg-card-50"
             
           >
             <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23">
@@ -225,7 +225,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-6 text-sm text-center text-card-foreground-500">
+        <p className="mt-6 text-sm text-center text-gray-900">
           Don’t have an account?{" "}
           <a href="/register" className="font-medium text-blue-600 hover:underline">
             Register

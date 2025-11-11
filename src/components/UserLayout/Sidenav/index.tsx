@@ -106,7 +106,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
       )}
 
       <aside
-        className={`fixed md:static top-0 left-0 h-screen border-r bg-white flex flex-col transition-all duration-300 z-40
+        className={`fixed md:static top-0 left-0 h-screen border-r bg-background flex flex-col transition-all duration-300 z-40
           ${collapsed ? "w-16" : "w-64"}
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
@@ -125,7 +125,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
             <Button
               variant="ghost"
               size="icon"
-              className="w-8 h-8 text-gray-600 border border-gray-200 rounded-full shrink-0 hover:text-gray-900 hover:bg-gray-100"
+              className="w-8 h-8 text-card-foreground-600 border border-gray-200 rounded-full shrink-0 hover:text-card-foreground-900 hover:bg-card-100"
               onClick={() => setCollapsed((prev) => !prev)}
             >
               {collapsed ? (
@@ -150,7 +150,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
               {!collapsed && <span className="truncate">New Chat</span>}
             </Button>
             <div
-              className={`flex items-center gap-2 h-9 px-2 rounded-md hover:bg-gray-100 ${
+              className={`flex items-center gap-2 h-9 px-2 rounded-md hover:bg-card-100 ${
                 collapsed ? "justify-center" : "justify-start"
               }`}
             >
@@ -161,7 +161,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search chat..."
-                  className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                  className="flex-1 bg-transparent outline-none text-sm placeholder:text-card-foreground-400"
                 />
               )}
             </div>
@@ -172,7 +172,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
         <div className="flex-1 overflow-y-auto thin-scrollbar">
           <div className="px-2 mb-3">
             {!collapsed && (
-              <div className="pb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className="pb-1 text-[10px] font-semibold uppercase tracking-wide text-card-foreground-500">
                 Pinned
               </div>
             )}
@@ -200,7 +200,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
           </div>
 
           {!collapsed && (
-            <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-card-foreground-500">
               Chat History
             </div>
           )}
@@ -243,8 +243,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                 return (
                   <div
                     key={item.session_id}
-                    className={`group flex items-center justify-between w-full h-9 px-2 rounded-md  hover:bg-gray-100 ${
-                      isActive ? "bg-gray-100" : ""
+                    className={`group flex items-center justify-between w-full h-9 px-2 rounded-md  hover:bg-card-100 ${
+                      isActive ? "bg-card-100" : ""
                     }`}
                   >
                     {/* Left side (clickable chat item) */}
@@ -253,8 +253,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                       className="flex items-center gap-2 w-full text-left flex-1 cursor-pointer"
                       title={item.topic}
                     >
-                      <MessageCircle className="w-4 h-4 text-gray-600" />
-                      <span className="truncate text-sm max-w-[150px] text-gray-800">
+                      <MessageCircle className="w-4 h-4 text-card-foreground-600" />
+                      <span className="truncate text-sm max-w-[150px] text-card-foreground-800">
                         {item.topic}
                       </span>
                     </button>
@@ -266,7 +266,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="w-6 h-6 p-0 text-gray-500 hover:text-gray-800 cursor-pointer"
+                            className="w-6 h-6 p-0 text-card-foreground-500 hover:text-card-foreground-800 cursor-pointer"
                           >
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
@@ -310,7 +310,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                         >
                           {deleting ? (
                             <>
-                              <Trash2 className="w-4 h-4 mr-2 text-gray-400 animate-pulse" />
+                              <Trash2 className="w-4 h-4 mr-2 text-card-foreground-400 animate-pulse" />
                               Deleting...
                             </>
                           ) : (
@@ -336,7 +336,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className={`flex justify-start w-full gap-3 cursor-pointer rounded-md border bg-gray-100 hover:bg-gray-200/70 px-3 py-5 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 ${
+              className={`flex justify-start w-full gap-3 cursor-pointer rounded-md border bg-card-100 hover:bg-card-200/70 px-3 py-5 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 ${
                 collapsed ? "justify-center px-1" : ""
               }`}
               title="Account"
@@ -353,7 +353,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                     <div className="text-sm font-medium truncate max-w-[160px] md:max-w-[180px] dark:text-neutral-200">
                       {userData?.name}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-neutral-400">
+                    <div className="text-xs text-card-foreground-500 dark:text-neutral-400">
                       Free
                     </div>
                   </div>
@@ -376,7 +376,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                   <div className="text-sm font-medium truncate dark:text-neutral-200">
                     {displayEmail}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-neutral-400">
+                  <div className="text-xs text-card-foreground-500 dark:text-neutral-400">
                     Free
                   </div>
                 </div>

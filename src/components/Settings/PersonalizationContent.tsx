@@ -33,7 +33,7 @@ export default function PersonalizationContent() {
         <select
           value={ascentPersonality}
           onChange={(e) => setAscentPersonality(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2"
+          className="w-full border rounded-lg px-3 py-2 text-foreground bg-background"
         >
           <option value="">Default</option>
           <option value="concise">Concise</option>
