@@ -27,7 +27,8 @@ const items: NotificationItem[] = [
   },
   {
     title: "In-App Activity Banner",
-    description: "Get small in-app banners when tasks finish or workflow suggestions are available.",
+    description:
+      "Get small in-app banners when tasks finish or workflow suggestions are available.",
     icon: ThumbsUp,
     type: "toggle",
   },
@@ -36,6 +37,8 @@ const items: NotificationItem[] = [
 export default function NotificationContent() {
   const [toggles, setToggles] = useState<Record<string, boolean>>({});
   const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [selectedEmailOption, setSelectedEmailOption] =
+    useState<string>("Pinned Sessions");
 
   const handleToggle = (key: string) => {
     setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -47,8 +50,9 @@ export default function NotificationContent() {
   };
 
   const handleSendEmail = () => {
-    // Here you can call your API to send email if needed
-    setModalMessage("AI Session Summary Email has been sent successfully.");
+    setModalMessage(
+      `AI Session Summary Email will be sent for: ${selectedEmailOption}.`
+    );
   };
 
   return (
@@ -60,15 +64,20 @@ export default function NotificationContent() {
           return (
             <div
               key={index}
-              className="border border-gray-200 rounded-xl overflow-hidden bg-background p-4 space-y-3"
+              className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-background p-4 space-y-3"
             >
               <div className="flex items-center gap-3">
                 <Icon className="w-5 h-5 text-card-foreground-600" />
-                <span className="font-medium text-card-foreground-800">{item.title}</span>
+                <span className="font-medium text-card-foreground-800">
+                  {item.title}
+                </span>
               </div>
 
-              <p className="text-sm text-card-foreground-700">{item.description}</p>
+              <p className="text-sm text-card-foreground-700">
+                {item.description}
+              </p>
 
+              {/* ✅ Toggle Option */}
               {item.type === "toggle" && (
                 <div className="flex items-center justify-between">
                   <span>Enable</span>
@@ -79,15 +88,50 @@ export default function NotificationContent() {
                 </div>
               )}
 
+              {/* ✅ Email Option with Toggle Buttons */}
               {item.type === "email" && (
-                <button
-                  onClick={handleSendEmail}
-                  className="text-sm px-3 py-1.5 bg-primary text-white rounded-md hover:opacity-90 transition"
-                >
-                  Send Test Email
-                </button>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span>Enable Summary Email</span>
+                    <Switch
+                      checked={toggles[item.title]}
+                      onCheckedChange={() => handleToggle(item.title)}
+                    />
+                  </div>
+
+                  {/* Show options only if enabled */}
+                  {toggles[item.title] && (
+                    <>
+                      <div className="flex flex-wrap gap-2 justify-start">
+                        {["Pinned Sessions", "Long Sessions", "Both"].map(
+                          (option) => (
+                            <button
+                              key={option}
+                              onClick={() => setSelectedEmailOption(option)}
+                              className={`px-3 py-1.5 text-sm rounded-full border transition-all ${
+                                selectedEmailOption === option
+                                  ? "bg-blue-600 text-white border-blue-600 font-medium shadow-sm"
+                                  : "bg-card-100 dark:bg-card-700 text-card-foreground-700 dark:text-card-foreground-300 hover:bg-blue-50 dark:hover:bg-card-600 border-gray-300 dark:border-gray-600"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          )
+                        )}
+                      </div>
+
+                      <button
+                        onClick={handleSendEmail}
+                        className="mt-3 w-full text-sm px-3 py-2 bg-primary text-white rounded-md hover:opacity-90 transition"
+                      >
+                        Send to email
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
 
+              {/* ✅ Banner Option */}
               {item.type === "banner" && (
                 <button
                   onClick={() => handleBanner(item.description)}
@@ -101,7 +145,7 @@ export default function NotificationContent() {
         })}
       </div>
 
-      {/* Modal */}
+      {/* ✅ Modal */}
       {modalMessage && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background p-6 rounded-xl w-80 text-center space-y-4">

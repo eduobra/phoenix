@@ -19,11 +19,15 @@ const apps = [
 
 export default function AppsConnectorsContent() {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
-  const [signedIn, setSignedIn] = useState<Record<string, boolean>>({});
-
-  const handleSignIn = (appName: string) => {
+ const [signedIn, setSignedIn] = useState<Record<string, boolean>>({
+  "Microsoft Dynamics 365 BC": !!localStorage.getItem("token"),
+});
+  const handleSignIn = (appName: string, token?: string) => {
+  if (token) {
+    localStorage.setItem("token", token); // store token
     setSignedIn((prev) => ({ ...prev, [appName]: true }));
-  };
+  }
+};
 
   const handleApiKeyChange = (appName: string, value: string) => {
     setApiKeys((prev) => ({ ...prev, [appName]: value }));
@@ -62,15 +66,17 @@ export default function AppsConnectorsContent() {
             </div>
 
             {/* Action */}
-            {app.type === "oauth" && (
+           {app.type === "oauth" && (
               <button
                 onClick={() => handleSignIn(app.name)}
-                className={`px-3 py-1.5 rounded-md text-white bg-blue-600 hover:opacity-90 transition`}
+                className={`px-3 py-1.5 rounded-md text-white ${
+                  signedIn[app.name] ? "bg-green-600" : "bg-blue-600"
+                } hover:opacity-90 transition`}
               >
-                {signedIn[app.name] ? "Signed In" : "Sign In"}
+                {signedIn[app.name] ? "Connected" : "Connect"}
               </button>
             )}
-
+         
             {app.type === "apikey" && (
               <input
                 type="text"

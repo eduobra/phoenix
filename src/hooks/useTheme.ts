@@ -5,12 +5,16 @@ type Theme = "Light" | "Dark" | "System default";
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>("Dark"); // ✅ Default dark
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const defaultTheme = savedTheme || "Dark"; // ✅ fallback to Dark
-    setTheme(defaultTheme);
-    applyTheme(defaultTheme);
-  }, []);
+useEffect(() => {
+  // Always start Dark
+  const defaultTheme: Theme = "Dark";
+
+  setTheme(defaultTheme);
+  applyTheme(defaultTheme);
+
+  // Optionally overwrite localStorage to reset old value
+  localStorage.setItem("theme", defaultTheme);
+}, []);
 
   const applyTheme = (selected: Theme) => {
     const root = document.documentElement;

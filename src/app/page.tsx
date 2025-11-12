@@ -22,7 +22,8 @@ import VideoModal from "@/components/ui/VideoModal";
 
 
 const HeroSection = () => {
-    const [showVideo, setShowVideo] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  
   return (
     <section className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-dark">
       {/* Background Image with Overlay */}
@@ -52,11 +53,11 @@ const HeroSection = () => {
           </span>
         </div>
         <h1 className="mb-6 text-[3rem] font-bold text-white text-center">
-        <span className="block">Ascent AI </span>
-        <span className="block text-transparent bg-gradient-primary bg-clip-text">
-          Agent Suite
-        </span>
-      </h1>
+          <span className="block">Ascent AI </span>
+          <span className="block text-transparent bg-gradient-primary bg-clip-text">
+            Agent Suite
+          </span>
+        </h1>
 
       <p className="max-w-3xl mx-auto mb-8 text-xl md:text-2xl leading-[1.5em] font-normal text-[#4B5563]">
         Unleash a new era of intelligent decision-making.<br /><br />
@@ -93,9 +94,8 @@ const HeroSection = () => {
       </div>
        <VideoModal isOpen={showVideo} onClose={() => setShowVideo(false)} />
         {/* Stats */}
-      <div className="pt-8 mt-16 mb-14 border-t border-border/20 text-center text-[#6B7280]">
+        <div className="pt-16 mt-14 border-t border-border/20 text-center text-[#6B7280]">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:items-center sm:gap-8">
-            
             {/* Item 1 */}
             <div className="flex  sm:flex-row sm:items-center gap-1 sm:gap-1 text-center sm:text-left">
               <span className="text-[16px] font-[600]">500+</span>
@@ -177,63 +177,60 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <div id="features" className="mx-auto max-w-7xl">
-      <section className="py-20 text-center bg-white">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="mb-6 text-4xl md:text-5xl font-bold text-[#111827]">
-            Powerful AI Agents Capabilities
-          </h2>
-          <p className="max-w-3xl mx-auto text-lg md:text-xl text-[#4B5563] leading-relaxed">
-            Discover the intelligence behind Ascent AI Agents — a suite of autonomous agents that 
-            think, reason, and collaborate to drive smarter decisions and operational excellence.
-          </p>
-        </div>
-      </section>
-
-  <section className="pb-10 bg-white">
-  <div className="max-w-6xl mx-auto px-6 text-center">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
-      {features.map((feature, index) => (
-        <div
-          key={index}
-          className="flex flex-col items-center justify-start px-6 py-8 h-full text-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
-        >
-          <div className="flex items-center justify-center w-14 h-14 mb-4 rounded-lg">
-            {typeof feature.icon === "string" ? (
-              <Image
-                src={feature.icon}
-                alt={feature.title}
-                width={40}
-                height={40}
-                className="object-contain"
-              />
-            ) : (
-              <feature.icon className="w-8 h-8 text-[#6C63FF]" />
-            )}
+      <div id="features" className="mx-auto max-w-7xl mb-14">
+        <section className="py-24 text-center bg-white ">
+          <div className="max-w-4xl mx-auto px-4">
+            <h2 className="mb-6 text-4xl md:text-5xl font-bold text-[#111827]">
+              Powerful AI Agents Capabilities
+            </h2>
+            <p className="max-w-3xl mx-auto text-lg md:text-xl text-[#4B5563] leading-relaxed">
+              Discover the intelligence behind Ascent AI Agents — a suite of autonomous agents that 
+              think, reason, and collaborate to drive smarter decisions and operational excellence.
+            </p>
           </div>
+        </section>
+        <section className=" bg-white pb-12">
+          <div className="max-w-6xl mx-auto px-6 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+              {features.map((feature, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col items-center justify-start px-6 py-8 h-full text-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex items-center justify-center w-14 h-14 mb-4 rounded-lg">
+                    {typeof feature.icon === "string" ? (
+                      <Image
+                        src={feature.icon}
+                        alt={feature.title}
+                        width={40}
+                        height={40}
+                        className="object-contain"
+                      />
+                    ) : (
+                      <feature.icon className="w-8 h-8 text-[#6C63FF]" />
+                    )}
+                  </div>
 
-          <h3 className="mb-3 text-[1.25rem] font-semibold text-[#111827]">
-            {feature.title}
-          </h3>
+                  <h3 className="mb-3 text-[1.25rem] font-semibold text-[#111827]">
+                    {feature.title}
+                  </h3>
 
-          <p
-            className="text-[1rem] font-normal text-[#4B5563] leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: feature.description }}
-          ></p>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-
+                  <p
+                    className="text-[1rem] font-normal text-[#4B5563] leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: feature.description }}
+                  ></p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
   );
 };
 
 const CTASection = () => {
   return (
-    <section className="relative px-6 py-32 overflow-hidden bg-gradient-to-r from-[#312E81] to-[#4F46E5] text-center">
+    <section className="relative px-6   overflow-hidden bg-gradient-to-r from-[#312E81] to-[#4F46E5] text-center">
       {/* Background Glow Effects */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-1/4 w-72 h-72 bg-indigo-400/40 blur-3xl rounded-full" />
@@ -249,7 +246,7 @@ const CTASection = () => {
         <Sparkles className="w-4 h-4 text-primary-glow" />
       </div>
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto">
+      <div className="relative z-10 max-w-4xl mx-auto mt-24">
         <h2 className="mb-6 text-[2.5rem] font-bold leading-tight text-white">
           Ready to Transform Your Business with Agentic AI?
         </h2>
@@ -270,17 +267,17 @@ const CTASection = () => {
           </Button>
 
          <button
-  onClick={() => {
-    const el = document.getElementById("features");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  }}
-  className="text-sm text-[#E0E7FF]/80 hover:text-[#E0E7FF] underline-offset-4 hover:underline transition-all duration-200"
->
-  Learn More About Ascent AI →
-</button>
+            onClick={() => {
+              const el = document.getElementById("features");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="text-sm text-[#E0E7FF]/80 hover:text-[#E0E7FF] underline-offset-4 hover:underline transition-all duration-200"
+          >
+            Learn More About Ascent AI →
+          </button>
         </div>
 
-      <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:items-center sm:gap-8">
+      <div className="flex flex-col mb-24 items-center gap-6 sm:flex-row sm:justify-center sm:items-center sm:gap-8">
             
             {/* Item 1 */}
             <div className="flex  text-white sm:flex-row sm:items-center gap-1 sm:gap-1 text-center sm:text-left">
@@ -316,7 +313,7 @@ const CTASection = () => {
 const Index = () => {
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <HeroSection />
       <FeaturesSection />
       <CTASection />

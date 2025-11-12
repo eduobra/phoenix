@@ -174,24 +174,21 @@ const sendMessage = async (customInput?: string) => {
          {messages.length === 0 ? (
             <div className="grid h-full place-items-center-safe">
               <div className="px-6 text-center max-w-md">
-                <h2 className="mb-2 text-2xl font-semibold text-card-foreground-900 flex items-center justify-center gap-2">
-                  <span
-                    role="img"
-                    aria-label="wave"
-                    className="inline-block animate-wave origin-[70%_70%] text-3xl"
-                  >
-                    👋
-                  </span>
-                  Welcome to Ascent AI Finance Agent
-                </h2>
-
+             <h2 className="mb-2 flex items-center justify-center gap-2 text-xl font-semibold text-card-foreground-900 leading-none">
+                <span
+                  role="img"
+                  aria-label="wave"
+                  className="text-2xl animate-wave origin-[70%_70%] inline-block translate-y-[2px]"
+                >
+                  👋
+                </span>
+                Welcome to Ascent AI Finance Agent
+              </h2>
                 <p className="text-sm text-card-foreground-600 mb-4">
                   I’m your intelligent finance co-pilot — built to help you analyze reports, generate KPI insights,
                   and simplify financial decision-making.
                 </p>
-                <p className="mt-6 mb-3 text-sm text-black bg-indigo-50 border border-indigo-200 rounded-lg p-3 max-w-sm mx-auto shadow-sm">
-                  💡 <span className="font-semibold italic">Tip:</span> You can also upload an Excel or CSV report, and I’ll generate insights instantly.
-                </p>
+                
                 <p className="text-sm text-card-foreground-700 mb-6 leading-relaxed text-left max-w-sm mx-auto">
                   
                   You can ask me to:<br/>
@@ -200,7 +197,10 @@ const sendMessage = async (customInput?: string) => {
                   • Generate variance reports<br />
                   • Forecast your next quarter’s performance
                 </p>
-
+                <p className="mt-6 mb-3 text-sm text-black bg-indigo-50 border border-indigo-200 rounded-lg p-3 max-w-sm mx-auto shadow-sm">
+                  💡 <span className="font-semibold italic">Tip:</span> You can also upload an Excel or CSV report, and I’ll generate insights instantly.
+                </p>
+                <span className="font-semibold ">What would you like to do first?</span>
                 {/* ✅ Always show topics when there’s no conversation */}
                 <AnimatePresence>
                   <motion.div
@@ -344,7 +344,11 @@ const sendMessage = async (customInput?: string) => {
               className="flex items-end gap-2"
             >
               <div className="flex items-end w-full gap-2 px-3 py-2 m-2 bg-background border border-gray-300 shadow-sm rounded-3xl">
-                <button type="button" className="p-2 rounded-full hover:bg-card-100">
+                <button
+                  type="button"
+                  className="p-2 rounded-full hover:bg-card-100"
+                  aria-label="Add new item"
+                >
                   <Plus className="w-5 h-5 text-card-foreground-500" />
                 </button>
 
@@ -366,34 +370,41 @@ const sendMessage = async (customInput?: string) => {
                 />
 
                 <div className="flex items-end gap-1">
-                  <button type="button" className="p-2 rounded-full hover:bg-card-100">
+                  <button
+                    type="button"
+                    className="p-2 rounded-full hover:bg-card-100"
+                    aria-label="Start voice input"
+                  >
                     <Mic className="w-5 h-5 text-card-foreground-500" />
                   </button>
 
-                  {loading ? (
-                    <button
-                      type="button"
-                      onClick={cancelMessage}
-                      className="flex items-center justify-center w-10 h-10 rounded-full shadow-md transition-colors 
-                                bg-card hover:bg-border dark:bg-[#2C2C2C] dark:hover:bg-[#3A3A3A] cursor-pointer"
-                    >
-                      {/* small square loader/cancel indicator */}
-                      <div className="w-3.5 h-3.5 rounded-sm bg-foreground dark:bg-gray-100" />
-                    </button>
-                  ) : (
-                    <button
-                      type="submit"
-                      disabled={!inputValue.trim()}
-                      className={`grid size-10 place-items-center rounded-full shadow-md transition-all duration-200 
-                        ${
-                          inputValue.trim()
-                            ? "bg-primary text-white hover:opacity-90 cursor-pointer"
-                            : "bg-card text-gray-400 dark:bg-[#2C2C2C] cursor-not-allowed"
-                        }`}
-                    >
-                      <ArrowUp className="w-5 h-5" />
-                    </button>
-                  )}
+                 {loading ? (
+                  <button
+                    type="button"
+                    onClick={cancelMessage}
+                    aria-label="Cancel message"
+                    className="flex items-center justify-center w-10 h-10 rounded-full shadow-md transition-colors 
+                              bg-card hover:bg-border dark:bg-[#2C2C2C] dark:hover:bg-[#3A3A3A] cursor-pointer"
+                  >
+                    {/* small square loader/cancel indicator */}
+                    <div className="w-3.5 h-3.5 rounded-sm bg-foreground dark:bg-gray-100" />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={!inputValue.trim()}
+                    aria-label="Send message"
+                    className={`grid size-10 place-items-center rounded-full shadow-md transition-all duration-200 
+                      ${
+                        inputValue.trim()
+                          ? "bg-primary text-white hover:opacity-90 cursor-pointer"
+                          : "bg-card text-gray-400 dark:bg-[#2C2C2C] cursor-not-allowed"
+                      }`}
+                  >
+                    <ArrowUp className="w-5 h-5" />
+                  </button>
+                )}
+
 
                 </div>
               </div>
