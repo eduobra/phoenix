@@ -303,7 +303,7 @@ const Page = () => {
                 <div key={m.id} className="flex flex-col gap-2 ">
                   {m.message && (
                     <div className="flex justify-end ">
-                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-card-200 text-foreground">
+                      <div className="px-4 py-2 rounded-2xl max-w-[80%] bg-blue-500 text-foreground">
                         <p className="text-sm whitespace-pre-wrap">{m.message}</p>
                       </div>
                     </div>
