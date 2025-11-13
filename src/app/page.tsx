@@ -259,7 +259,7 @@ const CTASection = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-4xl mx-auto text-white ">
+        <div className="relative z-10 max-w-4xl mx-auto text-white pt-12">
           <h2 className="mb-6 text-[2.5rem] font-bold leading-tight">
             Ready to Transform Your Business with Agentic AI?
           </h2>
