@@ -24,8 +24,11 @@ const Userlayout = ({ children }: { children: ReactNode }) => {
 
       {/* Main content area */}
       <div className="flex flex-col flex-1 h-full overflow-hidden">
+      
         <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+         
         <main className="flex-1 overflow-y-auto bg-card-50 dark:bg-background">
+          <h1 className="sr-only">Ascent AI Agent Suite</h1>
           {children}
         </main>
       </div>

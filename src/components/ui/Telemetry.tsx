@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext"; 
 
 interface TelemetryData {
   TimeGenerated: string;
@@ -30,6 +31,9 @@ export default function TelemetryModal({ open, onClose }: TelemetryModalProps) {
   const [telemetryData, setTelemetryData] = useState<TelemetryData[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Get the access token from auth store
+  const token = useAuth((state) => state.userData?.accessToken);
+  console.log("telemetry",token)
   const queryPayload = {
     query: `AppTraces 
       | extend props = todynamic(Properties) 
@@ -41,15 +45,19 @@ export default function TelemetryModal({ open, onClose }: TelemetryModalProps) {
   };
 
   const fetchTelemetry = async () => {
+    if (!token) {
+      console.error("No access token found");
+      return;
+    }
+
     setLoading(true);
     try {
-      const token = localStorage.getItem("token"); // replace with your actual token
       const res = await axios.post(
         "http://18.139.107.202:9091/telemetry/query",
         queryPayload,
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsZW5hcmRwYWxjZTBAZ21haWwuY29tIiwiaWQiOjI0LCJ0aWQiOiI5MTg4MDQwZC02YzY3LTRjNWItYjExMi0zNmEzMDRiNjZkYWQiLCJvaWQiOiIwMDAwMDAwMC0wMDAwLTAwMDAtNjUyNi1mODY2ZmIxMzc3YWIiLCJleHAiOjE3NjI5Njk2Mzd9.YPqVBZaLCvRyqkQKFVjItd6UYrpNGS0wMuVUgY0c6gw`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsZW5hcmRwYWxjZTBAZ21haWwuY29tIiwiaWQiOjI0LCJ0aWQiOiI5MTg4MDQwZC02YzY3LTRjNWItYjExMi0zNmEzMDRiNjZkYWQiLCJvaWQiOiIwMDAwMDAwMC0wMDAwLTAwMDAtNjUyNi1mODY2ZmIxMzc3YWIiLCJleHAiOjE3NjMwMTM4MjJ9.GWHbg2O8pJIgyKID71RD51V6J_Z97bljqb2praCBnb4`,
             "Content-Type": "application/json",
           },
         }

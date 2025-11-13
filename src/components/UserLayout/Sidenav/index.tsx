@@ -216,14 +216,19 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                     variant="ghost"
                     size="default"
                     className="w-full h-9 justify-start"
+                      aria-label="skeleton"
+                    title="skeleton"
                   >
                     <Skeleton className="w-4 h-4 rounded-full" />
                     <Skeleton className="w-40 h-3 rounded" />
+                    
                   </Button>
                   <Button
                     variant="ghost"
                     size="default"
                     className="w-full h-9 justify-start"
+                      aria-label="skeleton"
+                    title="skeleton"
                   >
                     <Skeleton className="w-4 h-4 rounded-full" />
                     <Skeleton className="h-3 rounded w-52" />
@@ -232,6 +237,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                     variant="ghost"
                     size="default"
                     className="w-full h-9 justify-start"
+                    aria-label="skeleton"
+                    title="skeleton"
                   >
                     <Skeleton className="w-4 h-4 rounded-full" />
                     <Skeleton className="w-32 h-3 rounded" />
