@@ -182,11 +182,11 @@ export default function LoginPage() {
               required
               disabled
             />
-            <div className="mt-1 text-right">
-              <a href="" className="text-xs font-medium text-blue-600 hover:underline  cursor-not-allowed opacity-50" >
-                Forgot password?
-              </a>
-            </div>
+           <div className="mt-1 text-right">
+  <span className="text-xs font-medium text-gray-500 cursor-not-allowed">
+    Forgot password?
+  </span>
+</div>
           </div>
 
           <button type="submit" className="w-full py-2 text-white bg-black rounded-lg hover:bg-black  cursor-not-allowed opacity-50" disabled>

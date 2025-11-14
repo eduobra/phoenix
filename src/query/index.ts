@@ -5,7 +5,7 @@ import { TreeTraceListsType } from "@/types/trace";
 import { Authorization } from "@/utils/cookies";
 import { computeHmac } from "@/utils/hmac";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { useParams } from "next/navigation";
 
 export const useChatHistoryLists = () => {
@@ -288,6 +288,35 @@ export const useTraceRunById = (runId: string) => {
     enabled: !!runId,
   });
 };
+
+
+
+export const useGetTelemetry = (token?: string) => {
+  return useMutation({
+    mutationFn: async ({
+      payload,
+      authorization,
+    }: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      payload: any;
+      authorization: string;
+    }) => {
+      const res = await axios.post(
+        "/api/telemetry",   
+        payload,             
+        {
+          headers: {
+            Authorization: authorization, 
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return res.data;
+    },
+  });
+};
+
 //   const payloadObj = {
 //     input: inputValue,
 //     session_id: "25752600-d4a8-4364-9696-2cf1efe6ffc6",

@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
-import { useAuth } from "@/contexts/AuthContext"; 
+import { useAuth } from "@/contexts/AuthContext"; // import your auth hook
+import { useGetTelemetry } from "@/query";
 
 interface TelemetryData {
   TimeGenerated: string;
@@ -34,6 +35,8 @@ export default function TelemetryModal({ open, onClose }: TelemetryModalProps) {
   // Get the access token from auth store
   const token = useAuth((state) => state.userData?.accessToken);
   console.log("telemetry",token)
+  
+  const telemetryQuery = useGetTelemetry(token);
   const queryPayload = {
     query: `AppTraces 
       | extend props = todynamic(Properties) 
@@ -44,31 +47,23 @@ export default function TelemetryModal({ open, onClose }: TelemetryModalProps) {
       | top 10 by TimeGenerated desc`,
   };
 
-  const fetchTelemetry = async () => {
-    if (!token) {
-      console.error("No access token found");
-      return;
-    }
+    const fetchTelemetry = async () => {
+        setLoading(true);
 
-    setLoading(true);
-    try {
-      const res = await axios.post(
-        "http://18.139.107.202:9091/telemetry/query",
-        queryPayload,
-        {
-          headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsZW5hcmRwYWxjZTBAZ21haWwuY29tIiwiaWQiOjI0LCJ0aWQiOiI5MTg4MDQwZC02YzY3LTRjNWItYjExMi0zNmEzMDRiNjZkYWQiLCJvaWQiOiIwMDAwMDAwMC0wMDAwLTAwMDAtNjUyNi1mODY2ZmIxMzc3YWIiLCJleHAiOjE3NjMwMTM4MjJ9.GWHbg2O8pJIgyKID71RD51V6J_Z97bljqb2praCBnb4`,
-            "Content-Type": "application/json",
-          },
+        try {
+            const response = await telemetryQuery.mutateAsync({
+            payload: queryPayload, 
+            authorization: `Bearer ${token}`,
+            });
+
+            if (response?.data) setTelemetryData(response.data);
+        } catch (err) {
+            console.error("Telemetry error:", err);
+        } finally {
+            setLoading(false);
         }
-      );
-      if (res.data?.data) setTelemetryData(res.data.data);
-    } catch (err) {
-      console.error("Failed to fetch telemetry:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
 
   if (!open) return null;
 
