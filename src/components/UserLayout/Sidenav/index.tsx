@@ -70,7 +70,11 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showTelemetryModal, setShowTelemetryModal] = useState(false);
- const [successModalMessage, setSuccessModalMessage] = useState<string | null>(null);
+  const [successModalMessage, setSuccessModalMessage] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    open: boolean;
+    sessionId?: string;
+  } | null>(null);
 
   // Safely extract messages from the API response
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -305,23 +309,9 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                               onClick={() => {
                                 if (deleting) return;
                                 if (!item.session_id) return;
-                                if (!confirm("Are you sure you want to delete this conversation?")) return;
 
-                             softDeleteConversation(
-                              { session_id: item.session_id },
-                              {
-                                onSuccess: () => {
-                                  setSuccessModalMessage("Conversation deleted successfully");
-
-                                  if (conversationId === item.session_id) {
-                                    router.push("/chat");
-                                  }
-                                },
-                                onError: (err) => {
-                                  setSuccessModalMessage(err.message);
-                                },
-                              }
-                            );
+                                // Open confirmation modal instead of using confirm()
+                                setConfirmDelete({ open: true, sessionId: item.session_id });
                               }}
                             >
                               {deleting ? (
@@ -476,6 +466,56 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
             document.body
           )
         }
+        {confirmDelete?.open &&
+  typeof window !== "undefined" &&
+  createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm px-2">
+      <div className="bg-background rounded-3xl shadow-xl w-full max-w-sm p-6 flex flex-col items-center">
+        <h3 className="text-lg font-semibold text-card-foreground-800 mb-4">
+          Confirm Delete
+        </h3>
+        <p className="text-sm text-card-foreground-700 mb-6">
+          Are you sure you want to delete this conversation?
+        </p>
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            onClick={() => setConfirmDelete(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="bg-red-600 text-white hover:bg-red-700"
+            onClick={() => {
+              if (!confirmDelete?.sessionId) return;
+
+              softDeleteConversation(
+                { session_id: confirmDelete.sessionId },
+                {
+                  onSuccess: () => {
+                    setSuccessModalMessage(
+                      "Conversation deleted successfully"
+                    );
+                    if (conversationId === confirmDelete.sessionId) {
+                      router.push("/chat");
+                    }
+                  },
+                  onError: (err) => {
+                    setSuccessModalMessage(err.message);
+                  },
+                }
+              );
+
+              setConfirmDelete(null);
+            }}
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
 
       </div>
 
