@@ -101,9 +101,9 @@ const TreeNode = ({ node, level = 0, isLast = false, parentLines = [] }: TreeNod
       <div
         onClick={handleClick}
         className={cn(
-          "group relative flex items-center gap-1.5 py-1 px-2 cursor-pointer transition-colors hover:bg-gray-500/10",
+          "group relative flex items-center gap-1.5 py-1 px-2 cursor-pointer transition-colors hover:bg-card-500/10",
           "text-sm select-none rounded-sm",
-          trace?.run_id === node.run_id ? "bg-gray-500/10" : ""
+          trace?.run_id === node.run_id ? "bg-card-500/10" : ""
         )}
         style={{ paddingLeft: `${level * 20 + 4}px` }}
       >
@@ -118,7 +118,7 @@ const TreeNode = ({ node, level = 0, isLast = false, parentLines = [] }: TreeNod
                 {node.model ? (
                   <div className="px-2 py-0.5 border border-gray-300 rounded-lg text-xs">{node.model}</div>
                 ) : (
-                  <span className="text-sm text-gray-500">{runtimeSec}</span>
+                  <span className="text-sm text-card-foreground-500">{runtimeSec}</span>
                 )}
               </div>
 
@@ -126,10 +126,6 @@ const TreeNode = ({ node, level = 0, isLast = false, parentLines = [] }: TreeNod
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">{runtimeSec}</span>
                   <UsageToken usage={node} key={node.run_id} />
-                  {/* <div className="flex items-center px-2 py-0.5 border border-gray-300 rounded-lg text-xs gap-1">
-                    <Coins size={15} />
-                    {node.total_tokens?.toLocaleString()}
-                  </div> */}
                 </div>
               )}
             </div>

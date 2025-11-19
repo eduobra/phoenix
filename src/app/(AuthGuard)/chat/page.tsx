@@ -14,15 +14,16 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { useSendMessageMutation } from "@/query";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { v4 as uuid } from "uuid";
 import { useQueryClient } from "@tanstack/react-query";
 import { useChat } from "@/contexts/ChatContext";
 import Markdown from "@/components/mark-down";
-import UsageLimitModal from "@/components/ui/UsageLimitModal";
 import Modal from "@/components/ui/Modal";
 import TraceHistory from "@/components/trace-history";
 import { TraceContextProvider } from "@/contexts/TraceContext";
+
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -33,6 +34,7 @@ const Page = () => {
   const updateMessageAnswer = useChat((state) => state.updateMessageAnswer);
   const { mutateAsync } = useSendMessageMutation();
   const [inputValue, setInputValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const endRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -41,67 +43,94 @@ const Page = () => {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const removeMessage = useChat((state) => state.removeMessage);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
+ 
+  
+  const topics = [
+    "Quarterly KPI Summary",
+    "Expense Breakdown",
+    "Variance Analysis",
+    "Revenue Forecast",
+    "Cashflow Review",
+    "Procurement Report Email"
+  ];
 
-  const sendMessage = async () => {
-    if (!inputValue.trim()) return;
+  // 🧠 Change this function so it can accept a topic directly
+const sendMessage = async (customInput?: string) => {
+  const messageText = customInput || inputValue;
+  if (!messageText.trim()) return;
 
-    const sanitizedInput = inputValue.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').normalize("NFC");
+  const sanitizedInput = messageText
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .normalize("NFC");
 
-    const controller = new AbortController();
-    setAbortController(controller);
-    const id = uuid();
+  const controller = new AbortController();
+  setAbortController(controller);
+  const id = uuid();
 
-    addMessage({
-      id,
-      message: sanitizedInput,
-      answer: "",
-      created_at: new Date().toISOString(),
+  addMessage({
+    id,
+    message: sanitizedInput,
+    answer: "",
+    created_at: new Date().toISOString(),
+  });
+
+  setInputValue("");
+  setLoading(true);
+
+  try {
+    const response = await mutateAsync({
+      input: sanitizedInput,
+      session_id: conversationId ? conversationId : id,
+      stream: false,
+      signal: controller.signal,
     });
 
-    setInputValue("");
-    setLoading(true);
+    const messages = response.response.messages;
+    const lastMessage = messages[messages.length - 1];
+    let answerText = "";
 
-    try {
-      const response = await mutateAsync({
-        input: sanitizedInput,
-        session_id: conversationId ? conversationId : id,
-        stream: false,
-        signal: controller.signal,
-      });
-
-      const messages = response.response.messages;
-      const lastMessage = messages[messages.length - 1];
-      let answerText = "";
-
-      if (lastMessage.content.startsWith("{")) {
-        const parsed = JSON.parse(lastMessage.content);
-        answerText = parsed.content || "";
-      } else {
-        answerText = lastMessage.content;
-      }
-      updateMessageAnswer(id, answerText);
-      if (!conversationId) {
-        window.history.replaceState(null, "", `/chat/${id}`);
-        setConversationId(id);
-        queryClient.invalidateQueries({ queryKey: ["chat-history"] });
-      }
-    } catch (err) {
-      console.error("Send message error:", err);
-      setErrorModal({
-        isOpen: true,
-        message: "Looks like the server isn’t responding right now. Try again later.",
-      });
-    } finally {
-      setLoading(false);
+    if (lastMessage.content.startsWith("{")) {
+      const parsed = JSON.parse(lastMessage.content);
+      answerText = parsed.content || "";
+    } else {
+      answerText = lastMessage.content;
     }
+
+    updateMessageAnswer(id, answerText);
+    if (!conversationId) {
+      window.history.replaceState(null, "", `/chat/${id}`);
+      setConversationId(id);
+      queryClient.invalidateQueries({ queryKey: ["chat-history"] });
+    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+      // Ignore canceled or aborted requests
+      if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
+     
+      } else {
+        setErrorModal({
+          isOpen: true,
+          message: "Looks like the server isn’t responding right now. Try again later.",
+        });
+      }
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // ✅ Auto-send topic when clicked
+  const handleTopicClick = (topic: string) => {
+    setShowSuggestions(false);
+    sendMessage(topic); // <-- Directly sends the topic
   };
 
+  // ✅ Scroll to bottom whenever new messages come in
   useEffect(() => {
-    if (endRef.current) {
-      endRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    if (endRef.current) endRef.current.scrollIntoView({ behavior: "smooth" });
     scrollToBottom();
   }, [messages, loading]);
+
   useEffect(() => {
     const container = chatContainerRef.current;
     if (!container) return;
@@ -116,9 +145,7 @@ const Page = () => {
   }, []);
 
   const scrollToBottom = () => {
-    if (endRef.current) {
-      endRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    if (endRef.current) endRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleInputGrow = () => {
@@ -139,15 +166,62 @@ const Page = () => {
       }
     }
   };
+
   return (
     <TraceContextProvider>
-      <div className="relative flex flex-col w-full h-full bg-gray-50">
+      <div className="relative flex flex-col w-full h-full bg-card-50">
         <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto">
-          {messages.length === 0 ? (
-            <div className="grid h-full place-items-center">
-              <div className="px-6 text-center">
-                <h2 className="mb-1 text-xl font-semibold text-gray-900">Whats on your mind?</h2>
-                <p className="text-sm text-gray-500">Type a message below to begin.</p>
+         {messages.length === 0 ? (
+            <div className="grid h-full place-items-center-safe">
+              <div className="px-6 text-center max-w-md">
+             <h2 className="mb-2 flex items-center justify-center gap-2 text-xl font-semibold text-card-foreground-900 leading-none">
+                <span
+                  role="img"
+                  aria-label="wave"
+                  className="text-2xl animate-wave origin-[70%_70%] inline-block translate-y-[2px]"
+                >
+                  👋
+                </span>
+                Welcome to Ascent AI Finance Agent
+              </h2>
+                <p className="text-sm text-card-foreground-600 mb-4">
+                  I’m your intelligent finance co-pilot — built to help you analyze reports, generate KPI insights,
+                  and simplify financial decision-making.
+                </p>
+                
+                <p className="text-sm text-card-foreground-700 mb-6 leading-relaxed text-left max-w-sm mx-auto">
+                  
+                  You can ask me to:<br/>
+                  • Summarize your company’s monthly financials<br />
+                  • Analyze expenses or revenue trends<br />
+                  • Generate variance reports<br />
+                  • Forecast your next quarter’s performance
+                </p>
+                <p className="mt-6 mb-3 text-sm text-black bg-indigo-50 border border-indigo-200 rounded-lg p-3 max-w-sm mx-auto shadow-sm">
+                  💡 <span className="font-semibold italic">Tip:</span> You can also upload an Excel or CSV report, and I’ll generate insights instantly.
+                </p>
+                <span className="font-semibold ">What would you like to do first?</span>
+                {/* ✅ Always show topics when there’s no conversation */}
+                <AnimatePresence>
+                  <motion.div
+                    className="flex flex-wrap justify-center gap-3 mt-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    {topics.map((topic) => (
+                      <motion.button
+                        key={topic}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleTopicClick(topic)}
+                        className="px-4 py-2 text-sm font-medium text-card-foreground-800 bg-background border border-gray-200 rounded-full shadow-sm hover:bg-card-100 transition-all"
+                      >
+                        {topic}
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
           ) : (
@@ -156,21 +230,20 @@ const Page = () => {
                 <div key={m.id} className="flex flex-col gap-2">
                   {m.message && (
                     <div className="flex justify-end group">
-                      <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-gray-200 text-black">
+                      <div className="relative px-4 py-2 rounded-2xl max-w-[80%] bg-blue-500 text-white">
                         <p className="text-sm whitespace-pre-wrap">{m.message}</p>
 
                         <div className="absolute flex gap-1 transition-opacity opacity-0 top-1 right-1 group-hover:opacity-100">
                           <button
                             onClick={() => navigator.clipboard.writeText(m.message)}
-                            className="p-1 rounded-md bg-white/20 hover:bg-white/30"
+                            className="p-1 rounded-md bg-background hover:bg-background"
                             title="Copy"
                           >
                             📋
                           </button>
-
                           <button
                             onClick={() => setInputValue(m.message)}
-                            className="p-1 rounded-md bg-white/20 hover:bg-white/30"
+                            className="p-1 rounded-md bg-background hover:bg-background"
                             title="Edit & Resend"
                           >
                             ✏️
@@ -182,46 +255,37 @@ const Page = () => {
 
                   {m.answer ? (
                     <div className="flex flex-col items-start w-full gap-1">
-                      <div className="px-4 py-2 rounded-2xl max-w-[100%]  text-gray-900">
+                      <div className="px-4 py-2 rounded-2xl max-w-[100%] text-card-foreground-900">
                         <Markdown content={m.answer} />
                       </div>
 
                       <div className="flex items-center gap-3 px-2">
+                        <button className="p-1 rounded hover:bg-card-300" title="Copy">
+                          <Copy className="w-4 h-4 text-card-foreground-600" />
+                        </button>
+                        <button className="p-1 rounded hover:bg-card-300" title="Like">
+                          <ThumbsUp className="w-4 h-4 text-card-foreground-600" />
+                        </button>
+                        <button className="p-1 rounded hover:bg-card-300" title="Dislike">
+                          <ThumbsDown className="w-4 h-4 text-card-foreground-600" />
+                        </button>
+                        <button className="p-1 rounded hover:bg-card-300" title="Share">
+                          <Share2 className="w-4 h-4 text-card-foreground-600" />
+                        </button>
                         <button
-                          className="p-1 rounded hover:bg-gray-300"
-                          title="Copy"
-                          onClick={() => navigator.clipboard.writeText(m.answer)}
-                        >
-                          <Copy className="w-4 h-4 text-gray-600" />
-                        </button>
-
-                        <button className="p-1 rounded hover:bg-gray-300" title="Like">
-                          <ThumbsUp className="w-4 h-4 text-gray-600" />
-                        </button>
-
-                        <button className="p-1 rounded hover:bg-gray-300" title="Dislike">
-                          <ThumbsDown className="w-4 h-4 text-gray-600" />
-                        </button>
-
-                        <button className="p-1 rounded hover:bg-gray-300" title="Share">
-                          <Share2 className="w-4 h-4 text-gray-600" />
-                        </button>
-
-                        <button
-                          className="p-1 rounded hover:bg-gray-300"
+                          className="p-1 rounded hover:bg-card-300"
                           title="Try Again"
                           onClick={() => sendMessage()}
                         >
-                          <RotateCcw className="w-4 h-4 text-gray-600" />
+                          <RotateCcw className="w-4 h-4 text-card-foreground-600" />
                         </button>
-
-                        <button className="p-1 rounded hover:bg-gray-300" title="More">
-                          <MoreHorizontal className="w-4 h-4 text-gray-600" />
+                        <button className="p-1 rounded hover:bg-card-300" title="More">
+                          <MoreHorizontal className="w-4 h-4 text-card-foreground-600" />
                         </button>
                         {m.run_id && <TraceHistory traceId={m.run_id} />}
                       </div>
 
-                      <span className="text-[10px] text-gray-500 whitespace-nowrap">
+                      <span className="text-[10px] text-card-foreground-500 whitespace-nowrap">
                         {new Date(m.created_at).toLocaleDateString([], {
                           month: "short",
                           day: "numeric",
@@ -237,11 +301,17 @@ const Page = () => {
                     loading &&
                     m.id === messages[messages.length - 1].id && (
                       <div className="flex justify-start">
-                        <div className="px-4 py-2 text-gray-900 bg-gray-200 rounded-2xl">
-                          <div className="flex gap-1">
-                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                        <div
+                          className="px-4 py-2 rounded-2xl bg-card-200 dark:bg-[#2B2B2B] text-card-foreground-900 
+                                    border border-border/30 shadow-sm"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-1">
+                              <span className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></span>
+                              <span className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                              <span className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                            </div>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 animate-pulse"></span>
                           </div>
                         </div>
                       </div>
@@ -249,7 +319,6 @@ const Page = () => {
                   )}
                 </div>
               ))}
-
               <div ref={endRef} />
             </div>
           )}
@@ -258,15 +327,14 @@ const Page = () => {
         {showScrollButton && (
           <button
             onClick={scrollToBottom}
-            className="absolute p-2 mb-4 text-black transform -translate-x-1/2 bg-white rounded-full shadow-md left-1/2 bottom-24 hover:bg-gray-100"
+            className="absolute p-2 mb-4 text-foreground transform -translate-x-1/2 bg-background rounded-full shadow-md left-1/2 bottom-24 hover:bg-card-100"
           >
-            {/* <ChevronDown className="w-5 h-5" /> */}
-            {/* <MoveDown strokeWidth={1} className="w-4 h-4"  /> */}
             <ArrowDown size={18} absoluteStrokeWidth />
           </button>
         )}
 
-        <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-gray-50">
+        {/* Input area (kept unchanged) */}
+        <div className="sticky bottom-0 z-20 px-1 pt-2 pb-4 bg-card-50">
           <div className="w-full max-w-3xl mx-auto">
             <form
               onSubmit={(e) => {
@@ -275,63 +343,74 @@ const Page = () => {
               }}
               className="flex items-end gap-2"
             >
-              <div className="flex items-end w-full gap-2 px-3 py-2 m-2 bg-white border border-gray-300 shadow-sm rounded-3xl">
-                <div className="flex flex-col justify-end">
-                  <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                    <Plus className="w-5 h-5 text-gray-500" />
-                  </button>
-                </div>
+              <div className="flex items-end w-full gap-2 px-3 py-2 m-2 bg-background border border-gray-300 shadow-sm rounded-3xl">
+                <button
+                  type="button"
+                  className="p-2 rounded-full hover:bg-card-100"
+                  aria-label="Add new item"
+                >
+                  <Plus className="w-5 h-5 text-card-foreground-500" />
+                </button>
 
-                <div className="flex flex-col justify-end flex-1">
-                  <textarea
-                    ref={inputRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onInput={handleInputGrow}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    rows={1}
-                    maxLength={10000}
-                    placeholder="Ask Ascent AI"
-                    className="w-full bg-transparent pt-3 resize-none outline-none px-3  max-h-[200px] min-h-[44px] placeholder:text-gray-400 overflow-y-auto"
-                  />
-                </div>
+               <textarea
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onInput={handleInputGrow}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  rows={1}
+                  maxLength={10000}
+                  placeholder="Ask me about your financial performance, budgets, or forecasts…"
+                  className="flex-1 bg-transparent pt-3 resize-none outline-none px-3 max-h-[200px] min-h-[44px] placeholder:text-[0.875rem] placeholder:text-card-foreground-400 overflow-y-auto"
+                />
 
                 <div className="flex items-end gap-1">
-                  <button type="button" className="p-2 rounded-full hover:bg-gray-100">
-                    <Mic className="w-5 h-5 text-gray-500" />
+                  <button
+                    type="button"
+                    className="p-2 rounded-full hover:bg-card-100"
+                    aria-label="Start voice input"
+                  >
+                    <Mic className="w-5 h-5 text-card-foreground-500" />
                   </button>
 
-                  {loading ? (
-                    <button
-                      type="button"
-                      onClick={cancelMessage}
-                      className="flex items-center justify-center w-10 h-10 transition-colors bg-gray-200 rounded-full shadow-md cursor-pointer hover:bg-gray-300"
-                    >
-                      <div className="w-3.5 h-3.5 bg-black rounded-sm" />
-                    </button>
-                  ) : (
-                    <button
-                      type="submit"
-                      disabled={!inputValue.trim()}
-                      className={`grid rounded-full shadow-md size-10 place-items-center transition-colors ${
+                 {loading ? (
+                  <button
+                    type="button"
+                    onClick={cancelMessage}
+                    aria-label="Cancel message"
+                    className="flex items-center justify-center w-10 h-10 rounded-full shadow-md transition-colors 
+                              bg-card hover:bg-border dark:bg-[#2C2C2C] dark:hover:bg-[#3A3A3A] cursor-pointer"
+                  >
+                    {/* small square loader/cancel indicator */}
+                    <div className="w-3.5 h-3.5 rounded-sm bg-foreground dark:bg-gray-100" />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={!inputValue.trim()}
+                    aria-label="Send message"
+                    className={`grid size-10 place-items-center rounded-full shadow-md transition-all duration-200 
+                      ${
                         inputValue.trim()
-                          ? "bg-black text-white hover:bg-blue-800 cursor-pointer"
-                          : "bg-gray-300 text-white cursor-not-allowed"
+                          ? "bg-primary text-white hover:opacity-90 cursor-pointer"
+                          : "bg-card text-gray-400 dark:bg-[#2C2C2C] cursor-not-allowed"
                       }`}
-                    >
-                      <ArrowUp className="w-5 h-5" />
-                    </button>
-                  )}
+                  >
+                    <ArrowUp className="w-5 h-5" />
+                  </button>
+                )}
+
+
                 </div>
               </div>
             </form>
           </div>
-          <UsageLimitModal onUpgrade={() => console.log("Upgrade clicked")} />
+
           <Modal
             isOpen={errorModal.isOpen}
             title="Oops! Something went wrong."

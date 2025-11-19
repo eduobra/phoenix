@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { createPortal } from "react-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,10 @@ import { useChatHistoryLists, useSoftDeleteConversation } from "@/query";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { useChat } from "@/contexts/ChatContext";
 import ArchiveModal from "@/components/ui/ArchiveModal";
+import SettingsModal from "@/components/ui/SettingsModal";
+import { Telemetry } from "next/dist/telemetry/storage";
+import TelemetryModal from "@/components/ui/Telemetry";
+
 type SidenavProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -63,6 +68,13 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
   const { conversationId } = useParams();
   const { mutate: softDeleteConversation, isPending: deleting } = useSoftDeleteConversation();
   const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showTelemetryModal, setShowTelemetryModal] = useState(false);
+  const [successModalMessage, setSuccessModalMessage] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    open: boolean;
+    sessionId?: string;
+  } | null>(null);
 
   // Safely extract messages from the API response
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,7 +115,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
       )}
 
       <aside
-        className={`fixed md:static top-0 left-0 h-screen border-r bg-white flex flex-col transition-all duration-300 z-40
+        className={`fixed md:static top-0 left-0 h-screen border-r bg-background flex flex-col transition-all duration-300 z-40
           ${collapsed ? "w-16" : "w-64"}
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
       >
@@ -119,18 +131,19 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
             ) : (
               <img src="/agent_logo.png" alt="FR Icon" className="w-8 h-8" />
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8 text-gray-600 border border-gray-200 rounded-full shrink-0 hover:text-gray-900 hover:bg-gray-100"
-              onClick={() => setCollapsed((prev) => !prev)}
-            >
-              {collapsed ? (
-                <ChevronRight className="w-4 h-4" />
-              ) : (
-                <ChevronLeft className="w-4 h-4" />
-              )}
-            </Button>
+           <Button
+            variant="ghost"
+            size="icon"
+            className="w-8 h-8 text-card-foreground-600 border border-gray-200 rounded-full shrink-0 hover:text-card-foreground-900 hover:bg-card-100"
+            onClick={() => setCollapsed((prev) => !prev)}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? (
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+            )}
+          </Button>
           </div>
 
           {/* New Chat + Search */}
@@ -147,7 +160,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
               {!collapsed && <span className="truncate">New Chat</span>}
             </Button>
             <div
-              className={`flex items-center gap-2 h-9 px-2 rounded-md hover:bg-gray-100 ${
+              className={`flex items-center gap-2 h-9 px-2 rounded-md hover:bg-card-100 ${
                 collapsed ? "justify-center" : "justify-start"
               }`}
             >
@@ -158,7 +171,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search chat..."
-                  className="flex-1 bg-transparent outline-none text-sm placeholder:text-gray-400"
+                  className="flex-1 bg-transparent outline-none text-sm placeholder:text-card-foreground"
                 />
               )}
             </div>
@@ -169,14 +182,13 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
         <div className="flex-1 overflow-y-auto thin-scrollbar">
           <div className="px-2 mb-3">
             {!collapsed && (
-              <div className="pb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className="pb-1 text-[10px] font-semibold uppercase tracking-wide text-card-foreground-500">
                 Pinned
               </div>
             )}
             <div className="flex flex-col gap-1">
               {[
                 { id: "p1", title: "Quarterly KPI summary" },
-                { id: "p2", title: "Write email to procurement" },
               ]?.map((item) => (
                 <Button
                   key={item.id}
@@ -197,7 +209,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
           </div>
 
           {!collapsed && (
-            <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-card-foreground-500">
               Chat History
             </div>
           )}
@@ -210,14 +222,19 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                     variant="ghost"
                     size="default"
                     className="w-full h-9 justify-start"
+                      aria-label="skeleton"
+                    title="skeleton"
                   >
                     <Skeleton className="w-4 h-4 rounded-full" />
                     <Skeleton className="w-40 h-3 rounded" />
+                    
                   </Button>
                   <Button
                     variant="ghost"
                     size="default"
                     className="w-full h-9 justify-start"
+                      aria-label="skeleton"
+                    title="skeleton"
                   >
                     <Skeleton className="w-4 h-4 rounded-full" />
                     <Skeleton className="h-3 rounded w-52" />
@@ -226,6 +243,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                     variant="ghost"
                     size="default"
                     className="w-full h-9 justify-start"
+                    aria-label="skeleton"
+                    title="skeleton"
                   >
                     <Skeleton className="w-4 h-4 rounded-full" />
                     <Skeleton className="w-32 h-3 rounded" />
@@ -240,8 +259,8 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                 return (
                   <div
                     key={item.session_id}
-                    className={`group flex items-center justify-between w-full h-9 px-2 rounded-md  hover:bg-gray-100 ${
-                      isActive ? "bg-gray-100" : ""
+                    className={`group flex items-center justify-between w-full h-9 px-2 rounded-md  hover:bg-card-100 ${
+                      isActive ? "bg-card-100" : ""
                     }`}
                   >
                     {/* Left side (clickable chat item) */}
@@ -250,76 +269,66 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                       className="flex items-center gap-2 w-full text-left flex-1 cursor-pointer"
                       title={item.topic}
                     >
-                      <MessageCircle className="w-4 h-4 text-gray-600" />
-                      <span className="truncate text-sm max-w-[150px] text-gray-800">
+                      <MessageCircle className="w-4 h-4 text-card-foreground-600" />
+                      <span className="truncate text-sm max-w-[150px] text-card-foreground-800">
                         {item.topic}
                       </span>
                     </button>
 
                     {/* Right side (3 dots on hover) */}
                     <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="w-6 h-6 p-0 text-gray-500 hover:text-gray-800 cursor-pointer"
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-6 h-6 p-0 text-card-foreground-500 hover:text-card-foreground-800 cursor-pointer"
+                              aria-label="Open conversation options"
+                              title="More options"
+                            >
+                              <MoreHorizontal className="w-4 h-4" aria-hidden="true" />
+                            </Button>
+                          </DropdownMenuTrigger>
+
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-40 rounded-xl shadow-md"
                           >
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
+                            <DropdownMenuItem className="cursor-pointer">
+                              <Share2 className="w-4 h-4 mr-2" /> Share
+                            </DropdownMenuItem>
 
-                        <DropdownMenuContent
-                          align="end"
-                          className="w-40 rounded-xl shadow-md"
-                        >
-                          <DropdownMenuItem className="cursor-pointer">
-                            <Share2 className="w-4 h-4 mr-2" /> Share
-                          </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer">
+                              <Edit3 className="w-4 h-4 mr-2" /> Rename
+                            </DropdownMenuItem>
 
-                          <DropdownMenuItem className="cursor-pointer">
-                            <Edit3 className="w-4 h-4 mr-2" /> Rename
-                          </DropdownMenuItem>
+                            <DropdownMenuSeparator />
 
-                          <DropdownMenuSeparator />
-                       <DropdownMenuItem
-                          className="text-red-600 cursor-pointer"
-                          onClick={() => {
-                            if (deleting) return;
-                            if (!item.session_id) return;
-                            if (!confirm("Are you sure you want to delete this conversation?")) return;
+                            <DropdownMenuItem
+                              className="text-red-600 cursor-pointer"
+                              onClick={() => {
+                                if (deleting) return;
+                                if (!item.session_id) return;
 
-                            softDeleteConversation(
-                              { session_id: item.session_id },
-                              {
-                                onSuccess: () => {
-                                  alert("Conversation deleted successfully");
-                                  if (conversationId === item.session_id) {
-                                    router.push("/chat");
-                                  }
-                                },
-                                onError: (err) => {
-                                  alert(err.message);
-                                },
-                              }
-                            );
-                          }}
-                        >
-                          {deleting ? (
-                            <>
-                              <Trash2 className="w-4 h-4 mr-2 text-gray-400 animate-pulse" />
-                              Deleting...
-                            </>
-                          ) : (
-                            <>
-                              <Trash2 className="w-4 h-4 mr-2 text-red-600" /> Delete
-                            </>
-                          )}
-                        </DropdownMenuItem>
+                                // Open confirmation modal instead of using confirm()
+                                setConfirmDelete({ open: true, sessionId: item.session_id });
+                              }}
+                            >
+                              {deleting ? (
+                                <>
+                                  <Trash2 className="w-4 h-4 mr-2 text-card-foreground-400 animate-pulse" />
+                                  Deleting...
+                                </>
+                              ) : (
+                                <>
+                                  <Trash2 className="w-4 h-4 mr-2 text-red-600" /> Delete
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
 
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
                   </div>
                 );
               })}
@@ -333,7 +342,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className={`flex justify-start w-full gap-3 cursor-pointer rounded-md border bg-gray-100 hover:bg-gray-200/70 px-3 py-5 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 ${
+              className={`flex justify-start w-full gap-3 cursor-pointer rounded-md border bg-card-100 hover:bg-card-200/70 px-3 py-5 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:border-neutral-700 ${
                 collapsed ? "justify-center px-1" : ""
               }`}
               title="Account"
@@ -350,7 +359,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                     <div className="text-sm font-medium truncate max-w-[160px] md:max-w-[180px] dark:text-neutral-200">
                       {userData?.name}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-neutral-400">
+                    <div className="text-xs text-card-foreground-500 dark:text-neutral-300">
                       Free
                     </div>
                   </div>
@@ -373,7 +382,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                   <div className="text-sm font-medium truncate dark:text-neutral-200">
                     {displayEmail}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-neutral-400">
+                  <div className="text-xs text-card-foreground-500 dark:text-neutral-400">
                     Free
                   </div>
                 </div>
@@ -386,15 +395,18 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
               <ArrowUpCircle className="w-4 h-4 mr-2" /> Upgrade plan
             </DropdownMenuItem>
 
-            <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
-              <Settings className="w-4 h-4 mr-2" /> Configuration
+            <DropdownMenuItem
+              className="cursor-pointer dark:text-neutral-200"
+              onClick={() => setShowSettingsModal(true)}
+            >
+              <Settings className="w-4 h-4 mr-2" /> Settings
             </DropdownMenuItem>
 
             <DropdownMenuItem className="cursor-pointer dark:text-neutral-200">
               <HelpCircle className="w-4 h-4 mr-2" /> Help
             </DropdownMenuItem>
 
-            {/* ✅ Archive button triggers modal */}
+    
             <DropdownMenuItem
               className="cursor-pointer dark:text-neutral-200"
               onClick={() => setShowArchiveModal(true)}
@@ -402,6 +414,12 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
               <ArrowUpCircle className="w-4 h-4 mr-2" /> Archive
             </DropdownMenuItem>
 
+            <DropdownMenuItem
+                className="cursor-pointer dark:text-neutral-200"
+                onClick={() => setShowTelemetryModal(true)}
+              >
+                <ArrowUpCircle className="w-4 h-4 mr-2" /> Telemetry
+              </DropdownMenuItem>
             <DropdownMenuSeparator className="dark:bg-neutral-700" />
 
             <DropdownMenuItem
@@ -418,6 +436,87 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
           open={showArchiveModal}
           onClose={() => setShowArchiveModal(false)} // replace later with API data
         />
+
+        <SettingsModal
+          open={showSettingsModal}
+          onClose={() => setShowSettingsModal(false)}
+        />
+
+        <TelemetryModal
+          open={showTelemetryModal}
+          onClose={() => setShowTelemetryModal(false)}
+        />
+       {successModalMessage &&
+          typeof window !== "undefined" &&
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm px-2">
+              <div className="bg-background rounded-3xl shadow-xl w-full max-w-sm p-6 flex flex-col items-center">
+                <h3 className="text-lg font-semibold text-card-foreground-800 mb-4">
+                  Success
+                </h3>
+                <p className="text-sm text-card-foreground-700 mb-6">{successModalMessage}</p>
+                <Button
+                  onClick={() => setSuccessModalMessage(null)}
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  OK
+                </Button>
+              </div>
+            </div>,
+            document.body
+          )
+        }
+        {confirmDelete?.open &&
+  typeof window !== "undefined" &&
+  createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm px-2">
+      <div className="bg-background rounded-3xl shadow-xl w-full max-w-sm p-6 flex flex-col items-center">
+        <h3 className="text-lg font-semibold text-card-foreground-800 mb-4">
+          Confirm Delete
+        </h3>
+        <p className="text-sm text-card-foreground-700 mb-6">
+          Are you sure you want to delete this conversation?
+        </p>
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            onClick={() => setConfirmDelete(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="bg-red-600 text-white hover:bg-red-700"
+            onClick={() => {
+              if (!confirmDelete?.sessionId) return;
+
+              softDeleteConversation(
+                { session_id: confirmDelete.sessionId },
+                {
+                  onSuccess: () => {
+                    setSuccessModalMessage(
+                      "Conversation deleted successfully"
+                    );
+                    if (conversationId === confirmDelete.sessionId) {
+                      router.push("/chat");
+                    }
+                  },
+                  onError: (err) => {
+                    setSuccessModalMessage(err.message);
+                  },
+                }
+              );
+
+              setConfirmDelete(null);
+            }}
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
+
       </div>
 
       </aside>

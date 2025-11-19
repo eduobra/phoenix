@@ -62,9 +62,9 @@
 }
 
 .dark {
-  --background: oklch(0 0 0);
+  --background: oklch(25.197% 0.00003 271.152);
   --foreground: oklch(1 0 0);
-  --card: oklch(0.1400 0 0);
+  --card: oklch(25.197% 0.00003 271.152);
   --card-foreground: oklch(1 0 0);
   --popover: oklch(0.1800 0 0);
   --popover-foreground: oklch(1 0 0);
@@ -73,12 +73,12 @@
   --secondary: oklch(0.2500 0 0);
   --secondary-foreground: oklch(1 0 0);
   --muted: oklch(0.2300 0 0);
-  --muted-foreground: oklch(0.7200 0 0);
+  --muted-foreground: oklch(74.443% 0.00008 271.152);
   --accent: oklch(0.3200 0 0);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.6900 0.2000 23.9100);
   --destructive-foreground: oklch(0 0 0);
-  --border: oklch(0.2600 0 0);
+  --border: oklch(34.07% 0.00004 271.152);
   --input: oklch(0.3200 0 0);
   --ring: oklch(0.7200 0 0);
   --chart-1: oklch(0.8100 0.1700 75.3500);
@@ -252,3 +252,20 @@
   .scroll-thin {
     scrollbar-width: thin;
   }
+
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(14deg); }
+  40% { transform: rotate(-4deg); }
+  50% { transform: rotate(10deg); }
+  60%, 100% { transform: rotate(0deg); }
+}
+
+.animate-wave {
+  display: inline-block;
+  animation: wave 2s infinite;
+  transform-origin: 70% 70%;
+}

@@ -111,13 +111,13 @@ function TreeNode({
                 {node.model ? (
                   <div className="px-2 py-0.5 border border-gray-300 rounded-lg text-xs">{node.model}</div>
                 ) : (
-                  <span className="text-sm text-gray-500">{runtimeSec}</span>
+                  <span className="text-sm text-card-foreground-500">{runtimeSec}</span>
                 )}
               </div>
 
               {node.model && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">{runtimeSec}</span>
+                  <span className="text-sm text-card-foreground-500">{runtimeSec}</span>
                   <div className="flex items-center px-2 py-0.5 border border-gray-300 rounded-lg text-xs gap-1">
                     <Coins size={15} />
                     {node.total_tokens?.toLocaleString()}
@@ -186,6 +186,7 @@ const DocumentTreeContent = ({ traceId }: { traceId: string }) => {
       <div className="flex items-center justify-between p-2 border-b border-bgray-300/50">
         <div className="flex items-center gap-2">
           <p className="text-sm font-extralight">Trace</p>
+
           <UsageToken usage={result} key={result.run_id} />
         </div>
         <Button variant="ghost" size="icon" aria-label="panel">
@@ -206,8 +207,8 @@ const TraceHistory = ({ traceId }: { traceId: string }) => {
   };
   return (
     <>
-      <button onClick={onToggleSheet} className="p-1 rounded hover:bg-gray-300" title="More">
-        <Info className="w-4 h-4 text-gray-600" />
+      <button onClick={onToggleSheet} className="p-1 rounded hover:bg-card-300" title="More">
+        <Info className="w-4 h-4 text-card-foreground-600" />
       </button>
 
       <Sheet open={sheetOpen} onOpenChange={onToggleSheet}>

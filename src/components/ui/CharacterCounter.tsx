@@ -20,7 +20,7 @@ export default function CharacterCounter({
     <div className="flex justify-between items-center px-3 pt-1">
       <span
         className={`text-xs ${
-          isNearLimit ? "text-red-500" : "text-gray-400"
+          isNearLimit ? "text-red-500" : "text-card-foreground-400"
         }`}
       >
         {charCount}/{maxChars}

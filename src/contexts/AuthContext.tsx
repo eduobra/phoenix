@@ -11,6 +11,7 @@ import { persist } from "zustand/middleware";
 type UserDataType = {
   name: string;
   email: string;
+   accessToken?: string;
 };
 
 type ContextState = {
@@ -42,18 +43,19 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
 
           const idToken = response.idToken;
           const graphToken = response.accessToken;
-
+       
           const { data } = await axios.post<{ access_token: string }>(process.env.NEXT_PUBLIC_LOGIC_APPS_URL!, {
             id_token: idToken,
             graph_token: graphToken,
           });
 
           setToken(data.access_token);
-
+             console.log("token",data.access_token)
           set({
             userData: {
               email: response.account.username,
               name: response.account.name || "",
+              accessToken: data.access_token, 
             },
           });
 

@@ -147,14 +147,10 @@ const FeaturesSection = () => {
     <section className="px-6 py-24 bg-background">
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
-        <div className="absolute top-6 left-6 z-50 bg-white p-2 rounded shadow-lg">
-                <img
-                  src="/agent_logo.png"
-                  alt="Logo"
-                  className="h-12 w-auto md:h-16"
-                />
+        <div className="absolute top-6 left-6 z-50 bg-background p-2 rounded shadow-lg">
+           
           </div>
-          <h2 className="mb-6 text-4xl font-bold md:text-5xl text-foreground">Powerful AI Capabilitiesssssssss</h2>
+          <h2 className="mb-6 text-4xl font-bold md:text-5xl text-foreground">Powerful AI Capabilities</h2>
           <p className="max-w-3xl mx-auto text-xl text-muted-foreground">
             Our comprehensive suite of AI tools and agents provides everything you need to transform your business
             operations and unlock new possibilities.
