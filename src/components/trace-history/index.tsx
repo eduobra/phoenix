@@ -14,6 +14,7 @@ import { Separator } from "../ui/separator";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import TraceRunId from "./TraceRunId";
 import { useTrace } from "@/contexts/TraceContext";
+import UsageToken from "./UsageToken";
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms.toLocaleString()}ms`;
@@ -179,99 +180,13 @@ const DocumentTreeContent = ({ traceId }: { traceId: string }) => {
   }
 
   const result = results[0];
-  const totalCost = result.prompt_cost + result.completion_cost;
-  const inputPercent = (result.prompt_cost / totalCost) * 100;
-  const outputPercent = (result.completion_cost / totalCost) * 100;
+
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between p-2 border-b border-bgray-300/50">
         <div className="flex items-center gap-2">
           <p className="text-sm font-extralight">Trace</p>
-
-          <HoverCard openDelay={0}>
-            <HoverCardTrigger asChild>
-              <div className="flex items-center gap-2 p-1 text-sm text-gray-500 border border-gray-200 rounded-md cursor-pointer ">
-                <Coins className="w-3 h-3 text-muted-foreground" /> {results[0].total_tokens}
-              </div>
-            </HoverCardTrigger>
-            <HoverCardContent className="w-80">
-              <div className="flex justify-between mb-1 text-xs font-medium text-muted-foreground">
-                <span>INPUT COST</span>
-                <span>OUTPUT COST</span>
-              </div>
-
-              <div className="flex justify-between mb-1 font-semibold">
-                <span>
-                  <span className="text-md">{inputPercent.toFixed(2)}% </span>
-                  <span className="text-xs text-muted-foreground ">/ ${parseFloat(result.prompt_cost.toFixed(6))}</span>
-                </span>
-                <span className="text-right">
-                  {outputPercent.toFixed(2)}%{" "}
-                  <span className="text-xs text-muted-foreground">
-                    / ${parseFloat(result.completion_cost.toFixed(6))}
-                  </span>
-                </span>
-              </div>
-
-              <div className="relative w-full h-2 overflow-hidden rounded bg-muted">
-                <div className="absolute top-0 left-0 h-full bg-green-500" style={{ width: `${inputPercent}%` }} />
-
-                <div
-                  className="absolute top-0 left-[${inputPercent}%] h-full bg-purple-500"
-                  style={{ width: `${outputPercent}%`, left: `${inputPercent}%` }}
-                />
-              </div>
-
-              <Separator className="my-2" />
-
-              <div className="mb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 mb-1 font-medium text-emerald-700">
-                    <div className="w-2 h-2 rounded-full bg-emerald-600" />
-                    <span>INPUT</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Coins className="w-3 h-3 text-muted-foreground" />
-                    <span>
-                      {result.prompt_tokens} / ${parseFloat(result.prompt_cost.toFixed(6))}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>cache read</span>
-                  <span>0 / $0</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>audio</span>
-                  <span>0 / $0</span>
-                </div>
-              </div>
-              <div className="mb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 mb-1 font-medium text-purple-700">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full" />
-                    <span>OUTPUT</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Coins className="w-3 h-3 text-muted-foreground" />
-                    <span>
-                      {result.completion_tokens} / ${parseFloat(result.completion_cost.toFixed(6))}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>cache read</span>
-                  <span>0 / $0</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>audio</span>
-                  <span>0 / $0</span>
-                </div>
-              </div>
-            </HoverCardContent>
-          </HoverCard>
+          <UsageToken usage={result} key={result.run_id} />
         </div>
         <Button variant="ghost" size="icon" aria-label="panel">
           <PanelRight size={20} />

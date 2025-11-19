@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import { TraceNode } from "@/types/trace";
 import { useTrace } from "@/contexts/TraceContext";
+import UsageToken from "../trace-history/UsageToken";
 
 interface TreeNodeProps {
   node: TraceNode;
@@ -124,10 +125,11 @@ const TreeNode = ({ node, level = 0, isLast = false, parentLines = [] }: TreeNod
               {node.model && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">{runtimeSec}</span>
-                  <div className="flex items-center px-2 py-0.5 border border-gray-300 rounded-lg text-xs gap-1">
+                  <UsageToken usage={node} key={node.run_id} />
+                  {/* <div className="flex items-center px-2 py-0.5 border border-gray-300 rounded-lg text-xs gap-1">
                     <Coins size={15} />
                     {node.total_tokens?.toLocaleString()}
-                  </div>
+                  </div> */}
                 </div>
               )}
             </div>
