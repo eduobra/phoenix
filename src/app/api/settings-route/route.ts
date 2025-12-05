@@ -42,7 +42,7 @@ export async function PUT(req: Request) {
 
     const body = await req.json(); // { theme, accent_color, language, session_timeout_control, time_zone }
 
-    const backendRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL_LOCAL}/settings`, {
+    const backendRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/settings`, {
       method: "PUT", // change PATCH -> PUT
       headers: {
         "Content-Type": "application/json",
