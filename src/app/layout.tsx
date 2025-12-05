@@ -4,6 +4,7 @@ import MSALProvider from "@/provider/MsalProvider";
 import { AuthContextProvider } from "@/contexts/AuthContext";
 import AuthProvider from "@/provider/AuthProvider";
 import QueryProvider from "@/provider/QueryProvider";
+import "@/i18n/i18n";
 
 export const metadata: Metadata = {
   title: "Ascent AI Agent Suite",

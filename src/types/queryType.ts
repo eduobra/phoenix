@@ -144,3 +144,11 @@ export interface ConversationResponse {
     updated_at: string;
   }[];
 }
+
+export type SettingsPayload = {
+  theme?: string;
+  accent_color?: string;
+  language?: string;
+  session_timeout_control?: number;
+  time_zone?: string;
+};

@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 :root {
   --background: oklch(0.9900 0 0);
+   --accent-color: #3b82f6; /* default blue */
   --foreground: oklch(0 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0 0 0);
@@ -63,6 +64,7 @@
 
 .dark {
   --background: oklch(25.197% 0.00003 271.152);
+  --accent-color: #3B82F6; 
   --foreground: oklch(1 0 0);
   --card: oklch(25.197% 0.00003 271.152);
   --card-foreground: oklch(1 0 0);
@@ -268,4 +270,15 @@
   display: inline-block;
   animation: wave 2s infinite;
   transform-origin: 70% 70%;
+}
+.accent-text {
+  color: var(--accent-color);
+}
+
+.accent-bg {
+  background-color: var(--accent-color);
+}
+
+.accent-border {
+  border-color: var(--accent-color);
 }

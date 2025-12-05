@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { create, StoreApi, useStore, StateCreator } from "zustand";
 import { useMsal } from "@azure/msal-react";
 import { AuthenticationResult, AuthError, InteractionRequiredAuthError } from "@azure/msal-browser";
@@ -86,85 +86,67 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       })
     );
   });
+
+  // ---------- SESSION TIMEOUT ----------
+    useEffect(() => {
+      const storedTimeout = localStorage.getItem("sessionTimeout") || "30 minutes";
+
+      const timeoutMap: Record<string, number> = {
+        "1 minute": 1,
+        "15 minutes": 15,
+        "30 minutes": 30,
+        "60 minutes": 60,
+      };
+
+      const timeoutMinutes = timeoutMap[storedTimeout];
+      if (!timeoutMinutes) return;
+
+      const logoutFn = value.getState().handleLogout;
+      if (!logoutFn) return;
+
+      const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
+      let timer: NodeJS.Timeout;
+
+      const resetTimer = () => {
+        const now = Date.now();
+        localStorage.setItem("lastActivity", now.toString());
+
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          console.log("Idle timeout reached — logging out!");
+          logoutFn();
+        }, timeoutMinutes * 60 * 1000);
+      };
+
+      // Check immediately on mount if we already exceeded timeout
+      const lastActivity = localStorage.getItem("lastActivity");
+      if (lastActivity) {
+        const elapsedMinutes = (Date.now() - parseInt(lastActivity, 10)) / 1000 / 60;
+        if (elapsedMinutes >= timeoutMinutes) {
+          console.log("Idle timeout already exceeded — logging out immediately!");
+          logoutFn();
+        }
+      }
+      resetTimer();
+
+      events.forEach((e) => window.addEventListener(e, resetTimer));
+
+      return () => {
+        events.forEach((e) => window.removeEventListener(e, resetTimer));
+        if (timer) clearTimeout(timer);
+      };
+    }, [value]);
+
+
+
+
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 
-  // const [user, setUser] = useState<User | null>(null);
-  // const [loading, setLoading] = useState(true);
-  // const router = useRouter();
-  // const { data: session } = useSession();
 
-  // useEffect(() => {
-  //   const initializeUser = async () => {
-  //     // NextAuth session
-  //     if (session?.user) {
-  //       setUser({
-  //         email: session.user.email || "",
-  //         id: 0,
-  //         name: session.user.name || "",
-  //       });
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     // Local storage fallback for manual login
-  //     const token = localStorage.getItem("token");
-  //     const email = localStorage.getItem("email");
-  //     if (token && email) {
-  //       setUser({ email, id: 0, name: "" });
-  //     }
-  //     setLoading(false);
-  //   };
-
-  //   initializeUser();
-  // }, [session]);
-
-  // const login = async (email: string, password: string) => {
-  //   const data = await loginApi(email, password);
-  //   localStorage.setItem("token", data.access_token);
-  //   localStorage.setItem("email", email);
-  //   setUser({ email, id: 0, name: "" });
-  //   setAuthToken(data.access_token);
-
-  //   const conversationId = await getLatestConversation(email);
-  //   router.replace(`/chat/${conversationId || "default"}`);
-  // };
-
-  // const loginWithGoogle = async (googleData: { email: string; google_id: string; full_name: string }) => {
-  //   const response = await fetch("/auth/google-login", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(googleData),
-  //   });
-  //   const data = await response.json();
-  //   localStorage.setItem("token", data.access_token);
-  //   localStorage.setItem("email", googleData.email);
-  //   setUser({ email: googleData.email, id: 0, name: "" });
-  //   setAuthToken(data.access_token);
-
-  //   const conversationId = await getLatestConversation(googleData.email);
-  //   router.replace(`/chat/${conversationId || "default"}`);
-  // };
-
-  // const logout = () => {
-  //   setUser(null);
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("email");
-  //   router.replace("/login");
-  //   signOut({ callbackUrl: "/login/" })
-  // };
-
-  // return (
-  //   <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, logout, setUser }}>
-  //     {children}
-  //   </AuthContext.Provider>
-  // );
 };
 
-// export const useAuth = (): AuthContextType => {
-//   const context = useContext(AuthContext);
-//   if (!context) throw new Error("useAuth must be used within AuthContextProvider");
-//   return context;
-// };
+
 
 export const useAuth = <T,>(selector: (state: ContextState) => T) => {
   const store = useContext(AuthContext);

@@ -23,7 +23,7 @@ import Markdown from "@/components/mark-down";
 import Modal from "@/components/ui/Modal";
 import TraceHistory from "@/components/trace-history";
 import { TraceContextProvider } from "@/contexts/TraceContext";
-
+import { useTranslation } from "react-i18next";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -43,25 +43,38 @@ const Page = () => {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const removeMessage = useChat((state) => state.removeMessage);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: "" });
- 
-  
+  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const { t, i18n } = useTranslation();
   const topics = [
-    "Quarterly KPI Summary",
-    "Expense Breakdown",
-    "Variance Analysis",
-    "Revenue Forecast",
-    "Cashflow Review",
-    "Procurement Report Email"
+    t("Quarterly KPI Summary"),
+    t("Expense Breakdown"),
+    t("Variance Analysis"),
+    t("Revenue Forecast"),
+    t("Cashflow Review"),
+    t("Procurement Report Email")
   ];
 
   // 🧠 Change this function so it can accept a topic directly
 const sendMessage = async (customInput?: string) => {
   const messageText = customInput || inputValue;
   if (!messageText.trim()) return;
-
+  if (inputRef.current) {
+    inputRef.current.style.height = "44px";
+  }
   const sanitizedInput = messageText
     .replace(/[‘’]/g, "'")
     .replace(/[“”]/g, '"')
+    // Replace various dashes with a simple hyphen
+    .replace(/[–—−]/g, '-')  // en dash, em dash, minus sign
+    // Replace bullets and list markers with a dash or space
+    .replace(/[•◦‣⁃▪▫]/g, '-') 
+    // Replace numbered list markers like "1." or "1)"
+    .replace(/\b\d+[\.\)]\s*/g, '') 
+    // Replace extra whitespace
+    .replace(/\s+/g, ' ')
+    // Trim leading/trailing spaces
+    .trim()
+    // Normalize Unicode
     .normalize("NFC");
 
   const controller = new AbortController();
@@ -103,20 +116,21 @@ const sendMessage = async (customInput?: string) => {
       setConversationId(id);
       queryClient.invalidateQueries({ queryKey: ["chat-history"] });
     }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-      // Ignore canceled or aborted requests
-      if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
-     
-      } else {
-        setErrorModal({
-          isOpen: true,
-          message: "Looks like the server isn’t responding right now. Try again later.",
-        });
-      }
-  } finally {
-    setLoading(false);
-  }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        // Ignore canceled or aborted requests
+        if (err?.name === "AbortError" || err?.code === "ERR_CANCELED") {
+      
+        } else {
+          setErrorModal({
+            isOpen: true,
+            message: "Looks like the server isn’t responding right now. Try again later.",
+          });
+        }
+    } finally {
+      setLoading(false);
+    }
+   
 };
 
   // ✅ Auto-send topic when clicked
@@ -130,6 +144,8 @@ const sendMessage = async (customInput?: string) => {
     if (endRef.current) endRef.current.scrollIntoView({ behavior: "smooth" });
     scrollToBottom();
   }, [messages, loading]);
+
+   
 
   useEffect(() => {
     const container = chatContainerRef.current;
@@ -166,6 +182,12 @@ const sendMessage = async (customInput?: string) => {
       }
     }
   };
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.run_id) {
+      setActiveRunId(lastMessage.run_id);
+    }
+  }, [messages]);
 
   return (
     <TraceContextProvider>
@@ -182,25 +204,24 @@ const sendMessage = async (customInput?: string) => {
                 >
                   👋
                 </span>
-                Welcome to Ascent AI Finance Agent
+                {t("Welcome to Ascent AI Finance Agent")}
               </h2>
                 <p className="text-sm text-card-foreground-600 mb-4">
-                  I’m your intelligent finance co-pilot — built to help you analyze reports, generate KPI insights,
-                  and simplify financial decision-making.
+                  {t("I’m your intelligent finance co-pilot — built to help you analyze reports, generate KPI insights,and simplify financial decision-making.")}
                 </p>
                 
                 <p className="text-sm text-card-foreground-700 mb-6 leading-relaxed text-left max-w-sm mx-auto">
                   
-                  You can ask me to:<br/>
-                  • Summarize your company’s monthly financials<br />
-                  • Analyze expenses or revenue trends<br />
-                  • Generate variance reports<br />
-                  • Forecast your next quarter’s performance
+                  {t("You can ask me to:")}<br/>
+                  {t("• Summarize your company’s monthly financials")}<br />
+                  {t("• Analyze expenses or revenue trends")}<br />
+                  {t("• Generate variance reports")}<br />
+                  {t("• Forecast your next quarter’s performance")}
                 </p>
                 <p className="mt-6 mb-3 text-sm text-black bg-indigo-50 border border-indigo-200 rounded-lg p-3 max-w-sm mx-auto shadow-sm">
-                  💡 <span className="font-semibold italic">Tip:</span> You can also upload an Excel or CSV report, and I’ll generate insights instantly.
+                  💡 <span className="font-semibold italic">Tip: </span>{t("You can also upload an Excel or CSV report, and I’ll generate insights instantly.")}
                 </p>
-                <span className="font-semibold ">What would you like to do first?</span>
+                <span className="font-semibold ">{t("What would you like to do first?")}</span>
                 {/* ✅ Always show topics when there’s no conversation */}
                 <AnimatePresence>
                   <motion.div
@@ -282,7 +303,12 @@ const sendMessage = async (customInput?: string) => {
                         <button className="p-1 rounded hover:bg-card-300" title="More">
                           <MoreHorizontal className="w-4 h-4 text-card-foreground-600" />
                         </button>
-                        {m.run_id && <TraceHistory traceId={m.run_id} />}
+
+                        {m.run_id && (
+                            <TraceHistory key={activeRunId} traceId={m.run_id} /> 
+                        )}
+                        
+
                       </div>
 
                       <span className="text-[10px] text-card-foreground-500 whitespace-nowrap">
@@ -351,7 +377,7 @@ const sendMessage = async (customInput?: string) => {
                 >
                   <Plus className="w-5 h-5 text-card-foreground-500" />
                 </button>
-
+              
                <textarea
                   ref={inputRef}
                   value={inputValue}
@@ -365,7 +391,7 @@ const sendMessage = async (customInput?: string) => {
                   }}
                   rows={1}
                   maxLength={10000}
-                  placeholder="Ask me about your financial performance, budgets, or forecasts…"
+                  placeholder={t("Ask me about your financial performance, budgets, or forecasts…")}
                   className="flex-1 bg-transparent pt-3 resize-none outline-none px-3 max-h-[200px] min-h-[44px] placeholder:text-[0.875rem] placeholder:text-card-foreground-400 overflow-y-auto"
                 />
 

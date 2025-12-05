@@ -1,10 +1,10 @@
 import { axiosInstace, axiosInstanceBackendForCustomer } from "@/lib/axiosInstanct";
-import { ChatHistortLists, ConversationResponse, SendMessageResponse } from "@/types/queryType";
+import { ChatHistortLists, ConversationResponse, SendMessageResponse, SettingsPayload } from "@/types/queryType";
 import { DefaultResponse } from "@/types/run";
 import { TreeTraceListsType } from "@/types/trace";
 import { Authorization } from "@/utils/cookies";
 import { computeHmac } from "@/utils/hmac";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient,QueryKey  } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { useParams } from "next/navigation";
 
@@ -219,6 +219,38 @@ export const useArchivedConversations = () => {
     refetchOnWindowFocus: false,
   });
 };
+export const useGetSettings = (token?: string) => {
+  return useQuery({
+    queryKey: ["settings"],
+    queryFn: async () => {
+      const response = await axios.get("/api/settings-route", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    },
+    enabled: !!token,           // Only run if token exists
+    refetchOnWindowFocus: false,
+  });
+};
+export const useUpdateSettings = (token?: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, SettingsPayload>({
+    mutationFn: async (payload: SettingsPayload) => {
+      const response = await axios.put("/api/settings-route", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      // Use exact type for query key
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+    },
+  });
+};
 
 export const useRestoreConversation = () => {
   const authorization = Authorization();
@@ -316,6 +348,20 @@ export const useGetTelemetry = (token?: string) => {
     },
   });
 };
+
+// export const useGetSettings = (token?: string) => {
+//   return useMutation({
+//     mutationFn: async ({ authorization }: { authorization: string }) => {
+//       const res = await axios.get("/api/settings", {
+//         headers: {
+//           Authorization: authorization,
+//           "Content-Type": "application/json",
+//         },
+//       });
+//       return res.data;
+//     },
+//   });
+// };
 
 //   const payloadObj = {
 //     input: inputValue,

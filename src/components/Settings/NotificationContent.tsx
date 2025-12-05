@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { MessageSquare, ListChecks, ThumbsUp } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { SystemBanner } from "../ui/SystemBanner";
 
 interface NotificationItem {
   title: string;
@@ -66,6 +67,10 @@ export default function NotificationContent() {
               key={index}
               className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-background p-4 space-y-3"
             >
+              <SystemBanner
+                  message={modalMessage}
+                  onClose={() => setModalMessage(null)}
+                />
               <div className="flex items-center gap-3">
                 <Icon className="w-5 h-5 text-card-foreground-600" />
                 <span className="font-medium text-card-foreground-800">
@@ -146,7 +151,7 @@ export default function NotificationContent() {
       </div>
 
       {/* ✅ Modal */}
-      {modalMessage && (
+      {/* {modalMessage && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-background p-6 rounded-xl w-80 text-center space-y-4">
             <h2 className="text-lg text-foreground font-medium">Notification</h2>
@@ -159,7 +164,7 @@ export default function NotificationContent() {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 }

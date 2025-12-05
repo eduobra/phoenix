@@ -74,7 +74,6 @@ const Page = () => {
         transcript += event.results[i][0].transcript;
       }
       setInputValue(transcript);
-      handleInputGrow();
     };
 
     recognitionRef.current = recognition;
@@ -106,18 +105,37 @@ const Page = () => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleInputGrow = () => {
+  // const handleInputGrow = () => {
+  //   if (!inputRef.current) return;
+  //   inputRef.current.style.height = "44px";
+  //   inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+  // };
+    const handleInputGrow = () => {
     if (!inputRef.current) return;
     inputRef.current.style.height = "44px";
     inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
   };
-
   // Send message with abort support
   const sendMessage = async () => {
     if (!inputValue.trim()) return;
-
+     if (inputRef.current) {
+    inputRef.current.style.height = "44px";
+  }
     const id = uuid();
-    const sanitizedInput = inputValue.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').normalize("NFC");
+    const sanitizedInput = inputValue.replace(/[‘’]/g, "'")
+  .replace(/[“”]/g, '"')
+  // Replace various dashes with a simple hyphen
+  .replace(/[–—−]/g, '-')  // en dash, em dash, minus sign
+  // Replace bullets and list markers with a dash or space
+  .replace(/[•◦‣⁃▪▫]/g, '-') 
+  // Replace numbered list markers like "1." or "1)"
+  .replace(/\b\d+[\.\)]\s*/g, '') 
+  // Replace extra whitespace
+  .replace(/\s+/g, ' ')
+  // Trim leading/trailing spaces
+  .trim()
+  // Normalize Unicode
+  .normalize("NFC");
     setMessages((prev) => [...prev, { id, message: inputValue, answer: "", created_at: new Date().toISOString() }]);
 
     setInputValue("");
@@ -409,7 +427,7 @@ const Page = () => {
                   </button>
                 </div>
 
-                <div className="flex flex-col justify-end flex-1">
+                
                   <textarea
                     ref={inputRef}
                     value={inputValue}
@@ -429,10 +447,10 @@ const Page = () => {
                     }}
                     rows={1}
                     maxLength={MAX_CHARACTERS}
-                  placeholder="Ask me about your financial performance, budgets, or forecasts…"
-                  className="flex-1 bg-transparent pt-3 resize-none outline-none px-3 max-h-[200px] min-h-[44px] placeholder:text-[0.875rem] placeholder:text-card-foreground-400 overflow-y-auto"
+                    placeholder="Ask me about your financial performance, budgets, or forecasts…"
+                   className="flex-1 bg-transparent pt-3 resize-none outline-none px-3 max-h-[200px] min-h-[44px] placeholder:text-[0.875rem] placeholder:text-card-foreground-400 overflow-y-auto"
                 />
-                </div>
+               
 
                 <div className="flex items-end gap-1">
                   <button type="button" className="p-2 rounded-full hover:bg-card-100">
