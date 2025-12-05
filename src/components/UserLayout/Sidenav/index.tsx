@@ -297,11 +297,11 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                             className="w-40 rounded-xl shadow-md"
                           >
                             <DropdownMenuItem className="cursor-pointer">
-                              <Share2 className="w-4 h-4 mr-2" /> Share
+                              <Share2 className="w-4 h-4 mr-2" /> {t("Share")}
                             </DropdownMenuItem>
 
                             <DropdownMenuItem className="cursor-pointer">
-                              <Edit3 className="w-4 h-4 mr-2" /> Rename
+                              <Edit3 className="w-4 h-4 mr-2" /> {t("Rename")}
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator />
@@ -323,7 +323,7 @@ const Sidenav = ({ isOpen, onClose }: SidenavProps) => {
                                 </>
                               ) : (
                                 <>
-                                  <Trash2 className="w-4 h-4 mr-2 text-red-600" /> Delete
+                                  <Trash2 className="w-4 h-4 mr-2 text-red-600" /> {t("Delete")}
                                 </>
                               )}
                             </DropdownMenuItem>
