@@ -20,6 +20,7 @@ import AppsConnectorsContent from "../Settings/AppsConnectorsContent";
 import DataControlsContent from "../Settings/DataControlsContent";
 import SecuritySettings from "../Settings/SecuritySettings";
 import AccountSection from "../Settings/AccountSection";
+import { SettingsModalProps } from "@/types/settingsTypes";
 
 const menuItems = [
   { name: "General", icon: <Settings size={16} />, key: "general" },
@@ -31,10 +32,7 @@ const menuItems = [
   { name: "Account", icon: <User size={16} />, key: "account" },
 ];
 
-interface SettingsModalProps {
-  open: boolean;
-  onClose: () => void;
-}
+
 
 export default function SettingsModal({ open, onClose }: SettingsModalProps) {
   const { t, i18n } = useTranslation();

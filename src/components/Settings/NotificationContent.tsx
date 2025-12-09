@@ -4,13 +4,9 @@ import React, { useState } from "react";
 import { MessageSquare, ListChecks, ThumbsUp } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { SystemBanner } from "../ui/SystemBanner";
+import { NotificationItem } from "@/types/settingsTypes";
 
-interface NotificationItem {
-  title: string;
-  description: string;
-  icon: React.ElementType;
-  type: "toggle" | "banner" | "email";
-}
+
 
 const items: NotificationItem[] = [
   {
@@ -72,6 +68,7 @@ export default function NotificationContent() {
                   message={modalMessage}
                   onClose={() => setModalMessage(null)}
                 />
+
               )}
               <div className="flex items-center gap-3">
                 <Icon className="w-5 h-5 text-card-foreground-600" />
@@ -84,7 +81,7 @@ export default function NotificationContent() {
                 {item.description}
               </p>
 
-              {/* ✅ Toggle Option */}
+     
               {item.type === "toggle" && (
                 <div className="flex items-center justify-between">
                   <span>Enable</span>
@@ -95,7 +92,7 @@ export default function NotificationContent() {
                 </div>
               )}
 
-              {/* ✅ Email Option with Toggle Buttons */}
+     
               {item.type === "email" && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -106,7 +103,6 @@ export default function NotificationContent() {
                     />
                   </div>
 
-                  {/* Show options only if enabled */}
                   {toggles[item.title] && (
                     <>
                       <div className="flex flex-wrap gap-2 justify-start">
@@ -137,8 +133,6 @@ export default function NotificationContent() {
                   )}
                 </div>
               )}
-
-              {/* ✅ Banner Option */}
               {item.type === "banner" && (
                 <button
                   onClick={() => handleBanner(item.description)}
@@ -151,22 +145,6 @@ export default function NotificationContent() {
           );
         })}
       </div>
-
-      {/* ✅ Modal */}
-      {/* {modalMessage && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background p-6 rounded-xl w-80 text-center space-y-4">
-            <h2 className="text-lg text-foreground font-medium">Notification</h2>
-            <p className="text-sm text-foreground">{modalMessage}</p>
-            <button
-              onClick={() => setModalMessage(null)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:opacity-90 transition"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )} */}
     </>
   );
 }
