@@ -10,7 +10,7 @@ import {
   Cog,
   Clock,
 } from "lucide-react";
-import { useTheme, Language } from "@/hooks/useTheme";
+import { useTheme, Language, SessionTimeout } from "@/hooks/useTheme";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGetSettings, useUpdateSettings } from "@/query";
@@ -86,7 +86,7 @@ export default function GeneralSettings() {
   // Initialize from API
   useEffect(() => {
     if (data) {
-      const timeoutMap: Record<number, string> = {
+      const timeoutMap: Record<number, SessionTimeout> = {
         1: "1 minute",
         15: "15 minutes",
         30: "30 minutes",
@@ -104,7 +104,9 @@ export default function GeneralSettings() {
       updateTheme(data.theme);
       updateAccent(data.accent_color);
       applyLanguage(data.language as Language);
-      updateSessionTimeout(timeoutMap[data.session_timeout_control] || "60 minutes");
+      updateSessionTimeout(
+        (timeoutMap[data.session_timeout_control] || "60 minutes") as SessionTimeout
+      );
       localStorage.setItem("timezone", data.time_zone);
     }
   }, [data]);

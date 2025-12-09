@@ -67,10 +67,12 @@ export default function NotificationContent() {
               key={index}
               className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-background p-4 space-y-3"
             >
-              <SystemBanner
+              {modalMessage && (
+                <SystemBanner
                   message={modalMessage}
                   onClose={() => setModalMessage(null)}
                 />
+              )}
               <div className="flex items-center gap-3">
                 <Icon className="w-5 h-5 text-card-foreground-600" />
                 <span className="font-medium text-card-foreground-800">
