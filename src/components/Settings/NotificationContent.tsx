@@ -5,7 +5,7 @@ import { MessageSquare, ListChecks, ThumbsUp } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { SystemBanner } from "../ui/SystemBanner";
 import { NotificationItem } from "@/types/settingsTypes";
-
+import { useTranslation } from "react-i18next";
 
 
 const items: NotificationItem[] = [
@@ -32,6 +32,7 @@ const items: NotificationItem[] = [
 ];
 
 export default function NotificationContent() {
+  const { t, i18n } = useTranslation();
   const [toggles, setToggles] = useState<Record<string, boolean>>({});
   const [modalMessage, setModalMessage] = useState<string | null>(null);
   const [selectedEmailOption, setSelectedEmailOption] =
@@ -73,18 +74,18 @@ export default function NotificationContent() {
               <div className="flex items-center gap-3">
                 <Icon className="w-5 h-5 text-card-foreground-600" />
                 <span className="font-medium text-card-foreground-800">
-                  {item.title}
+                   {t(item.title)}
                 </span>
               </div>
 
               <p className="text-sm text-card-foreground-700">
-                {item.description}
+                  {t(item.description)}
               </p>
 
      
               {item.type === "toggle" && (
                 <div className="flex items-center justify-between">
-                  <span>Enable</span>
+                  <span>{t("Enable")}</span>
                   <Switch
                     checked={toggles[item.title]}
                     onCheckedChange={() => handleToggle(item.title)}
@@ -96,7 +97,7 @@ export default function NotificationContent() {
               {item.type === "email" && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span>Enable Summary Email</span>
+                    <span>{t("Enable Summary Email")}</span>
                     <Switch
                       checked={toggles[item.title]}
                       onCheckedChange={() => handleToggle(item.title)}
@@ -117,7 +118,7 @@ export default function NotificationContent() {
                                   : "bg-card-100 dark:bg-card-700 text-card-foreground-700 dark:text-card-foreground-300 hover:bg-blue-50 dark:hover:bg-card-600 border-gray-300 dark:border-gray-600"
                               }`}
                             >
-                              {option}
+                              {t(option)}
                             </button>
                           )
                         )}
@@ -127,7 +128,7 @@ export default function NotificationContent() {
                         onClick={handleSendEmail}
                         className="mt-3 w-full text-sm px-3 py-2 bg-primary text-white rounded-md hover:opacity-90 transition"
                       >
-                        Send to email
+                        {t("Send to email")}
                       </button>
                     </>
                   )}
@@ -138,7 +139,7 @@ export default function NotificationContent() {
                   onClick={() => handleBanner(item.description)}
                   className="text-sm px-3 py-1.5 bg-blue-600 text-white rounded-md hover:opacity-90 transition"
                 >
-                  Show Banner Example
+                  {t("Show Banner Example")}
                 </button>
               )}
             </div>

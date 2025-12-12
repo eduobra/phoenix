@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function DataControlsContent() {
+  const { t, i18n } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleClearHistory = () => {
@@ -35,7 +37,7 @@ export default function DataControlsContent() {
         onClick={onClick}
         className={`border px-4 py-1 rounded-full text-sm font-medium transition-colors ${base}`}
       >
-        {label}
+        {t(label)}
       </button>
     );
   };
@@ -46,8 +48,8 @@ export default function DataControlsContent() {
         {/* Clear Chat History */}
         <div className="flex items-center justify-between border p-4 rounded-xl">
           <div>
-            <h4 className="font-medium">Clear Chat History</h4>
-            <p className="text-sm text-card-foreground-600">Wipe chat threads for privacy.</p>
+            <h4 className="font-medium">{t("Clear Chat History")}</h4>
+            <p className="text-sm text-card-foreground-600">{t("Wipe chat threads for privacy.")}</p>
           </div>
           {renderButton("Clear", handleClearHistory, "red")}
         </div>
@@ -55,8 +57,8 @@ export default function DataControlsContent() {
         {/* Download Chat Data */}
         <div className="flex items-center justify-between border p-4 rounded-xl">
           <div>
-            <h4 className="font-medium">Download Chat Data</h4>
-            <p className="text-sm text-card-foreground-600">Export conversation as .txt or .json.</p>
+            <h4 className="font-medium">{t("Download Chat Data")}</h4>
+            <p className="text-sm text-card-foreground-600">{t("Export conversation as .txt or .json.")}</p>
           </div>
           {renderButton("Export", handleDownloadData)}
         </div>
@@ -64,9 +66,9 @@ export default function DataControlsContent() {
         {/* Session Audit Log Preview */}
         <div className="flex items-center justify-between border p-4 rounded-xl">
           <div>
-            <h4 className="font-medium">Session Audit Log Preview</h4>
+            <h4 className="font-medium">{t("Session Audit Log Preview")}</h4>
             <p className="text-sm text-card-foreground-600">
-              Show last 5 AI actions (e.g., “Generated summary”, “Accessed Outlook”)
+              {t("Show last 5 AI actions (e.g., “Generated summary”, “Accessed Outlook”)")}
             </p>
           </div>
           {renderButton("Preview", handleAuditLogPreview)}
@@ -77,9 +79,9 @@ export default function DataControlsContent() {
       {modalVisible && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl w-80 text-center space-y-4">
-            <h2 className="text-lg font-medium">Confirm Clear Chat History</h2>
+            <h2 className="text-lg font-medium">{t("Confirm Clear Chat History")}</h2>
             <p className="text-sm text-gray-600">
-              Are you sure you want to clear all chat history? This action cannot be undone.
+              {t("Are you sure you want to clear all chat history? This action cannot be undone.")}
             </p>
             <div className="flex justify-center gap-3 mt-2">
               <button

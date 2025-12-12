@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const apps = [
   {
@@ -18,7 +19,8 @@ const apps = [
 ];
 
 export default function AppsConnectorsContent() {
-  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+ const { t, i18n } = useTranslation();
+ const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
  const [signedIn, setSignedIn] = useState<Record<string, boolean>>({
   "Microsoft Dynamics 365 BC": !!localStorage.getItem("token"),
 });
@@ -34,16 +36,14 @@ export default function AppsConnectorsContent() {
   };
 
   const handleSaveAll = () => {
-    // Example: You can send signedIn and apiKeys to API here
-    console.log("Saving settings:", { signedIn, apiKeys });
     alert("All changes saved successfully!");
   };
 
   return (
     <div className="space-y-4 text-card-foreground-800">
       <p className="text-sm text-card-foreground-600">
-        Connect apps so you can talk to them with visual and interactive experiences in Ascent AI.{" "}
-        <a href="#" className="text-blue-600 hover:underline">Learn more.</a>
+        {t("Connect apps so you can talk to them with visual and interactive experiences in Ascent AI.")}{" "}
+        <a href="#" className="text-blue-600 hover:underline">{t("Learn more..")}</a>
       </p>
 
       <div className="space-y-3">
@@ -60,8 +60,8 @@ export default function AppsConnectorsContent() {
                 className="w-12 h-12 object-contain rounded-md"
               />
               <div>
-                <span className="font-medium text-card-foreground-800">{app.name}</span>
-                <p className="text-xs text-card-foreground-600">{app.description}</p>
+                <span className="font-medium text-card-foreground-800">{t(app.name)}</span>
+                <p className="text-xs text-card-foreground-600">{t(app.description)}</p>
               </div>
             </div>
 
@@ -73,14 +73,14 @@ export default function AppsConnectorsContent() {
                   signedIn[app.name] ? "bg-green-600" : "bg-blue-600"
                 } hover:opacity-90 transition`}
               >
-                {signedIn[app.name] ? "Connected" : "Connect"}
+                {t(signedIn[app.name] ? "Connected" : "Connect")}
               </button>
             )}
          
             {app.type === "apikey" && (
               <input
                 type="text"
-                placeholder="Enter API Key"
+                placeholder={t("Enter API Key")}
                 value={apiKeys[app.name] || ""}
                 onChange={(e) => handleApiKeyChange(app.name, e.target.value)}
                 className="border rounded-md px-2 py-1 text-sm"

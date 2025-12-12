@@ -64,5 +64,92 @@
   "Share":"共有",
   "Archive":"アーカイブ",
   "Report":"報告",
-  "Delete":"削除"
+  "Delete":"削除",
+  "AI Session Summary Email":"AI セッション要約メール",
+  "Send optional summary after pinned or long sessions.":"固定されたセッションや長時間のセッション後に、オプションで要約を送信します。",
+  "System Alerts":"システム通知",
+  "Notify user of plan updates or maintenance. Displays a small banner like 'Agent update completed'.":"プラン更新やメンテナンスをユーザーに通知します。「エージェントの更新が完了しました」などの小さなバナーを表示します。",
+  "In-App Activity Banner":"アプリ内アクティビティバナー",
+  "Get small in-app banners when tasks finish or workflow suggestions are available.":"タスクが完了したとき、またはワークフローの提案が利用可能なときに、小さなアプリ内バナーを受け取ります。",
+  "Enable Summary Email":"要約メールを有効にする",
+  "Enable":"有効にする",
+  "Send to email":"メールに送信",
+  "Show Banner Example":"バナー例を表示",
+    "Pinned Sessions":"固定されたセッション",
+  "Long Sessions":"長いセッション",
+  "Both":"両方",
+
+
+
+  "AI Response Style":"AI 応答スタイル",
+  "Default":"デフォルト",
+  "Concise":"簡潔",
+  "Analytical":"分析的",
+  "Choose how AI responds":"AI がどのように応答するかを選択",
+  "Knowledge Context Toggle":"ナレッジコンテキスト切り替え",
+  "Experimental":"実験的",
+  "Allow AI to retain session context for follow-ups (“Stay Context Aware”)":"AI がフォローアップのためにセッションコンテキストを保持することを許可（「コンテキスト認識を維持」）",
+  "Agent Memory Limit Preview":"エージェントメモリ制限プレビュー",
+  "Display how many previous interactions are kept in context (e.g., 5 threads)":"コンテキストに保持される過去のやり取り数を表示（例：5 スレッド）",
+  "Ascent AI may use Memory to personalize queries to search providers.":"Ascent AI は検索プロバイダーへのクエリをパーソナライズするためにメモリを使用する場合があります。",
+  "Learn more..":"詳細はこちら…",
+
+  "Enter API Key":"API キーを入力",
+  "Connect apps so you can talk to them with visual and interactive experiences in Ascent AI.":"アプリを接続して、Ascent AI 内でビジュアルかつインタラクティブな体験を通じてそれらと対話できるようにします。",
+  "Microsoft Dynamics 365 BC":"Microsoft Dynamics 365 BC",
+  "Sign-in via Microsoft account to sync emails / tasks":"メール / タスクを同期するために Microsoft アカウントでサインイン",
+  "Custom API Connector":"カスタム API コネクタ",
+  "Allow entry of API key for external systems (e.g., ERP, CRM)":"外部システム（例：ERP、CRM）用の API キー入力を許可",
+  "Connected":"接続済み",
+  "Connect":"接続する",
+
+
+  
+  "Clear Chat History":"チャット履歴を消去",
+  "Wipe chat threads for privacy.":"プライバシーのためにチャットスレッドを削除します。",
+  "Download Chat Data":"チャットデータをダウンロード",
+  "Export conversation as .txt or .json.":"会話を .txt または .json としてエクスポートします。",
+  "Session Audit Log Preview":"セッション監査ログのプレビュー",
+  "Show last 5 AI actions (e.g., “Generated summary”, “Accessed Outlook”)":"直近の AI の 5 つの動作を表示（例：「要約を生成」「Outlook にアクセス」）",
+  "Confirm Clear Chat History":"チャット履歴の消去を確認",
+  "Are you sure you want to clear all chat history? This action cannot be undone.":"すべてのチャット履歴を消去してもよろしいですか？この操作は元に戻せません。",
+  "Clear":"消去",
+  "Export":"エクスポート",
+  "Preview":"プレビュー",
+
+    "Manage your login protection, devices, and trusted sessions.":"ログイン保護、デバイス、信頼済みセッションを管理します。",
+  "Password Reset / MFA":"パスワードリセット / MFA",
+  "Standard secure login flows":"標準的な安全なログインフロー",
+  "Reset Password":"パスワードをリセット",
+  "Device Sign-Out":"デバイス サインアウト",
+  "Sign out from all devices":"すべてのデバイスからサインアウト",
+  "Log out of this device":"このデバイスからサインアウト",
+  "Access Log (Last Login)":"アクセスログ（最終ログイン）",
+  "Show last login date & IP location":"最終ログイン日時と IP の場所を表示",
+  "You haven’t used Ascent Ai to sign into any websites or apps yet.Once you do, they’ll show up here.":"まだ Ascent AI を使って Web サイトやアプリにログインしたことはありません。ログインすると、ここに表示されます。",
+  "Confirm Sign Out":"サインアウトの確認",
+  "Are you sure you want to sign out from all devices? This will log you out everywhere.":"本当にすべてのデバイスからサインアウトしますか？すべての場所でログアウトされます。",
+
+
+  "Account Info":"アカウント情報",
+  "Username":"ユーザー名",
+  "Email":"メール",
+  "Plan Type":"プランの種類",
+  "Upgrade Plan":"プランをアップグレード",
+  "Access premium features with Pro or Enterprise.":"Pro または Enterprise でプレミアム機能にアクセスできます。",
+  "Log Out":"ログアウト",
+
+  "Dark":"ダーク",
+  "Light":"ライト",
+  "System default":"システムデフォルト",
+  "Blue":"ブルー",
+  "Violet":"バイオレット",
+  "Slate Gray":"スレートグレー",
+  "1 minute":"1分",
+  "15 minutes":"15分",
+  "30 minutes":"30分",
+  "60 minutes":"60分"
+
+
+
 }

@@ -10,8 +10,10 @@ import {
   Mail,
   User,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function AccountSection() {
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
   useEffect(() => {
@@ -34,21 +36,21 @@ export default function AccountSection() {
       {/* --- Account Info --- */}
       <div className="p-4 border rounded-2xl bg-card-50 space-y-3">
         <h2 className="text-lg font-semibold text-card-foreground-900 flex items-center gap-2">
-          <User className="w-5 h-5 text-card-foreground-500" /> Account Info
+          <User className="w-5 h-5 text-card-foreground-500" /> {t("Account Info")}
         </h2>
         <InfoItem
           icon={<CircleUser className="text-card-foreground-500" />}
-          label="Username"
+          label={t("Username")}
           value={user?.name || "N/A"}
         />
         <InfoItem
           icon={<Mail className="text-card-foreground-500" />}
-          label="Email"
+          label={t("Email")}
           value={user?.email || "N/A"}
         />
         <InfoItem
           icon={<Star className="text-card-foreground-500" />}
-          label="Plan Type"
+          label={t("Plan Type")}
           value="Free"
         />
       </div>
@@ -57,26 +59,26 @@ export default function AccountSection() {
       <div className="flex items-center justify-between p-4 border rounded-2xl hover:bg-card-50 transition">
         <div className="flex flex-col">
           <h2 className="text-lg font-semibold text-card-foreground-900 flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-card-foreground-500" /> Upgrade Plan
+            <CreditCard className="w-5 h-5 text-card-foreground-500" /> {t("Upgrade Plan")}
           </h2>
           <p className="text-sm text-card-foreground-500">
-            Access premium features with Pro or Enterprise.
+            {t("Access premium features with Pro or Enterprise.")}
           </p>
         </div>
-        <Button className="rounded-full px-5 py-1.5 text-sm">Upgrade</Button>
+        <Button className="rounded-full px-5 py-1.5 text-sm">{t("Upgrade")}</Button>
       </div>
 
       {/* --- Log Out --- */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between p-4 border rounded-2xl hover:bg-card-50 transition">
           <span className="flex items-center gap-2 text-sm text-card-foreground-700">
-            <LogOut className="w-4 h-4 text-card-foreground-500" /> Log Out
+            <LogOut className="w-4 h-4 text-card-foreground-500" /> {t("Log Out")}
           </span>
           <Button
             variant="ghost"
             className="rounded-full px-5 py-1.5 text-sm text-card-foreground-700 border border-card-300 hover:bg-card-100"
           >
-            Log Out
+            {t("Log Out")}
           </Button>
         </div>
       </div>

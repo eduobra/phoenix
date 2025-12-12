@@ -15,7 +15,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGetSettings, useUpdateSettings } from "@/query";
 import { SettingsPayload } from "@/types/queryType";
-
 // Simple inline spinner
 const Spinner = () => (
   <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
@@ -223,7 +222,7 @@ export default function GeneralSettings() {
                           selected[setting.title] === option ? "bg-gray-200 dark:bg-gray-700 font-semibold" : ""
                         }`}
                       >
-                        {option}
+                        {t(option)}
                       </button>
                     ))}
                   </div>
